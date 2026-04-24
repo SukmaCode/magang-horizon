@@ -12,6 +12,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Inertia middleware
+        $middleware->web(append: [
+            \Inertia\Middleware::class,
+        ]);
+
         // Sanctum stateful middleware for SPA cookie auth
         $middleware->statefulApi();
 

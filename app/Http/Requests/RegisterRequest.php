@@ -38,6 +38,7 @@ class RegisterRequest extends FormRequest
             $rules['kontak_person'] = ['nullable', 'string', 'max:50'];
             $rules['latitude'] = ['nullable', 'numeric', 'between:-90,90'];
             $rules['longitude'] = ['nullable', 'numeric', 'between:-180,180'];
+            $rules['geofence_radius'] = ['nullable', 'integer', 'min:50', 'max:5000'];
         }
 
         if (in_array($role, [UserRole::SUPERVISOR_1->value, UserRole::SUPERVISOR_2->value])) {
