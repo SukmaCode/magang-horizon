@@ -1,0 +1,59 @@
+ALUR KERJA DAN KETENTUAN SISTEM MAGANG HORIZON
+(Berdasarkan Diskusi & Penyesuaian Flow)
+
+========================================================================
+CATATAN PENDING (DITAHAN DULU) UNTUK DIDISKUSIKAN LEBIH LANJUT:
+========================================================================
+1. Fase Pendaftaran & Screening Awal: Verifikasi eligibilitas mahasiswa (SKS, IPK, dll) sebelum apply.
+3. Waktu Proses Assign Pembimbing (jika ada benturan dengan flow Dosen Pembimbing pra-pendaftaran di bawah).
+4. Mekanisme Revisi Laporan (batas iterasi, deadline, dan penolakan final).
+6. Mekanisme Penanganan Masalah/Eskalasi (mahasiswa berhenti, industri tutup, konflik, dll).
+
+========================================================================
+KETENTUAN YANG SUDAH DISEPAKATI:
+========================================================================
+1. Konfirmasi Penempatan / Onboarding:
+   - Sistem memiliki fitur penetapan "Tanggal Resmi Mulai Magang".
+   - Saat agreement selesai ditandatangani, sistem akan mengkonfirmasi tanggal resmi ini.
+   - Sistem akan memberikan notifikasi resmi kepada Supervisor Kampus (Dosen Pembimbing) bahwa mahasiswa bimbingannya telah mulai magang.
+
+2. Penilaian Akhir (Agregasi):
+   - Sistem secara otomatis akan menggabungkan/mengagregasi nilai dari Supervisor Industri (kinerja lapangan) dan Dosen Pembimbing (nilai akademis/laporan).
+   - Akan ada ketentuan "Nilai Minimum Kelulusan" sesuai standar kampus.
+   - Sistem di-lock untuk menunggu (proses terhenti sementara) jika salah satu dari kedua supervisor tersebut belum melakukan input nilai.
+
+========================================================================
+FLOW BARU SUPERVISOR KAMPUS (DOSEN PEMBIMBING & DOSEN PRODI):
+========================================================================
+
+A. DOSEN PEMBIMBING
+-------------------
+1. Fase Pra-Pendaftaran:
+   - Di-assign oleh Admin (terbit SK) sebelum mahasiswa mulai proses apply/melamar.
+   - Menerima notifikasi dari sistem bahwa ia ditugaskan untuk membimbing mahasiswa tertentu.
+
+2. Fase Pendaftaran & Seleksi:
+   - Menerima pengajuan (apply) dari mahasiswa bimbingannya.
+   - Melakukan verifikasi kelengkapan berkas (CV, dokumen persyaratan kampus, dll).
+   - Memberikan keputusan (Approve / Reject).
+   - *Catatan: Mahasiswa baru bisa mengirimkan CV ke industri setelah mendapat approval dari Dosen Pembimbing.*
+
+3. Fase Pelaksanaan:
+   - Melakukan monitoring terhadap logbook dan kegiatan harian mahasiswa secara berkala.
+
+4. Fase Penutupan:
+   - Me-review laporan akhir magang mahasiswa.
+   - Memberikan catatan/revisi jika perlu, hingga pada akhirnya memberikan status "Approve" (Disetujui).
+   - Menginput nilai akademis.
+
+B. DOSEN PRODI (KOORDINATOR PRODI)
+----------------------------------
+1. Fase Penutupan & Kelulusan:
+   - Menerima hasil rekapitulasi dari sistem pada akhir masa magang, yang berisi:
+     a) Nilai dari Dosen Pembimbing
+     b) Nilai dari Supervisor Industri
+     c) Laporan Akhir Mahasiswa
+     d) Laporan Progress Akhir
+   - Meninjau seluruh kelengkapan dokumen dan nilai tersebut.
+   - Memberikan Tanda Tangan Persetujuan Kelulusan di sistem.
+   - Tanda tangan ini akan men-trigger (memicu) Admin untuk mencetak dan menerbitkan Sertifikat Magang resmi.

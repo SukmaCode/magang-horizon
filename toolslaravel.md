@@ -2,6 +2,7 @@
  - Spatie Laravel Permission
 
 2. Autentikasi & Otorisasi
+ - Laravel Breeze
  - Laravel Sanctum
  
 3. Document Management & E-Signature

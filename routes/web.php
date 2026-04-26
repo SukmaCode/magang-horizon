@@ -28,6 +28,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/industri/dashboard', fn () => Inertia::render('Industri/Dashboard'))->name('industri.dashboard');
     Route::get('/dosen-pembimbing/dashboard', fn () => Inertia::render('DosenPembimbing/Dashboard'))->name('dosen-pembimbing.dashboard');
     Route::get('/dosen-prodi/dashboard', fn () => Inertia::render('DosenProdi/Dashboard'))->name('dosen-prodi.dashboard');
+
+    // Navigation for Mahasiswa
+    Route::get('/mahasiswa/kirim-cv', fn () => Inertia::render('Mahasiswa/KirimCV'))->name('mahasiswa.kirim-cv');
+    Route::get('/mahasiswa/logbook', fn () => Inertia::render('Mahasiswa/Logbook'))->name('mahasiswa.logbook');
+
 });
 
 // Root redirect

@@ -14,7 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Inertia middleware
         $middleware->web(append: [
-            \Inertia\Middleware::class,
+            \App\Http\Middleware\HandleInertiaRequests::class,
         ]);
 
         // Sanctum stateful middleware for SPA cookie auth
