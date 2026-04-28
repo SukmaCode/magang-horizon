@@ -18,24 +18,12 @@ class Industri extends Model
         'nama_perusahaan',
         'alamat',
         'kontak_person',
-        'latitude',
-        'longitude',
-        'geofence_radius',
     ];
-
-    protected function casts(): array
-    {
-        return [
-            'latitude' => 'decimal:7',
-            'longitude' => 'decimal:7',
-            'geofence_radius' => 'integer',
-        ];
-    }
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['nama_perusahaan', 'alamat', 'latitude', 'longitude'])
+            ->logOnly(['nama_perusahaan', 'alamat', 'kontak_person'])
             ->logOnlyDirty();
     }
 

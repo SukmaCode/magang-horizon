@@ -82,9 +82,6 @@ class AuthService
                 'nama_perusahaan' => $data['nama_perusahaan'],
                 'alamat' => $data['alamat'] ?? null,
                 'kontak_person' => $data['kontak_person'] ?? null,
-                'latitude' => $data['latitude'] ?? null,
-                'longitude' => $data['longitude'] ?? null,
-                'geofence_radius' => $data['geofence_radius'] ?? 500,
             ]),
             UserRole::SUPERVISOR_1, UserRole::SUPERVISOR_2 => Dosen::create([
                 'user_id' => $user->id,

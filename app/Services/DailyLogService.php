@@ -26,19 +26,12 @@ class DailyLogService
         // Validate internship is in execution phase
         $this->validateInternshipStatus($magang);
 
-        // Validate geofence if coordinates provided
-        if (isset($data['latitude'], $data['longitude'])) {
-            $this->validateGeofence($magang, $data['latitude'], $data['longitude']);
-        }
-
         // Use server timestamp for the date
         $logbook = Logbook::create([
             'magang_id' => $magang->id,
             'tanggal' => now()->toDateString(),
             'kegiatan' => $data['kegiatan'],
-            'status_presensi' => $data['status_presensi'] ?? StatusPresensi::HADIR->value,
-            'latitude' => $data['latitude'] ?? null,
-            'longitude' => $data['longitude'] ?? null,
+            'status_presensi' => $data['status_presensi'] ?? StatusPresensi::HADIR->value
         ]);
 
         // Notify industry supervisor (queued)
@@ -134,51 +127,7 @@ class DailyLogService
      *
      * @throws ValidationException
      */
-    private function validateGeofence(MagangAktif $magang, float $lat, float $lng): void
-    {
-        $industri = $magang->pendaftaran->industri;
-
-        // Skip validation if industry has no coordinates set
-        if (! $industri->latitude || ! $industri->longitude) {
-            return;
-        }
-
-        $distance = $this->haversineDistance(
-            $lat,
-            $lng,
-            (float) $industri->latitude,
-            (float) $industri->longitude
-        );
-
-        $allowedRadius = $industri->geofence_radius ?? config('internship.geofence_radius', 500);
-
-        if ($distance > $allowedRadius) {
-            throw ValidationException::withMessages([
-                'location' => [
-                    "Anda berada di luar radius lokasi magang. Jarak: ".round($distance)."m, Radius: {$allowedRadius}m",
-                ],
-            ]);
-        }
-    }
-
-    /**
-     * Calculate the Haversine distance between two coordinates in meters.
-     */
-    private function haversineDistance(float $lat1, float $lon1, float $lat2, float $lon2): float
-    {
-        $earthRadius = 6371000; // meters
-
-        $dLat = deg2rad($lat2 - $lat1);
-        $dLon = deg2rad($lon2 - $lon1);
-
-        $a = sin($dLat / 2) * sin($dLat / 2) +
-            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
-            sin($dLon / 2) * sin($dLon / 2);
-
-        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-
-        return $earthRadius * $c;
-    }
+    
 
     /**
      * Notify the industry supervisor about a new logbook entry.

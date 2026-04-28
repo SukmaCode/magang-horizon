@@ -16,23 +16,24 @@
 
         <div class="relative w-full max-w-md">
             <!-- Logo / Brand -->
-            <div class="flex flex-col items-center gap-2 mb-8">
+            <div class="flex flex-col items-center justify-center gap-2 mb-8">
                 <img
                     src="../../../assets/images/logo-horizon.png"
                     alt="logo"
                     class="w-24 h-24"
                 />
 
-                <h1 class="text-2xl font-sans font-bold text-text-primary">
-                    Magang Horizon
+                <h1 class="text-2xl text-center font-sans font-bold text-text-primary">
+                    Magang Horizon University Indonesia
                 </h1>
-                <p class="mt-1.5 text-sm text-text-secondary">
-                    Masuk ke akun Anda
+                <p class="mt-1.5 text-sm text-center text-text-secondary">
+                    Jl. Pangkal Perjuangan By Pass No.KM.1, Tanjungpura, Kec.
+                    Karawang Bar., Karawang, Jawa Barat 41316, Indonesia
                 </p>
             </div>
 
             <!-- Login Card -->
-            <CardContainer padding="px-4">
+            <CardContainer padding="p-4">
                 <!-- Flash Error -->
                 <div
                     v-if="form.errors.email || loginError"
@@ -119,9 +120,7 @@
                         </div>
                     </div>
                 </div>
-                <div>
-                  
-                </div>
+                <div></div>
             </CardContainer>
 
             <!-- Footer -->

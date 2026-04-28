@@ -2,25 +2,140 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Enums\DocumentType;
 use App\Enums\StatusTahapan;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreLogbookRequest;
+use App\Models\Industri;
 use App\Models\Logbook;
 use App\Models\MagangAktif;
-use App\Models\Sertifikat;
+use App\Services\ApplicationService;
 use App\Services\DailyLogService;
+use App\Services\DocumentService;
 use App\Services\GradingService;
-use App\Services\PdfService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class MahasiswaController extends Controller
 {
     public function __construct(
+        private readonly ApplicationService $applicationService,
+        private readonly DocumentService $documentService,
         private readonly DailyLogService $dailyLogService,
         private readonly GradingService $gradingService,
     ) {}
+
+    // ──────────────────────────────────────
+    // Apply Magang (Kirim CV)
+    // ──────────────────────────────────────
+
+    public function kirimCV(Request $request)
+    {
+        $user = $request->user();
+        $mahasiswa = $user->mahasiswa;
+
+        // Get list of available industries
+        $industris = Industri::select('id', 'nama_perusahaan', 'alamat', 'kontak_person')
+            ->orderBy('nama_perusahaan')
+            ->get();
+
+        // Get application history
+        $pendaftarans = [];
+        $hasAccepted = false;
+        $pendingCount = 0;
+        $cvUploaded = false;
+
+        if ($mahasiswa) {
+            $pendaftarans = $mahasiswa->pendaftarans()
+                ->with('industri:id,nama_perusahaan,alamat')
+                ->latest()
+                ->get()
+                ->map(fn ($p) => [
+                    'id' => $p->id,
+                    'industri' => [
+                        'id' => $p->industri->id,
+                        'nama_perusahaan' => $p->industri->nama_perusahaan,
+                        'alamat' => $p->industri->alamat,
+                    ],
+                    'status' => $p->status_seleksi->value,
+                    'status_label' => $p->status_seleksi->label(),
+                    'keterangan' => $p->keterangan_industri,
+                    'created_at' => $p->created_at->format('d M Y H:i'),
+                ]);
+
+            $hasAccepted = $mahasiswa->pendaftarans()
+                ->where('status_seleksi', 'diterima')
+                ->exists();
+
+            $pendingCount = $mahasiswa->pendaftarans()
+                ->where('status_seleksi', 'pending')
+                ->count();
+
+            $cvUploaded = $mahasiswa->cv_file_path !== null;
+        }
+
+        return Inertia::render('Mahasiswa/KirimCV', [
+            'industris' => $industris,
+            'pendaftarans' => $pendaftarans,
+            'hasAccepted' => $hasAccepted,
+            'pendingCount' => $pendingCount,
+            'maxApplications' => 3,
+            'cvUploaded' => $cvUploaded,
+        ]);
+    }
+
+    public function storeApplication(Request $request)
+    {
+        $request->validate([
+            'industri_id' => 'required|exists:industris,id',
+            'cv_file' => 'required_without:cv_exists|file|mimes:pdf|max:10240',
+        ], [
+            'industri_id.required' => 'Pilih industri tujuan magang.',
+            'cv_file.required_without' => 'Upload file CV Anda (format PDF).',
+            'cv_file.mimes' => 'File CV harus berformat PDF.',
+            'cv_file.max' => 'Ukuran file CV maksimal 10MB.',
+        ]);
+
+        $user = $request->user();
+        $mahasiswa = $user->mahasiswa;
+
+        if (!$mahasiswa) {
+            return back()->with('error', 'Profil mahasiswa tidak ditemukan.');
+        }
+
+        try {
+            return DB::transaction(function () use ($request, $mahasiswa) {
+                // Upload CV if provided
+                if ($request->hasFile('cv_file')) {
+                    $cvFile = $request->file('cv_file');
+                    $cvPath = $cvFile->store('documents/cv/' . $mahasiswa->id, 'private');
+
+                    // Update mahasiswa cv_file_path
+                    $mahasiswa->update(['cv_file_path' => $cvPath]);
+
+                    // Also store in documents table for tracking
+                    $this->documentService->upload(
+                        $cvFile,
+                        DocumentType::CV,
+                        $mahasiswa,
+                        $mahasiswa->user_id
+                    );
+                }
+
+                // Create the application via service (handles logic gates)
+                $this->applicationService->apply(
+                    $mahasiswa->id,
+                    $request->input('industri_id')
+                );
+
+                return back()->with('success', 'Lamaran berhasil dikirim! Tunggu hasil seleksi dari industri.');
+            });
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors());
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
 
     // ──────────────────────────────────────
     // Dashboard
@@ -143,8 +258,6 @@ class MahasiswaController extends Controller
         $request->validate([
             'kegiatan' => 'required|string|max:2000',
             'status_presensi' => 'nullable|in:hadir,izin,sakit',
-            'latitude' => 'nullable|numeric|between:-90,90',
-            'longitude' => 'nullable|numeric|between:-180,180',
         ]);
 
         $user = $request->user();
@@ -156,7 +269,7 @@ class MahasiswaController extends Controller
 
         try {
             $this->dailyLogService->submit($magang, $request->only([
-                'kegiatan', 'status_presensi', 'latitude', 'longitude',
+                'kegiatan', 'status_presensi'
             ]));
 
             return back()->with('success', 'Logbook berhasil disubmit.');

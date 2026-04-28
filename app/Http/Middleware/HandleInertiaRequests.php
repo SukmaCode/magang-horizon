@@ -69,6 +69,9 @@ class HandleInertiaRequests extends Middleware
                     // Tabel Dosen
                     'nama_dosen' => $user->dosen ? $user->dosen->nama_dosen : null,
                     'nip' => $user->dosen ? $user->dosen->nip : null,
+
+                    // Tabel Admin
+                    'nama_admin' => $user->admin ? $user->admin->nama_admin : null,
                 ] : null,
             ],
             'flash' => [

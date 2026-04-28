@@ -1,0 +1,463 @@
+================================================================================
+        PENJELASAN LENGKAP SEMUA ROLE DI SISTEM MAGANG HORIZON
+================================================================================
+Dokumen ini menjelaskan fungsi, hak akses, dan tanggung jawab setiap role
+yang ada di website Magang Horizon secara detail, berdasarkan analisis
+controller, routes, model, dan dokumentasi sistem.
+
+Sistem ini menggunakan 5 (lima) role utama:
+  1. Admin
+  2. Mahasiswa
+  3. Supervisor Industri
+  4. Dosen Pembimbing
+  5. Dosen Prodi (Koordinator Prodi)
+
+Setiap role memiliki dashboard, akses URL, dan tanggung jawab yang berbeda.
+Akses di-proteksi menggunakan middleware "checkRole" pada setiap route group.
+
+================================================================================
+ALUR TAHAPAN MAGANG SECARA UMUM
+================================================================================
+
+Sistem Magang Horizon bekerja melalui 5 tahapan berurutan:
+
+  [1] SELEKSI      --> Mahasiswa apply, Industri meninjau CV
+  [2] PERSIAPAN    --> Agreement digital ditandatangani, Admin assign dosen
+  [3] PELAKSANAAN  --> Logbook harian, absensi, monitoring
+  [4] PENUTUPAN    --> Upload laporan akhir, penilaian dari dua supervisor
+  [5] KELULUSAN    --> Dosen Prodi verifikasi, Admin terbitkan sertifikat
+
+Status magang di database:
+  - 'persiapan'   : Tahap persiapan setelah diterima industri
+  - 'pelaksanaan' : Magang sedang berjalan aktif
+  - 'penutupan'   : Memasuki fase laporan dan penilaian
+  - 'lulus'       : Proses selesai, sertifikat bisa diterbitkan
+
+
+================================================================================
+ROLE 1: ADMIN
+================================================================================
+URL Dashboard  : /admin/dashboard
+Middleware     : checkRole:admin
+
+DESKRIPSI UMUM:
+  Admin adalah pengelola sistem secara keseluruhan. Admin tidak terlibat
+  dalam proses akademik harian, namun bertanggung jawab atas konfigurasi
+  sistem, penugasan dosen pembimbing, dan penerbitan sertifikat resmi.
+  Admin dapat memantau statistik keseluruhan sistem.
+
+------------------------------------
+FITUR & TANGGUNG JAWAB DETAIL:
+------------------------------------
+
+1. DASHBOARD REKAP SISTEM  [GET /admin/dashboard]
+   - Melihat total seluruh pengguna terdaftar di sistem
+   - Melihat total mahasiswa yang sedang magang aktif
+   - Melihat total mahasiswa yang telah lulus
+   - Melihat daftar 5 pengguna terbaru yang mendaftar
+
+2. KELOLA PERIODE MAGANG  [GET/POST /admin/periode]
+   - Membuat periode magang baru dengan mengisi:
+       * Tahun akademik (contoh: 2024/2025)
+       * Semester (ganjil / genap / pendek)
+       * Tanggal buka pendaftaran
+       * Tanggal tutup pendaftaran
+   - Mengubah status aktif/nonaktif periode magang
+   - Hanya 1 periode yang bisa aktif dalam satu waktu
+   - Sistem otomatis menonaktifkan periode lain saat satu diaktifkan
+
+3. ASSIGN DOSEN PEMBIMBING  [GET/POST /admin/assign-pembimbing]
+   - Melihat daftar semua mahasiswa magang yang BELUM memiliki
+     dosen pembimbing (supervisor_kampus_id masih NULL)
+   - Melihat daftar semua dosen yang tersedia beserta NIP-nya
+   - Menetapkan satu dosen pembimbing ke satu atau banyak mahasiswa
+     sekaligus (batch assignment)
+   - Sistem otomatis menerbitkan Surat Keputusan (SK) pembimbingan
+   - Melihat riwayat 20 penugasan terakhir yang sudah dilakukan
+
+4. VERIFIKASI KELULUSAN & PENERBITAN SERTIFIKAT
+   [GET /admin/verifikasi-kelulusan]
+   [POST /admin/verifikasi-kelulusan/{id}/terbitkan]
+   - Melihat semua mahasiswa yang sudah dinyatakan LULUS oleh
+     Dosen Prodi namun BELUM memiliki sertifikat
+   - Melihat informasi nilai akhir setiap mahasiswa
+   - Menerbitkan sertifikat resmi dengan nomor sertifikat otomatis
+     (format: CERT-{TAHUN}-{ID_MAGANG})
+   - Sistem hanya mengizinkan penerbitan jika status mahasiswa = 'lulus'
+   - Melihat riwayat 15 sertifikat yang telah diterbitkan
+
+5. MANAJEMEN USER  [GET /admin/manajemen-user]
+   - Melihat seluruh daftar pengguna terdaftar (semua role)
+   - Melihat detail: username, email, role setiap pengguna
+   - Data ditampilkan secara paginasi (15 data per halaman)
+
+CATATAN PENTING:
+  - Admin adalah "gate akhir" dalam penerbitan sertifikat, hanya bisa
+    menerbitkan sertifikat setelah Dosen Prodi memberi persetujuan.
+  - Admin tidak menilai mahasiswa, hanya memverifikasi kelengkapan data.
+
+
+================================================================================
+ROLE 2: MAHASISWA
+================================================================================
+URL Dashboard  : /mahasiswa/dashboard
+Middleware     : checkRole:mahasiswa
+
+DESKRIPSI UMUM:
+  Mahasiswa adalah aktor utama dalam sistem ini. Mahasiswa melakukan
+  seluruh proses dari melamar, melaksanakan magang, hingga mengunduh
+  sertifikat kelulusan. Setiap aksi mahasiswa dikontrol oleh status
+  tahapan magang yang sedang berjalan (state machine).
+
+------------------------------------
+FITUR & TANGGUNG JAWAB DETAIL:
+------------------------------------
+
+1. DASHBOARD  [GET /mahasiswa/dashboard]
+   - Melihat status magang saat ini beserta deskripsinya:
+       * "Belum Dimulai" : Menunggu penempatan industri
+       * "Persiapan"     : Lengkapi dokumen & agreement
+       * "Pelaksanaan"   : Magang sedang berjalan
+       * "Penutupan"     : Masa penutupan & laporan akhir
+       * "Lulus"         : Selamat, Anda telah lulus!
+   - Melihat statistik logbook: total entri, yang disetujui,
+     yang masih pending, dan target (60 logbook)
+   - Melihat jumlah total lamaran yang pernah dikirim
+   - Melihat 5 entri logbook terbaru
+
+2. KIRIM CV / APPLY MAGANG  [GET/POST /mahasiswa/kirim-cv]
+   - Melihat daftar semua perusahaan/industri yang tersedia
+   - Mengupload file CV dalam format PDF (maksimal 10MB)
+   - Mengirimkan lamaran ke industri yang dipilih
+   - Aturan pembatasan lamaran:
+       * Maksimal 3 lamaran aktif (pending) dalam satu waktu
+       * Tidak dapat melamar lagi jika sudah ada 1 yang diterima
+   - Melihat riwayat seluruh lamaran beserta statusnya:
+       * "Pending"  : Menunggu keputusan industri
+       * "Diterima" : Lamaran berhasil diterima
+       * "Ditolak"  : Lamaran ditolak (disertai keterangan)
+   - CV yang pernah diupload dapat digunakan ulang untuk lamaran
+     berikutnya tanpa perlu upload ulang
+
+3. INPUT LOGBOOK HARIAN  [GET/POST /mahasiswa/logbook]
+   - Mencatat aktivitas/kegiatan harian selama magang
+   - Mengisi status presensi: Hadir / Izin / Sakit
+   - Fitur ini hanya dapat diakses pada tahap "pelaksanaan"
+   - Melihat seluruh riwayat logbook yang pernah diisi (paginasi 15)
+   - Melihat status setiap logbook:
+       * Sudah disetujui supervisor industri (centang hijau)
+       * Belum disetujui (menunggu)
+       * Komentar/catatan dari supervisor industri
+   - Melihat apakah logbook sudah dicek oleh dosen pembimbing
+
+4. UPLOAD LAPORAN AKHIR  [GET/POST /mahasiswa/laporan-akhir]
+   - Mengunggah file laporan akhir magang dalam format PDF (maks 20MB)
+   - Fitur ini hanya dapat diakses pada tahap "penutupan"
+   - Melihat status laporan yang sudah dikirim:
+       * "Pending"   : Menunggu review dosen pembimbing
+       * "Revisi"    : Perlu perbaikan, lihat catatan revisi
+       * "Disetujui" : Laporan diterima
+   - Melihat catatan revisi dari dosen pembimbing
+   - Dapat mengupload ulang laporan setelah melakukan revisi
+
+5. SERTIFIKAT & KELULUSAN  [GET /mahasiswa/sertifikat]
+   - Melihat hasil penilaian akhir yang terdiri dari:
+       * Nilai dari Supervisor Industri (kinerja lapangan)
+       * Nilai dari Dosen Pembimbing (nilai akademis)
+       * Nilai Akhir (rata-rata otomatis dari dua nilai di atas)
+   - Melihat status verifikasi nilai
+   - Melihat nomor sertifikat resmi yang diterbitkan
+   - Melihat tanggal penerbitan sertifikat
+
+6. DOWNLOAD SERTIFIKAT  [GET /mahasiswa/sertifikat/download]
+   - Mengunduh file PDF sertifikat kelulusan resmi
+   - Fitur ini hanya tersedia jika:
+       * Status tahapan = "lulus"
+       * Sertifikat sudah diterbitkan oleh Admin
+       * File sertifikat PDF sudah ada di server
+
+CATATAN PENTING:
+  - Mahasiswa HANYA dapat registrasi mandiri (self-register)
+  - Profil mahasiswa mencakup: NIM, Nama Lengkap, Program Studi
+  - Setiap aksi dikunci oleh status tahapan yang sedang aktif,
+    mencegah aksi yang tidak sesuai alur (state machine protection)
+
+
+================================================================================
+ROLE 3: SUPERVISOR INDUSTRI
+================================================================================
+URL Dashboard  : /industri/dashboard
+Middleware     : checkRole:supervisor_industri
+
+DESKRIPSI UMUM:
+  Supervisor Industri adalah perwakilan dari perusahaan/instansi tempat
+  magang. Mereka bertanggung jawab melakukan seleksi awal terhadap CV
+  mahasiswa, mengelola agreement, menyetujui logbook harian, dan
+  memberikan penilaian akhir berdasarkan performa di lapangan.
+
+------------------------------------
+FITUR & TANGGUNG JAWAB DETAIL:
+------------------------------------
+
+1. DASHBOARD  [GET /industri/dashboard]
+   - Melihat jumlah lamaran CV yang masih menunggu direview (pending)
+   - Melihat jumlah mahasiswa magang yang sedang aktif
+   - Melihat jumlah logbook yang belum disetujui dari semua mahasiswa
+   - Melihat 5 lamaran terbaru yang masuk beserta informasi mahasiswa
+     (nama, NIM, program studi) dan statusnya
+
+2. SELEKSI CV  [GET /industri/seleksi-cv]
+   [POST /industri/seleksi-cv/{id}/accept]
+   [POST /industri/seleksi-cv/{id}/reject]
+   - Melihat semua lamaran yang masuk ke perusahaannya (paginasi 15)
+   - Melihat data setiap pelamar: nama, NIM, program studi
+   - Memeriksa apakah mahasiswa sudah mengupload CV
+   - MENERIMA lamaran mahasiswa (disertai keterangan opsional)
+     --> Sistem otomatis membuat record MagangAktif dengan status
+         'persiapan' setelah mahasiswa diterima
+   - MENOLAK lamaran mahasiswa (wajib memberikan alasan/keterangan)
+   - Melihat status setiap lamaran: Pending / Diterima / Ditolak
+
+3. UPLOAD AGREEMENT  [GET /industri/agreement]
+   [POST /industri/agreement/{id}]
+   - Melihat daftar mahasiswa yang sudah diterima dan dalam tahap
+     'persiapan' yang belum memiliki agreement dari pihak industri
+   - Mengunggah dokumen perjanjian magang (internship agreement)
+     yang sudah ditandatangani pihak industri dalam format PDF (10MB)
+   - Melihat status agreement untuk setiap mahasiswa
+
+4. PERSETUJUAN LOGBOOK  [GET /industri/persetujuan-logbook]
+   [POST /industri/persetujuan-logbook/{id}/approve]
+   - Melihat daftar semua mahasiswa aktif yang dibimbing beserta
+     jumlah logbook yang masih menunggu persetujuan
+   - Memfilter logbook berdasarkan mahasiswa tertentu
+   - Melihat detail setiap entri logbook: tanggal, kegiatan,
+     status presensi (hadir/izin/sakit)
+   - MENYETUJUI logbook mahasiswa (opsional: memberikan komentar)
+   - Melihat status persetujuan setiap logbook
+
+5. INPUT NILAI AKHIR  [GET /industri/input-nilai]
+   [POST /industri/input-nilai/{id}]
+   - Melihat daftar semua mahasiswa magang aktif beserta statistik:
+       * Total entri logbook yang dimiliki
+       * Total logbook yang sudah disetujui
+       * Status tahapan magang saat ini
+       * Nilai yang sudah diinput (jika sudah ada)
+   - Memberikan nilai akhir kepada mahasiswa (skala 0-100)
+     berdasarkan evaluasi kinerja dan performa di lapangan
+   - Nilai ini menjadi komponen "nilai_industri" dalam penilaian akhir
+   - Sistem memblokir nilai duplikat (hanya 1 nilai per mahasiswa)
+
+CATATAN PENTING:
+  - Supervisor Industri juga melakukan registrasi mandiri (self-register)
+  - Profil industri mencakup: Nama Perusahaan, Alamat, Kontak Person
+  - Sistem memverifikasi kepemilikan data (hanya bisa akses data
+    mahasiswa yang melamar ke perusahaannya sendiri)
+
+
+================================================================================
+ROLE 4: DOSEN PEMBIMBING
+================================================================================
+URL Dashboard  : /dosen-pembimbing/dashboard
+Middleware     : checkRole:dosen_pembimbing
+
+DESKRIPSI UMUM:
+  Dosen Pembimbing adalah Supervisor Kampus yang ditugaskan oleh Admin
+  untuk mendampingi mahasiswa selama proses magang. Peran ini mencakup
+  verifikasi awal kelayakan, monitoring kemajuan, review laporan akhir,
+  dan memberikan penilaian dari sisi akademis.
+
+------------------------------------
+FITUR & TANGGUNG JAWAB DETAIL:
+------------------------------------
+
+1. DASHBOARD  [GET /dosen-pembimbing/dashboard]
+   - Melihat jumlah total mahasiswa yang sedang dibimbing (aktif)
+   - Melihat jumlah laporan akhir yang menunggu direview (pending)
+   - Melihat jumlah mahasiswa yang belum mendapatkan nilai kampus
+   - Melihat 5 laporan akhir terbaru yang masuk beserta statusnya
+
+2. MONITORING LOGBOOK  [GET /dosen-pembimbing/monitoring-logbook]
+   - Melihat daftar semua mahasiswa bimbingannya beserta:
+       * Nama lengkap & NIM
+       * Total entri logbook yang sudah ditulis
+   - Memilih/memfilter mahasiswa tertentu untuk melihat logbook
+     secara detail (per halaman, 15 entri)
+   - Melihat detail setiap entri logbook: tanggal, kegiatan,
+     status presensi, dan apakah sudah disetujui industri
+   - Fungsi ini bersifat READ-ONLY (monitoring saja, tidak approve)
+   - Dosen Pembimbing tidak menyetujui logbook, hanya memantau
+
+3. REVIEW LAPORAN AKHIR  [GET /dosen-pembimbing/review-laporan]
+   [POST /dosen-pembimbing/review-laporan/{id}/review]
+   - Melihat semua laporan akhir dari seluruh mahasiswa bimbingannya
+   - Melihat informasi laporan: nama mahasiswa, NIM, status, catatan
+   - Memberikan keputusan review dengan 2 pilihan:
+       a. "REVISI" : Laporan perlu diperbaiki
+          - Wajib mengisi catatan revisi agar mahasiswa tahu
+            apa yang harus diperbaiki
+          - Mahasiswa bisa upload ulang laporan setelah revisi
+       b. "DISETUJUI" : Laporan diterima dan disetujui
+          - Catatan bersifat opsional
+          - Setelah disetujui, dosen bisa memberikan nilai
+
+4. INPUT NILAI AKADEMIS  [GET /dosen-pembimbing/input-nilai]
+   [POST /dosen-pembimbing/input-nilai/{id}]
+   - Melihat daftar mahasiswa bimbingan beserta:
+       * Status laporan akhir (belum upload / pending / revisi / disetujui)
+       * Nilai kampus yang sudah diinput (jika sudah ada)
+       * Status sudah/belum dinilai
+   - Memberikan nilai akademis kepada mahasiswa (skala 0-100)
+     berdasarkan kualitas laporan dan performa akademis selama magang
+   - Nilai ini menjadi komponen "nilai_kampus" dalam penilaian akhir
+   - Sistem memblokir nilai duplikat (hanya 1 nilai per mahasiswa)
+
+5. REKAP NILAI KE PRODI (OTOMATIS)
+   - Setelah kedua nilai (industri + kampus) selesai diinput,
+     sistem secara OTOMATIS mengirimkan rekapitulasi ke Dosen Prodi
+   - Dosen Pembimbing tidak perlu melakukan aksi manual untuk ini
+
+CATATAN PENTING:
+  - Dosen Pembimbing DIDAFTARKAN OLEH SISTEM/ADMIN, bukan self-register
+  - Profil dosen mencakup: NIP, Nama Dosen
+  - Dosen hanya bisa mengakses data mahasiswa yang di-assign kepadanya
+  - Sistem menunggu (lock) jika salah satu nilai belum diinput sebelum
+    bisa melanjutkan ke proses kelulusan
+
+
+================================================================================
+ROLE 5: DOSEN PRODI (KOORDINATOR PROGRAM STUDI)
+================================================================================
+URL Dashboard  : /dosen-prodi/dashboard
+Middleware     : checkRole:dosen_prodi
+
+DESKRIPSI UMUM:
+  Dosen Prodi adalah Koordinator Program Studi yang berfungsi sebagai
+  "gate keeper" terakhir sebelum sertifikat diterbitkan. Peran ini
+  bersifat makro (mengawasi keseluruhan prodi, bukan per-mahasiswa)
+  dan melakukan validasi akhir kelulusan mahasiswa.
+
+------------------------------------
+FITUR & TANGGUNG JAWAB DETAIL:
+------------------------------------
+
+1. DASHBOARD (MONITORING MAKRO)  [GET /dosen-prodi/dashboard]
+   - Melihat TOTAL SEMUA mahasiswa magang aktif di seluruh prodi
+     (bukan hanya bimbingannya sendiri, tapi semua mahasiswa)
+   - Melihat total mahasiswa yang sudah lulus
+   - Melihat 5 data magang terbaru beserta: nama mahasiswa,
+     nama industri, dan status tahapan saat ini
+
+2. VERIFIKASI KELULUSAN & TTD PERSETUJUAN
+   [GET /dosen-prodi/verifikasi-kelulusan]
+   [POST /dosen-prodi/verifikasi-kelulusan/{penilaian_id}/verify]
+   - Melihat daftar mahasiswa yang sudah memiliki nilai lengkap:
+       * Nilai dari Supervisor Industri (nilai_industri) sudah ada
+       * Nilai dari Dosen Pembimbing (nilai_kampus) sudah ada
+       * Namun belum mendapat verifikasi (status_verifikasi_admin = false)
+   - Melihat detail nilai setiap mahasiswa:
+       * Nilai Industri
+       * Nilai Kampus
+       * Nilai Akhir (rata-rata otomatis)
+   - Memberikan TANDA TANGAN PERSETUJUAN KELULUSAN secara digital
+   - Aksi ini (submit verifikasi) akan:
+       a. Mengubah status_verifikasi_admin menjadi TRUE pada tabel penilaian
+       b. Mengubah status_tahapan magang menjadi "lulus"
+       c. Men-TRIGGER Admin untuk bisa menerbitkan sertifikat resmi
+
+CATATAN PENTING:
+  - Dosen Prodi DIDAFTARKAN OLEH SISTEM/ADMIN, bukan self-register
+  - Dosen Prodi memiliki akses PALING LUAS dalam hal monitoring:
+    dapat melihat semua magang di seluruh prodi, tidak terbatas
+    hanya mahasiswa bimbingan tertentu
+  - Keputusan Dosen Prodi adalah SATU-SATUNYA aksi yang memicu
+    Admin untuk menerbitkan sertifikat. Tanpa persetujuan ini,
+    Admin tidak dapat menerbitkan sertifikat.
+  - Dosen Prodi tidak memiliki fitur input nilai (itu tugas Dosen Pembimbing)
+
+
+================================================================================
+RINGKASAN PERBANDINGAN ANTAR ROLE
+================================================================================
+
+No  Fitur / Aksi                   Admin  Mahasiswa  Industri  D.Pembimbing  D.Prodi
+--- ------------------------------ -----  ---------  --------  ------------  -------
+1   Self-Register                  Tidak  Ya         Ya        Tidak         Tidak
+2   Dashboard Sistem (Statistik)   Ya     Tidak       Tidak    Tidak         Tidak
+3   Kelola Periode Magang          Ya     Tidak      Tidak     Tidak         Tidak
+4   Assign Dosen Pembimbing        Ya     Tidak      Tidak     Tidak         Tidak
+5   Terbitkan Sertifikat           Ya     Tidak      Tidak     Tidak         Tidak
+6   Manajemen Semua User           Ya     Tidak      Tidak     Tidak         Tidak
+7   Apply Magang / Kirim CV        Tidak  Ya         Tidak     Tidak         Tidak
+8   Input Logbook Harian           Tidak  Ya         Tidak     Tidak         Tidak
+9   Upload Laporan Akhir           Tidak  Ya         Tidak     Tidak         Tidak
+10  Download Sertifikat            Tidak  Ya         Tidak     Tidak         Tidak
+11  Seleksi / Review CV Masuk      Tidak  Tidak      Ya        Tidak         Tidak
+12  Upload Agreement               Tidak  Tidak      Ya        Tidak         Tidak
+13  Approve Logbook Mahasiswa      Tidak  Tidak      Ya        Tidak         Tidak
+14  Input Nilai Lapangan           Tidak  Tidak      Ya        Tidak         Tidak
+15  Monitoring Logbook (Read)      Tidak  Tidak      Tidak     Ya            Tidak
+16  Review Laporan Akhir           Tidak  Tidak      Tidak     Ya            Tidak
+17  Input Nilai Akademis           Tidak  Tidak      Tidak     Ya            Tidak
+18  Monitoring Makro Prodi         Tidak  Tidak      Tidak     Tidak         Ya
+19  Verifikasi Kelulusan / TTD     Tidak  Tidak      Tidak     Tidak         Ya
+
+
+================================================================================
+ALUR KELULUSAN (CHAIN OF APPROVAL)
+================================================================================
+
+Agar seorang mahasiswa dapat dinyatakan LULUS dan mendapatkan sertifikat,
+seluruh rantai persetujuan berikut HARUS diselesaikan secara berurutan:
+
+  [1] MAHASISWA      --> Upload Laporan Akhir
+          |
+          v
+  [2] DOSEN PEMBIMBING --> Review & Setujui Laporan Akhir
+          |
+          v
+  [3] SUPERVISOR INDUSTRI --> Input Nilai Lapangan (0-100)
+          |
+          v
+  [4] DOSEN PEMBIMBING --> Input Nilai Akademis (0-100)
+          |
+          v
+  [5] SISTEM          --> Hitung Nilai Akhir = (Nilai Industri + Nilai Kampus) / 2
+          |
+          v
+  [6] DOSEN PRODI     --> Verifikasi Kelulusan & TTD Persetujuan
+                          --> Status magang berubah menjadi "lulus"
+          |
+          v
+  [7] ADMIN           --> Terbitkan Sertifikat Resmi (PDF dengan nomor sertifikat)
+          |
+          v
+  [8] MAHASISWA       --> Download Sertifikat
+
+
+================================================================================
+TEKNOLOGI & ARSITEKTUR SISTEM
+================================================================================
+
+  Backend  : Laravel (PHP) dengan arsitektur MVC + Service Layer
+  Frontend : Inertia.js dengan Vue.js
+  Autentikasi: Laravel Sanctum (Cookie-based Session)
+  Database : MySQL
+
+  Struktur Tabel Utama:
+  - users           : Data login semua role (dengan kolom 'role' ENUM)
+  - mahasiswas      : Data profil mahasiswa (NIM, nama, prodi, CV)
+  - industris       : Data profil perusahaan (nama, alamat, kontak)
+  - dosens          : Data profil dosen (NIP, nama)
+  - pendaftarans    : Data lamaran (menghubungkan mahasiswa & industri)
+  - magang_aktifs   : Data magang aktif (setelah diterima, berisi status)
+  - logbooks        : Data logbook harian mahasiswa
+  - laporan_akhirs  : Data laporan akhir magang
+  - penilaians      : Data nilai dari industri & kampus + nilai akhir
+  - sertifikats     : Data sertifikat kelulusan yang diterbitkan
+  - periodes        : Data periode magang (tahun akademik & semester)
+
+================================================================================
+                         -- END OF DOCUMENT --
+         Sistem Magang Horizon | Dokumen dibuat: 29 April 2026
+================================================================================

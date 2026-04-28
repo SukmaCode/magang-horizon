@@ -16,8 +16,6 @@ class Logbook extends Model
         'tanggal',
         'kegiatan',
         'status_presensi',
-        'latitude',
-        'longitude',
         'is_approved_industri',
         'komentar_industri',
         'is_checked_kampus',
@@ -28,8 +26,6 @@ class Logbook extends Model
         return [
             'tanggal' => 'date',
             'status_presensi' => StatusPresensi::class,
-            'latitude' => 'decimal:7',
-            'longitude' => 'decimal:7',
             'is_approved_industri' => 'boolean',
             'is_checked_kampus' => 'boolean',
         ];

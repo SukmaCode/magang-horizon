@@ -30,7 +30,7 @@
                 </p>
             </div>
 
-            <CardContainer padding="px-4">
+            <CardContainer padding="p-4">
                 <!-- Step Indicator -->
                 <RegisterStepIndicator
                     :steps="steps"

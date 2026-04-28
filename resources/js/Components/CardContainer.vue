@@ -1,7 +1,7 @@
 <template>
   <div
     :class="[
-      ' rounded-xl',
+      'shadow-lg rounded-xl',
       'transition-all duration-300 ease-out',
       hoverable ? 'hover:shadow-md hover:-translate-y-0.5' : '',
       padding,

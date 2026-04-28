@@ -22,33 +22,6 @@
       placeholder="Budi Santoso"
       :error="form.errors.kontak_person"
     />
-    <div class="grid grid-cols-3 gap-3">
-      <InputField
-        id="reg-lat"
-        v-model="form.latitude"
-        label="Latitude"
-        type="number"
-        placeholder="-6.2088"
-        :error="form.errors.latitude"
-      />
-      <InputField
-        id="reg-lng"
-        v-model="form.longitude"
-        label="Longitude"
-        type="number"
-        placeholder="106.845"
-        :error="form.errors.longitude"
-      />
-      <InputField
-        id="reg-radius"
-        v-model="form.geofence_radius"
-        label="Radius (m)"
-        type="number"
-        placeholder="500"
-        :error="form.errors.geofence_radius"
-        hint="Meter"
-      />
-    </div>
   </FormSection>
 </template>
 
