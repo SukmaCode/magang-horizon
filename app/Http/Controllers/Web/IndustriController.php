@@ -155,24 +155,7 @@ class IndustriController extends Controller
         }
     }
 
-    /**
-     * Download / view mahasiswa CV file (served from private disk).
-     */
-    public function downloadCV(Request $request, Pendaftaran $pendaftaran)
-    {
-        $this->authorizeIndustri($request, $pendaftaran);
 
-        $cvPath = $pendaftaran->mahasiswa->cv_file_path;
-
-        if (!$cvPath || !Storage::disk('private')->exists($cvPath)) {
-            return back()->with('error', 'File CV tidak ditemukan.');
-        }
-
-        return Storage::disk('private')->response($cvPath, 'CV-' . $pendaftaran->mahasiswa->nama_lengkap . '.pdf', [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline',
-        ]);
-    }
 
     // ──────────────────────────────────────
     // Agreement Upload

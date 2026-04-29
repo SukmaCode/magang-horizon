@@ -6,6 +6,7 @@ use App\Http\Controllers\Web\DosenPembimbingController;
 use App\Http\Controllers\Web\DosenProdiController;
 use App\Http\Controllers\Web\IndustriController;
 use App\Http\Controllers\Web\MahasiswaController;
+use App\Http\Controllers\Web\CvController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -35,6 +36,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/kirim-cv', [MahasiswaController::class, 'kirimCV'])->name('mahasiswa.kirim-cv');
         Route::post('/kirim-cv', [MahasiswaController::class, 'storeApplication'])->name('mahasiswa.kirim-cv.store');
 
+        // Manajemen CV
+        Route::get('/manajemen-cv', [CvController::class, 'index'])->name('mahasiswa.cv.index');
+        Route::post('/manajemen-cv/upload', [CvController::class, 'upload'])->name('mahasiswa.cv.upload');
+        Route::delete('/manajemen-cv/delete', [CvController::class, 'destroy'])->name('mahasiswa.cv.destroy');
+        Route::get('/manajemen-cv/preview', [CvController::class, 'previewCv'])->name('mahasiswa.cv.preview');
+
         // Logbook
         Route::get('/logbook', [MahasiswaController::class, 'logbook'])->name('mahasiswa.logbook');
         Route::post('/logbook', [MahasiswaController::class, 'storeLogbook'])->name('mahasiswa.logbook.store');
@@ -58,7 +65,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/seleksi-cv', [IndustriController::class, 'seleksiCV'])->name('industri.seleksi-cv');
         Route::post('/seleksi-cv/{pendaftaran}/accept', [IndustriController::class, 'acceptApplication'])->name('industri.seleksi-cv.accept');
         Route::post('/seleksi-cv/{pendaftaran}/reject', [IndustriController::class, 'rejectApplication'])->name('industri.seleksi-cv.reject');
-        Route::get('/seleksi-cv/{pendaftaran}/cv', [IndustriController::class, 'downloadCV'])->name('industri.seleksi-cv.download-cv');
+        Route::get('/seleksi-cv/{pendaftaran}/cv', [CvController::class, 'viewApplicantCv'])->name('industri.seleksi-cv.download-cv');
 
         // Agreement
         Route::get('/agreement', [IndustriController::class, 'agreement'])->name('industri.agreement');

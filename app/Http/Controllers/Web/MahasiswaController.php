@@ -122,6 +122,11 @@ class MahasiswaController extends Controller
                     );
                 }
 
+                // Check if CV already exists (either just uploaded or already in DB)
+                if (!$mahasiswa->cv_file_path) {
+                    throw new \Exception('Anda wajib mengunggah CV terlebih dahulu melalui menu Manajemen CV.');
+                }
+
                 // Create the application via service (handles logic gates)
                 $this->applicationService->apply(
                     $mahasiswa->id,
