@@ -46,6 +46,12 @@ Route::middleware('auth')->group(function () {
         Route::delete('/manajemen-cv/delete', [CvController::class, 'destroy'])->name('mahasiswa.cv.destroy');
         Route::get('/manajemen-cv/preview', [CvController::class, 'previewCv'])->name('mahasiswa.cv.preview');
 
+        // Manajemen CV
+        Route::get('/manajemen-cv', [CvController::class, 'index'])->name('mahasiswa.cv.index');
+        Route::post('/manajemen-cv/upload', [CvController::class, 'upload'])->name('mahasiswa.cv.upload');
+        Route::delete('/manajemen-cv/delete', [CvController::class, 'destroy'])->name('mahasiswa.cv.destroy');
+        Route::get('/manajemen-cv/preview', [CvController::class, 'previewCv'])->name('mahasiswa.cv.preview');
+
         // Logbook
         Route::get('/logbook', [MahasiswaController::class, 'logbook'])->name('mahasiswa.logbook');
         Route::post('/logbook', [MahasiswaController::class, 'storeLogbook'])->name('mahasiswa.logbook.store');

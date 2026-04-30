@@ -221,12 +221,15 @@ const navigation = computed(() => {
             current: currentPath.includes("dashboard"),
         });
         menu.push({
+<<<<<<< HEAD
             name: "Agreement",
             href: "/mahasiswa/agreement",
             icon: DocumentIcon,
             current: currentPath.includes("agreement"),
         });
         menu.push({
+=======
+>>>>>>> 4207dedb7c32d34123e1113bb47024ba2810178a
             name: "Manajemen CV",
             href: "/mahasiswa/manajemen-cv",
             icon: DocumentIcon,
