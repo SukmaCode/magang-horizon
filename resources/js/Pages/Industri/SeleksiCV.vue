@@ -153,7 +153,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { usePage, useForm, Link } from '@inertiajs/vue3';
+import { usePage, useForm, Link, router } from '@inertiajs/vue3';
 import { Head } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import CardContainer from '@/Components/CardContainer.vue';
@@ -204,7 +204,10 @@ function submitAccept() {
     if(!selectedApp.value) return;
     acceptForm.post(`/industri/seleksi-cv/${selectedApp.value.id}/accept`, {
         preserveScroll: true,
-        onSuccess: closeModals
+        onSuccess: () => {
+            closeModals();
+            router.visit('/industri/agreement');
+        },
     });
 }
 

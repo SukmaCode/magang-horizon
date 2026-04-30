@@ -12,6 +12,7 @@ use App\Services\ApplicationService;
 use App\Services\DailyLogService;
 use App\Services\DocumentService;
 use App\Services\GradingService;
+use App\Services\InternshipService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -23,6 +24,7 @@ class MahasiswaController extends Controller
         private readonly DocumentService $documentService,
         private readonly DailyLogService $dailyLogService,
         private readonly GradingService $gradingService,
+        private readonly InternshipService $internshipService,
     ) {}
 
     // ──────────────────────────────────────
@@ -47,24 +49,44 @@ class MahasiswaController extends Controller
 
         if ($mahasiswa) {
             $pendaftarans = $mahasiswa->pendaftarans()
-                ->with('industri:id,nama_perusahaan,alamat')
+                ->with(['industri:id,nama_perusahaan,alamat', 'magangAktif'])
                 ->latest()
                 ->get()
-                ->map(fn ($p) => [
-                    'id' => $p->id,
-                    'industri' => [
-                        'id' => $p->industri->id,
-                        'nama_perusahaan' => $p->industri->nama_perusahaan,
-                        'alamat' => $p->industri->alamat,
-                    ],
-                    'status' => $p->status_seleksi->value,
-                    'status_label' => $p->status_seleksi->label(),
-                    'keterangan' => $p->keterangan_industri,
-                    'created_at' => $p->created_at->format('d M Y H:i'),
-                ]);
+                ->map(function ($p) {
+                    // Check if this accepted pendaftaran has a rejected agreement
+                    $agreementRejected = false;
+                    $alasanTolakAgreement = null;
 
+                    if ($p->status_seleksi->value === 'diterima' && $p->magangAktif) {
+                        $agreementRejected = $p->magangAktif->isAgreementRejected();
+                        $alasanTolakAgreement = $p->magangAktif->alasan_tolak_agreement;
+                    }
+
+                    return [
+                        'id' => $p->id,
+                        'industri' => [
+                            'id' => $p->industri->id,
+                            'nama_perusahaan' => $p->industri->nama_perusahaan,
+                            'alamat' => $p->industri->alamat,
+                        ],
+                        'status' => $p->status_seleksi->value,
+                        'status_label' => $p->status_seleksi->label(),
+                        'keterangan' => $p->keterangan_industri,
+                        'created_at' => $p->created_at->format('d M Y H:i'),
+                        'agreement_rejected' => $agreementRejected,
+                        'alasan_tolak_agreement' => $alasanTolakAgreement,
+                    ];
+                });
+
+            // Check if student has an accepted pendaftaran that is NOT agreement-rejected
             $hasAccepted = $mahasiswa->pendaftarans()
                 ->where('status_seleksi', 'diterima')
+                ->whereHas('magangAktif', function ($q) {
+                    $q->where(function ($sub) {
+                        $sub->whereNull('status_agreement')
+                            ->orWhere('status_agreement', '!=', 'rejected');
+                    });
+                })
                 ->exists();
 
             $pendingCount = $mahasiswa->pendaftarans()
@@ -122,6 +144,11 @@ class MahasiswaController extends Controller
                     );
                 }
 
+                // Check if CV already exists (either just uploaded or already in DB)
+                if (!$mahasiswa->cv_file_path) {
+                    throw new \Exception('Anda wajib mengunggah CV terlebih dahulu melalui menu Manajemen CV.');
+                }
+
                 // Create the application via service (handles logic gates)
                 $this->applicationService->apply(
                     $mahasiswa->id,
@@ -132,6 +159,97 @@ class MahasiswaController extends Controller
             });
         } catch (\Illuminate\Validation\ValidationException $e) {
             return back()->withErrors($e->errors());
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    // ──────────────────────────────────────
+    // Agreement
+    // ──────────────────────────────────────
+
+    public function agreement(Request $request)
+    {
+        $user = $request->user();
+        $magang = $this->getActiveMagang($user->mahasiswa);
+
+        $agreementData = null;
+
+        if ($magang) {
+            $agreementData = [
+                'id' => $magang->id,
+                'industri' => $magang->industri?->nama_perusahaan,
+                'has_agreement' => $magang->file_agreement_industri !== null,
+                'status_agreement' => $magang->status_agreement?->value,
+                'alasan_tolak' => $magang->alasan_tolak_agreement,
+                'download_url' => $magang->file_agreement_industri 
+                    ? route('mahasiswa.agreement.download', $magang->id)
+                    : null,
+            ];
+        }
+
+        return Inertia::render('Mahasiswa/Agreement', [
+            'agreement' => $agreementData,
+        ]);
+    }
+
+    public function downloadAgreement(Request $request, MagangAktif $magangAktif)
+    {
+        $user = $request->user();
+        
+        if ($magangAktif->pendaftaran->mahasiswa_id !== $user->mahasiswa->id) {
+            abort(403, 'Unauthorized access to this document.');
+        }
+
+        if (!$magangAktif->file_agreement_industri) {
+            return back()->with('error', 'Dokumen agreement belum tersedia.');
+        }
+
+        $path = storage_path('app/private/' . $magangAktif->file_agreement_industri);
+
+        if (!file_exists($path)) {
+            return back()->with('error', 'File tidak ditemukan di server.');
+        }
+
+        return response()->download($path, "Agreement-Industri-{$magangAktif->industri->nama_perusahaan}.pdf");
+    }
+
+    public function acceptAgreement(Request $request, MagangAktif $magangAktif)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:pdf|max:10240',
+        ]);
+
+        $user = $request->user();
+        if ($magangAktif->pendaftaran->mahasiswa_id !== $user->mahasiswa->id) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        try {
+            $path = $request->file('file')->store('documents/agreements/mahasiswa/' . $magangAktif->id, 'private');
+            $this->internshipService->acceptAgreement($magangAktif, $path);
+
+            return back()->with('success', 'Agreement berhasil diterima dan ditandatangani.');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function rejectAgreement(Request $request, MagangAktif $magangAktif)
+    {
+        $request->validate([
+            'alasan' => 'required|string|max:500',
+        ]);
+
+        $user = $request->user();
+        if ($magangAktif->pendaftaran->mahasiswa_id !== $user->mahasiswa->id) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        try {
+            $this->internshipService->rejectAgreement($magangAktif, $request->input('alasan'));
+
+            return back()->with('success', 'Agreement telah ditolak.');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -420,6 +538,7 @@ class MahasiswaController extends Controller
         $pendaftaran = $mahasiswa->pendaftarans()
             ->where('status_seleksi', 'diterima')
             ->with('magangAktif')
+            ->latest()
             ->first();
 
         return $pendaftaran?->magangAktif;

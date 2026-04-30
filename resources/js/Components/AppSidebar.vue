@@ -221,6 +221,18 @@ const navigation = computed(() => {
             current: currentPath.includes("dashboard"),
         });
         menu.push({
+            name: "Agreement",
+            href: "/mahasiswa/agreement",
+            icon: DocumentIcon,
+            current: currentPath.includes("agreement"),
+        });
+        menu.push({
+            name: "Manajemen CV",
+            href: "/mahasiswa/manajemen-cv",
+            icon: DocumentIcon,
+            current: currentPath.includes("manajemen-cv"),
+        });
+        menu.push({
             name: "Kirim CV",
             href: "/mahasiswa/kirim-cv",
             icon: DocumentIcon,

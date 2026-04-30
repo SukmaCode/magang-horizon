@@ -74,8 +74,8 @@
                                     <div class="flex-1 min-w-0">
                                         <p class="text-sm font-semibold text-text-primary">{{ ind.nama_perusahaan }}</p>
                                         <p v-if="ind.alamat" class="text-xs text-text-secondary mt-0.5 truncate">{{ ind.alamat }}</p>
-                                        <span v-if="getIndustriStatus(ind.id)" :class="['text-xs px-2 py-0.5 rounded-full font-medium mt-1 inline-block', statusBadge(getIndustriStatus(ind.id))]">
-                                            {{ getIndustriStatusLabel(ind.id) }}
+                                        <span v-if="getIndustriDisplayStatus(ind.id)" :class="['text-xs px-2 py-0.5 rounded-full font-medium mt-1 inline-block', statusBadge(getIndustriDisplayStatus(ind.id))]">
+                                            {{ getIndustriDisplayLabel(ind.id) }}
                                         </span>
                                     </div>
                                 </label>
@@ -87,56 +87,30 @@
                             <p v-if="form.errors.industri_id" class="text-xs text-danger mt-1.5">{{ form.errors.industri_id }}</p>
                         </div>
 
-                        <!-- CV Upload -->
-                        <div>
-                            <label class="block text-sm font-semibold text-text-primary mb-2">
-                                Upload CV <span class="text-danger">*</span>
-                            </label>
-
-                            <!-- Already has CV indicator -->
-                            <div v-if="cvUploaded && !selectedFile" class="mb-3 p-3 bg-success/5 border border-success/20 rounded-xl flex items-center gap-3">
-                                <svg class="w-5 h-5 text-success shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <div class="flex-1">
-                                    <p class="text-xs font-semibold text-success">CV sudah terupload sebelumnya</p>
-                                    <p class="text-xs text-text-secondary mt-0.5">Anda bisa upload ulang jika ingin mengganti.</p>
-                                </div>
+                        <!-- CV Check -->
+                        <div v-if="!cvUploaded" class="mb-6 p-4 bg-danger/5 border border-danger/20 rounded-xl flex items-start gap-3">
+                            <svg class="w-5 h-5 text-danger shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <div>
+                                <p class="text-sm font-semibold text-danger">CV Belum Diunggah!</p>
+                                <p class="text-xs text-text-secondary mt-1">Anda wajib mengunggah CV terlebih dahulu sebelum dapat mengirim lamaran.</p>
+                                <Link href="/mahasiswa/manajemen-cv" class="mt-2 inline-block px-3 py-1.5 text-xs font-semibold text-white bg-danger rounded-lg hover:bg-danger/90 transition-colors">
+                                    Upload CV Sekarang
+                                </Link>
                             </div>
-
-                            <!-- Upload Area -->
-                            <div
-                                class="border-2 border-dashed rounded-xl p-6 text-center transition-colors duration-200 cursor-pointer"
-                                :class="[
-                                    dragOver ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300',
-                                    selectedFile ? 'bg-primary/5 border-primary/30' : ''
-                                ]"
-                                @dragover.prevent="dragOver = true"
-                                @dragleave.prevent="dragOver = false"
-                                @drop.prevent="handleDrop"
-                                @click="$refs.cvInput.click()"
-                            >
-                                <input ref="cvInput" type="file" accept=".pdf" class="hidden" @change="handleFileSelect" />
-
-                                <div v-if="selectedFile" class="flex flex-col items-center">
-                                    <svg class="w-8 h-8 text-primary mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                    <p class="text-sm font-semibold text-text-primary">{{ selectedFile.name }}</p>
-                                    <p class="text-xs text-text-secondary mt-1">{{ formatFileSize(selectedFile.size) }}</p>
-                                    <button type="button" @click.stop="removeFile" class="mt-2 text-xs text-danger hover:text-danger/80 font-medium">
-                                        Hapus file
-                                    </button>
-                                </div>
-                                <div v-else class="flex flex-col items-center">
-                                    <svg class="w-8 h-8 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                    </svg>
-                                    <p class="text-sm font-medium text-text-primary">Upload CV (PDF)</p>
-                                    <p class="text-xs text-text-secondary mt-1">Drag & drop atau klik untuk memilih · Maks 10MB</p>
-                                </div>
+                        </div>
+                        <div v-else class="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-xl flex items-start gap-3">
+                            <svg class="w-5 h-5 text-primary shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div>
+                                <p class="text-sm font-semibold text-primary">CV Telah Dilampirkan</p>
+                                <p class="text-xs text-text-secondary mt-1">Sistem akan otomatis menggunakan CV yang tersimpan di profil Anda.</p>
+                                <Link href="/mahasiswa/manajemen-cv" class="mt-2 inline-block text-xs font-medium text-primary hover:underline">
+                                    Lihat atau ubah CV Anda
+                                </Link>
                             </div>
-                            <p v-if="form.errors.cv_file" class="text-xs text-danger mt-1.5">{{ form.errors.cv_file }}</p>
                         </div>
 
                         <!-- Submit -->
@@ -182,21 +156,37 @@
                         >
                             <div class="flex items-start justify-between gap-3 mb-2">
                                 <h3 class="text-sm font-semibold text-text-primary leading-tight">{{ p.industri.nama_perusahaan }}</h3>
-                                <span :class="['text-xs px-2.5 py-0.5 rounded-full font-medium shrink-0', statusBadge(p.status)]">
-                                    {{ p.status_label }}
-                                </span>
+                                <div class="flex flex-col items-end gap-1">
+                                    <span :class="['text-xs px-2.5 py-0.5 rounded-full font-medium shrink-0', statusBadge(p.agreement_rejected ? 'agreement_rejected' : p.status)]">
+                                        {{ p.agreement_rejected ? 'Agreement Ditolak' : p.status_label }}
+                                    </span>
+                                </div>
                             </div>
                             <p v-if="p.industri.alamat" class="text-xs text-text-secondary mb-1.5 truncate">{{ p.industri.alamat }}</p>
                             <p class="text-xs text-text-secondary">{{ p.created_at }}</p>
 
+                            <!-- Agreement Rejected info -->
+                            <div v-if="p.agreement_rejected" class="mt-2.5 p-2.5 bg-amber-50 rounded-lg border border-amber-200">
+                                <div class="flex items-start gap-2">
+                                    <svg class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                    <div>
+                                        <p class="text-xs text-amber-700 font-semibold mb-0.5">Anda menolak agreement dari industri ini</p>
+                                        <p v-if="p.alasan_tolak_agreement" class="text-xs text-text-secondary">Alasan: {{ p.alasan_tolak_agreement }}</p>
+                                        <p class="text-xs text-amber-600 mt-1">Anda dapat mengirim lamaran ulang ke industri ini atau industri lain.</p>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Rejection reason -->
-                            <div v-if="p.status === 'ditolak' && p.keterangan" class="mt-2.5 p-2.5 bg-danger/5 rounded-lg border border-danger/10">
+                            <div v-if="!p.agreement_rejected && p.status === 'ditolak' && p.keterangan" class="mt-2.5 p-2.5 bg-danger/5 rounded-lg border border-danger/10">
                                 <p class="text-xs text-danger font-medium mb-0.5">Alasan Penolakan:</p>
                                 <p class="text-xs text-text-primary">{{ p.keterangan }}</p>
                             </div>
 
                             <!-- Accepted info -->
-                            <div v-if="p.status === 'diterima' && p.keterangan" class="mt-2.5 p-2.5 bg-success/5 rounded-lg border border-success/10">
+                            <div v-if="!p.agreement_rejected && p.status === 'diterima' && p.keterangan" class="mt-2.5 p-2.5 bg-success/5 rounded-lg border border-success/10">
                                 <p class="text-xs text-success font-medium mb-0.5">Catatan Industri:</p>
                                 <p class="text-xs text-text-primary">{{ p.keterangan }}</p>
                             </div>
@@ -233,7 +223,7 @@
 
 <script setup>
 import { ref, computed, watch } from "vue";
-import { usePage, useForm } from "@inertiajs/vue3";
+import { usePage, useForm, Link } from "@inertiajs/vue3";
 import { Head } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 
@@ -252,19 +242,11 @@ const props = defineProps({
 });
 
 const searchQuery = ref('');
-const selectedFile = ref(null);
-const dragOver = ref(false);
 
 const form = useForm({
     industri_id: null,
-    cv_file: null,
-    cv_exists: false,
+    cv_exists: props.cvUploaded,
 });
-
-// Set cv_exists based on prop
-if (props.cvUploaded) {
-    form.cv_exists = true;
-}
 
 // Filter industries by search
 const filteredIndustris = computed(() => {
@@ -287,8 +269,26 @@ function getIndustriStatusLabel(industriId) {
     return p?.status_label || '';
 }
 
+// Get display status for industry list (considers agreement rejection)
+function getIndustriDisplayStatus(industriId) {
+    const p = props.pendaftarans.find(a => a.industri.id === industriId);
+    if (!p) return null;
+    if (p.agreement_rejected) return 'agreement_rejected';
+    return p.status;
+}
+
+function getIndustriDisplayLabel(industriId) {
+    const p = props.pendaftarans.find(a => a.industri.id === industriId);
+    if (!p) return '';
+    if (p.agreement_rejected) return 'Agreement Ditolak';
+    return p.status_label;
+}
+
 function isIndustriDisabled(industriId) {
     const status = getIndustriStatus(industriId);
+    const pendaftaran = props.pendaftarans.find(a => a.industri.id === industriId);
+    // Allow re-selection if the agreement was rejected for this industry
+    if (pendaftaran?.agreement_rejected) return false;
     return status === 'pending' || status === 'diterima' || props.hasAccepted;
 }
 
@@ -296,7 +296,7 @@ const canSubmit = computed(() => {
     if (props.hasAccepted) return false;
     if (props.pendingCount >= props.maxApplications) return false;
     if (!form.industri_id) return false;
-    if (!selectedFile.value && !props.cvUploaded) return false;
+    if (!props.cvUploaded) return false;
     return true;
 });
 
@@ -305,49 +305,21 @@ function statusBadge(status) {
         pending: 'bg-amber-50 text-amber-700',
         diterima: 'bg-success/10 text-success',
         ditolak: 'bg-danger/10 text-danger',
+        agreement_rejected: 'bg-amber-100 text-amber-700 border border-amber-300',
     };
     return map[status] || 'bg-gray-100 text-gray-600';
 }
 
-function handleFileSelect(e) {
-    const file = e.target.files[0];
-    if (file && file.type === 'application/pdf') {
-        selectedFile.value = file;
-        form.cv_file = file;
-    }
-}
 
-function handleDrop(e) {
-    dragOver.value = false;
-    const file = e.dataTransfer.files[0];
-    if (file && file.type === 'application/pdf') {
-        selectedFile.value = file;
-        form.cv_file = file;
-    }
-}
-
-function removeFile() {
-    selectedFile.value = null;
-    form.cv_file = null;
-    if (document.querySelector('input[type=file]')) {
-        document.querySelector('input[type=file]').value = '';
-    }
-}
-
-function formatFileSize(bytes) {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-}
 
 function submitApplication() {
     form.post('/mahasiswa/kirim-cv', {
         preserveScroll: true,
-        forceFormData: true,
         onSuccess: () => {
-            selectedFile.value = null;
-            form.reset('industri_id', 'cv_file');
+            form.reset('industri_id');
             searchQuery.value = '';
+            // Update cv_exists state if it changed
+            form.cv_exists = props.cvUploaded;
         },
     });
 }

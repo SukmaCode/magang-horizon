@@ -22,18 +22,43 @@
                                 <span class="text-xs px-2.5 py-0.5 rounded-full font-medium bg-primary/10 text-primary capitalize">
                                     Tahap: {{ magang.status }}
                                 </span>
-                                <span v-if="magang.has_agreement" class="text-xs px-2.5 py-0.5 rounded-full font-medium bg-success/10 text-success inline-flex items-center gap-1">
+                                <span v-if="magang.has_agreement && magang.status_agreement === 'accepted'" class="text-xs px-2.5 py-0.5 rounded-full font-medium bg-success/10 text-success inline-flex items-center gap-1">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                                    Agreement Terupload
+                                    Diterima Mahasiswa
                                 </span>
-                                <span v-else class="text-xs px-2.5 py-0.5 rounded-full font-medium bg-amber-50 text-amber-600">
+                                <span v-else-if="magang.has_agreement && magang.status_agreement === 'rejected'" class="text-xs px-2.5 py-0.5 rounded-full font-medium bg-danger/10 text-danger inline-flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                    Ditolak Mahasiswa
+                                </span>
+                                <span v-else-if="magang.has_agreement" class="text-xs px-2.5 py-0.5 rounded-full font-medium bg-amber-50 text-amber-600 inline-flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    Menunggu Respon
+                                </span>
+                                <span v-else class="text-xs px-2.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600">
                                     Menunggu Agreement
                                 </span>
                             </div>
                         </div>
 
                         <div>
-                            <button @click="openUploadModal(magang)" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl transition-colors duration-200" :class="magang.has_agreement ? 'bg-gray-100 text-text-primary hover:bg-gray-200' : 'bg-primary text-white hover:bg-primary-hover shadow-sm'">
+                            <!-- Rejected: cannot upload -->
+                            <div v-if="magang.has_agreement && magang.status_agreement === 'rejected'" class="text-right">
+                                <div class="px-4 py-2.5 bg-danger/5 border border-danger/10 rounded-xl">
+                                    <p class="text-xs font-semibold text-danger mb-1">Mahasiswa menolak agreement</p>
+                                    <p v-if="magang.alasan_tolak" class="text-xs text-text-secondary">{{ magang.alasan_tolak }}</p>
+                                </div>
+                            </div>
+
+                            <!-- Accepted: show info, no re-upload needed -->
+                            <div v-else-if="magang.has_agreement && magang.status_agreement === 'accepted'" class="text-right">
+                                <div class="px-4 py-2.5 bg-success/5 border border-success/10 rounded-xl inline-flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    <p class="text-xs font-semibold text-success">Agreement telah disetujui</p>
+                                </div>
+                            </div>
+
+                            <!-- Pending or no agreement: allow upload -->
+                            <button v-else @click="openUploadModal(magang)" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl transition-colors duration-200" :class="magang.has_agreement ? 'bg-gray-100 text-text-primary hover:bg-gray-200' : 'bg-primary text-white hover:bg-primary-hover shadow-sm'">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                                 </svg>

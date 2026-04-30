@@ -2,11 +2,14 @@
 
 namespace App\Services;
 
+use App\Enums\StatusAgreement;
 use App\Enums\StatusApproval;
 use App\Enums\StatusTahapan;
 use App\Models\Dosen;
 use App\Models\LaporanAkhir;
 use App\Models\MagangAktif;
+use App\Notifications\AgreementResponseNotification;
+use App\Notifications\AgreementUploadedNotification;
 use Illuminate\Support\Facades\DB;
 
 class InternshipService
@@ -88,30 +91,81 @@ class InternshipService
 
     /**
      * Upload agreement file for industry.
+     * Sets status to PENDING and notifies the student.
      */
     public function uploadAgreementIndustri(MagangAktif $magang, string $filePath): MagangAktif
     {
-        $magang->update(['file_agreement_industri' => $filePath]);
+        $magang->update([
+            'file_agreement_industri' => $filePath,
+            'status_agreement' => StatusAgreement::PENDING,
+            // Reset any previous rejection state
+            'alasan_tolak_agreement' => null,
+            'file_agreement_mahasiswa' => null,
+        ]);
+
+        // Notify the student that a new agreement has arrived
+        $studentUser = $magang->pendaftaran->mahasiswa->user;
+        $studentUser->notify(new AgreementUploadedNotification($magang));
 
         activity('internship')
             ->performedOn($magang)
-            ->log('Industry agreement uploaded');
+            ->log('Industry agreement uploaded, awaiting student response');
 
         return $magang;
     }
 
     /**
-     * Upload agreement file signed by student.
+     * Student accepts and signs the agreement.
      */
-    public function uploadAgreementMahasiswa(MagangAktif $magang, string $filePath): MagangAktif
+    public function acceptAgreement(MagangAktif $magang, string $signedFilePath): MagangAktif
     {
-        $magang->update(['file_agreement_mahasiswa' => $filePath]);
+        if ($magang->status_agreement !== StatusAgreement::PENDING) {
+            throw new \Exception('Agreement tidak dalam status menunggu persetujuan.');
+        }
 
-        activity('internship')
-            ->performedOn($magang)
-            ->log('Student agreement uploaded');
+        return DB::transaction(function () use ($magang, $signedFilePath) {
+            $magang->update([
+                'file_agreement_mahasiswa' => $signedFilePath,
+                'status_agreement' => StatusAgreement::ACCEPTED,
+            ]);
 
-        return $magang;
+            activity('internship')
+                ->performedOn($magang)
+                ->log('Student accepted and signed agreement');
+
+            // Notify the industry supervisor
+            $industriUser = $magang->pendaftaran->industri->user;
+            $industriUser->notify(new AgreementResponseNotification($magang, 'accepted'));
+
+            return $magang->fresh();
+        });
+    }
+
+    /**
+     * Student rejects the agreement.
+     */
+    public function rejectAgreement(MagangAktif $magang, string $reason): MagangAktif
+    {
+        if ($magang->status_agreement !== StatusAgreement::PENDING) {
+            throw new \Exception('Agreement tidak dalam status menunggu persetujuan.');
+        }
+
+        return DB::transaction(function () use ($magang, $reason) {
+            $magang->update([
+                'status_agreement' => StatusAgreement::REJECTED,
+                'alasan_tolak_agreement' => $reason,
+            ]);
+
+            activity('internship')
+                ->performedOn($magang)
+                ->log('Student rejected agreement');
+
+            // Notify the industry supervisor
+            $industriUser = $magang->pendaftaran->industri->user;
+            $industriUser->notify(new AgreementResponseNotification($magang, 'rejected'));
+
+            return $magang->fresh();
+        });
     }
 
     /**
@@ -194,7 +248,11 @@ class InternshipService
         }
 
         if (! $magang->hasAgreementsUploaded()) {
-            throw new \Exception('Industry agreement must be uploaded before starting internship execution.');
+            throw new \Exception('Agreement must be uploaded and accepted by student before starting.');
+        }
+
+        if ($magang->isAgreementRejected()) {
+            throw new \Exception('Agreement was rejected by the student. Cannot proceed.');
         }
     }
 

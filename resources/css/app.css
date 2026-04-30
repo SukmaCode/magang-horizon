@@ -6,19 +6,19 @@
 |--------------------------------------------------------------------------
 */
 @theme {
-    --color-primary: #8B0000;
-    --color-primary-hover: #A4161A;
-    --color-accent: #E11048;
-    --color-bg: #FCE8E8;
-    --color-surface: #F5F5F5;
-    --color-card: #FFFFFF;
-    --color-text-primary: #1F2937;
-    --color-text-secondary: #6B7280;
+    --color-primary: #8b0000;
+    --color-primary-hover: #a4161a;
+    --color-accent: #e11048;
+    --color-bg: #fce8e8;
+    --color-surface: #f5f5f5;
+    --color-card: #ffffff;
+    --color-text-primary: #1f2937;
+    --color-text-secondary: #6b7280;
     --color-success: #059669;
-    --color-danger: #DC2626;
+    --color-danger: #dc2626;
 
-    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
-    --font-jakarta: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-jakarta: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
 .animated-light-effect {
@@ -26,55 +26,55 @@
 }
 
 @keyframes animated-light-effect {
-        0% {
-            background-color: #8B0000;
-        }
-        50% {
-            background-color: #a71c21;
-        }
-        100% {
-            background-color: #8B0000;
-        }
+    0% {
+        background-color: #8b0000;
     }
+    50% {
+        background-color: #a71c21;
+    }
+    100% {
+        background-color: #8b0000;
+    }
+}
 
 @font-face {
-    font-family: 'Plus Jakarta Sans';
-    src: url('../assets/fonts/PlusJakartaSans-Light.ttf') format('truetype');
+    font-family: "Plus Jakarta Sans";
+    src: url("../assets/fonts/PlusJakartaSans-Light.ttf") format("truetype");
     font-weight: 300;
     font-style: normal;
 }
 
 @font-face {
-    font-family: 'Plus Jakarta Sans';
-    src: url('../assets/fonts/PlusJakartaSans-Regular.ttf') format('truetype');
+    font-family: "Plus Jakarta Sans";
+    src: url("../assets/fonts/PlusJakartaSans-Regular.ttf") format("truetype");
     font-weight: 400;
     font-style: normal;
 }
 
 @font-face {
-    font-family: 'Plus Jakarta Sans';
-    src: url('../assets/fonts/PlusJakartaSans-Medium.ttf') format('truetype');
+    font-family: "Plus Jakarta Sans";
+    src: url("../assets/fonts/PlusJakartaSans-Medium.ttf") format("truetype");
     font-weight: 500;
     font-style: normal;
 }
 
 @font-face {
-    font-family: 'Plus Jakarta Sans';
-    src: url('../assets/fonts/PlusJakartaSans-SemiBold.ttf') format('truetype');
+    font-family: "Plus Jakarta Sans";
+    src: url("../assets/fonts/PlusJakartaSans-SemiBold.ttf") format("truetype");
     font-weight: 600;
     font-style: normal;
 }
 
 @font-face {
-    font-family: 'Plus Jakarta Sans';
-    src: url('../assets/fonts/PlusJakartaSans-Bold.ttf') format('truetype');
+    font-family: "Plus Jakarta Sans";
+    src: url("../assets/fonts/PlusJakartaSans-Bold.ttf") format("truetype");
     font-weight: 700;
     font-style: normal;
 }
 
 @font-face {
-    font-family: 'Plus Jakarta Sans';
-    src: url('../assets/fonts/PlusJakartaSans-ExtraBold.ttf') format('truetype');
+    font-family: "Plus Jakarta Sans";
+    src: url("../assets/fonts/PlusJakartaSans-ExtraBold.ttf") format("truetype");
     font-weight: 800;
     font-style: normal;
 }

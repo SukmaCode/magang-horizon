@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\StatusAgreement;
 use App\Enums\StatusTahapan;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,6 +20,8 @@ class MagangAktif extends Model
         'pendaftaran_id',
         'file_agreement_industri',
         'file_agreement_mahasiswa',
+        'status_agreement',
+        'alasan_tolak_agreement',
         'sk_pembimbing_path',
         'supervisor_kampus_id',
         'supervisor_industri_id',
@@ -31,6 +34,7 @@ class MagangAktif extends Model
     {
         return [
             'status_tahapan' => StatusTahapan::class,
+            'status_agreement' => StatusAgreement::class,
             'tanggal_mulai' => 'date',
             'tanggal_selesai' => 'date',
         ];
@@ -117,11 +121,20 @@ class MagangAktif extends Model
     }
 
     /**
-     * Check if agreements have been uploaded.
+     * Check if agreements have been uploaded AND accepted by student.
      */
     public function hasAgreementsUploaded(): bool
     {
-        return $this->file_agreement_industri !== null;
+        return $this->file_agreement_industri !== null
+            && $this->status_agreement === StatusAgreement::ACCEPTED;
+    }
+
+    /**
+     * Check if the agreement was rejected by the student.
+     */
+    public function isAgreementRejected(): bool
+    {
+        return $this->status_agreement === StatusAgreement::REJECTED;
     }
 
     /**

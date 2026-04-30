@@ -35,8 +35,15 @@ class ApplicationService
         }
 
         // Check if student already has an accepted internship
+        // Exclude pendaftarans where the agreement was rejected by the student
         $hasAccepted = Pendaftaran::where('mahasiswa_id', $mahasiswaId)
             ->where('status_seleksi', StatusSeleksi::DITERIMA)
+            ->whereHas('magangAktif', function ($q) {
+                $q->where(function ($sub) {
+                    $sub->whereNull('status_agreement')
+                        ->orWhere('status_agreement', '!=', 'rejected');
+                });
+            })
             ->exists();
 
         if ($hasAccepted) {
