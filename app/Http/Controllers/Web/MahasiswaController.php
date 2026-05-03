@@ -13,6 +13,7 @@ use App\Services\DailyLogService;
 use App\Services\DocumentService;
 use App\Services\GradingService;
 use App\Services\InternshipService;
+use App\Services\MahasiswaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -25,6 +26,7 @@ class MahasiswaController extends Controller
         private readonly DailyLogService $dailyLogService,
         private readonly GradingService $gradingService,
         private readonly InternshipService $internshipService,
+        private readonly MahasiswaService $mahasiswaService,
     ) {}
 
     // ──────────────────────────────────────
@@ -33,76 +35,26 @@ class MahasiswaController extends Controller
 
     public function kirimCV(Request $request)
     {
-        $user = $request->user();
+        $user      = $request->user();
         $mahasiswa = $user->mahasiswa;
 
-        // Get list of available industries
+        // ✅ List industri tetap di sini — ini data statis untuk form, bukan business logic
         $industris = Industri::select('id', 'nama_perusahaan', 'alamat', 'kontak_person')
             ->orderBy('nama_perusahaan')
             ->get();
 
-        // Get application history
-        $pendaftarans = [];
-        $hasAccepted = false;
-        $pendingCount = 0;
-        $cvUploaded = false;
-
-        if ($mahasiswa) {
-            $pendaftarans = $mahasiswa->pendaftarans()
-                ->with(['industri:id,nama_perusahaan,alamat', 'magangAktif'])
-                ->latest()
-                ->get()
-                ->map(function ($p) {
-                    // Check if this accepted pendaftaran has a rejected agreement
-                    $agreementRejected = false;
-                    $alasanTolakAgreement = null;
-
-                    if ($p->status_seleksi->value === 'diterima' && $p->magangAktif) {
-                        $agreementRejected = $p->magangAktif->isAgreementRejected();
-                        $alasanTolakAgreement = $p->magangAktif->alasan_tolak_agreement;
-                    }
-
-                    return [
-                        'id' => $p->id,
-                        'industri' => [
-                            'id' => $p->industri->id,
-                            'nama_perusahaan' => $p->industri->nama_perusahaan,
-                            'alamat' => $p->industri->alamat,
-                        ],
-                        'status' => $p->status_seleksi->value,
-                        'status_label' => $p->status_seleksi->label(),
-                        'keterangan' => $p->keterangan_industri,
-                        'created_at' => $p->created_at->format('d M Y H:i'),
-                        'agreement_rejected' => $agreementRejected,
-                        'alasan_tolak_agreement' => $alasanTolakAgreement,
-                    ];
-                });
-
-            // Check if student has an accepted pendaftaran that is NOT agreement-rejected
-            $hasAccepted = $mahasiswa->pendaftarans()
-                ->where('status_seleksi', 'diterima')
-                ->whereHas('magangAktif', function ($q) {
-                    $q->where(function ($sub) {
-                        $sub->whereNull('status_agreement')
-                            ->orWhere('status_agreement', '!=', 'rejected');
-                    });
-                })
-                ->exists();
-
-            $pendingCount = $mahasiswa->pendaftarans()
-                ->where('status_seleksi', 'pending')
-                ->count();
-
-            $cvUploaded = $mahasiswa->cv_file_path !== null;
-        }
+        // ✅ Query kompleks & mapping dipindah ke MahasiswaService
+        $data = $mahasiswa
+            ? $this->mahasiswaService->getKirimCvData($mahasiswa)
+            : ['pendaftarans' => [], 'hasAccepted' => false, 'pendingCount' => 0, 'cvUploaded' => false];
 
         return Inertia::render('Mahasiswa/KirimCV', [
-            'industris' => $industris,
-            'pendaftarans' => $pendaftarans,
-            'hasAccepted' => $hasAccepted,
-            'pendingCount' => $pendingCount,
-            'maxApplications' => 3,
-            'cvUploaded' => $cvUploaded,
+            'industris'      => $industris,
+            'pendaftarans'   => $data['pendaftarans'],
+            'hasAccepted'    => $data['hasAccepted'],
+            'pendingCount'   => $data['pendingCount'],
+            'maxApplications'=> 3,
+            'cvUploaded'     => $data['cvUploaded'],
         ]);
     }
 
@@ -170,26 +122,16 @@ class MahasiswaController extends Controller
 
     public function agreement(Request $request)
     {
-        $user = $request->user();
-        $magang = $this->getActiveMagang($user->mahasiswa);
+        $user      = $request->user();
+        $mahasiswa = $user->mahasiswa;
 
-        $agreementData = null;
-
-        if ($magang) {
-            $agreementData = [
-                'id' => $magang->id,
-                'industri' => $magang->industri?->nama_perusahaan,
-                'has_agreement' => $magang->file_agreement_industri !== null,
-                'status_agreement' => $magang->status_agreement?->value,
-                'alasan_tolak' => $magang->alasan_tolak_agreement,
-                'download_url' => $magang->file_agreement_industri 
-                    ? route('mahasiswa.agreement.download', $magang->id)
-                    : null,
-            ];
-        }
+        // ✅ Foreach loop + mapping dipindah ke MahasiswaService
+        $agreements = $mahasiswa
+            ? $this->mahasiswaService->getAgreements($mahasiswa)
+            : [];
 
         return Inertia::render('Mahasiswa/Agreement', [
-            'agreement' => $agreementData,
+            'agreements' => $agreements,
         ]);
     }
 
@@ -290,12 +232,8 @@ class MahasiswaController extends Controller
             if ($activePendaftaran && $activePendaftaran->magangAktif) {
                 $magang = $activePendaftaran->magangAktif;
                 $statusMagang = $magang->status_tahapan->label();
-                $statusDescription = match ($magang->status_tahapan) {
-                    StatusTahapan::PERSIAPAN => 'Lengkapi dokumen & agreement',
-                    StatusTahapan::PELAKSANAAN => 'Magang sedang berjalan',
-                    StatusTahapan::PENUTUPAN => 'Masa penutupan & laporan akhir',
-                    StatusTahapan::LULUS => 'Selamat, Anda telah lulus!',
-                };
+                // ✅ Business rule: deskripsi status dipindah ke MahasiswaService
+                $statusDescription = $this->mahasiswaService->getStatusDescription($magang->status_tahapan);
 
                 // Logbook statistics
                 $logbookStats['total'] = $magang->logbooks()->count();

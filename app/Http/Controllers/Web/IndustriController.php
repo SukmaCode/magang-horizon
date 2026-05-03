@@ -221,10 +221,12 @@ class IndustriController extends Controller
         if ($industri) {
             $activeMagangs = $this->getActiveMagangs($industri);
             $magangs = $activeMagangs->map(fn (MagangAktif $m) => [
-                'id' => $m->id,
-                'nama_lengkap' => $m->pendaftaran->mahasiswa->nama_lengkap,
-                'nim' => $m->pendaftaran->mahasiswa->nim,
-                'pending_count' => $m->logbooks()->where('is_approved_industri', false)->count(),
+                'id'          => $m->id,
+                'nama_lengkap'=> $m->pendaftaran->mahasiswa->nama_lengkap,
+                'nim'         => $m->pendaftaran->mahasiswa->nim,
+                // ✅ ->logbooks (property) bukan ->logbooks() (method)
+                // Memanfaatkan eager load dari getActiveMagangs() — tidak ada query tambahan
+                'pending_count' => $m->logbooks->where('is_approved_industri', false)->count(),
             ])->values();
 
             // If a magang is selected, load its logbooks
@@ -281,18 +283,19 @@ class IndustriController extends Controller
         if ($industri) {
             $magangs = $this->getActiveMagangs($industri)
                 ->map(fn (MagangAktif $m) => [
-                    'id' => $m->id,
-                    'mahasiswa' => [
+                    'id'       => $m->id,
+                    'mahasiswa'=> [
                         'nama_lengkap' => $m->pendaftaran->mahasiswa->nama_lengkap,
-                        'nim' => $m->pendaftaran->mahasiswa->nim,
-                        'prodi' => $m->pendaftaran->mahasiswa->prodi,
+                        'nim'          => $m->pendaftaran->mahasiswa->nim,
+                        'prodi'        => $m->pendaftaran->mahasiswa->prodi,
                     ],
-                    'status' => $m->status_tahapan->value,
-                    'status_label' => $m->status_tahapan->label(),
-                    'nilai_industri' => $m->penilaian?->nilai_industri,
-                    'has_graded' => $m->penilaian?->nilai_industri !== null,
-                    'total_logbook' => $m->logbooks()->count(),
-                    'approved_logbook' => $m->logbooks()->approved()->count(),
+                    'status'        => $m->status_tahapan->value,
+                    'status_label'  => $m->status_tahapan->label(),
+                    'nilai_industri'=> $m->penilaian?->nilai_industri,
+                    'has_graded'    => $m->penilaian?->nilai_industri !== null,
+                    // ✅ ->logbooks (property) — pakai eager load, bukan query baru per iterasi
+                    'total_logbook'    => $m->logbooks->count(),
+                    'approved_logbook' => $m->logbooks->where('is_approved_industri', true)->count(),
                 ])
                 ->values();
         }

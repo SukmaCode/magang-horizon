@@ -92,6 +92,10 @@ class MagangAktif extends Model
         return $this->morphMany(Document::class, 'documentable');
     }
 
+    public function industri(): BelongsTo
+    {
+        return $this->belongsTo(Industri::class, 'user_id'); 
+    }
     // ──────────────────────────────────────
     // Helpers
     // ──────────────────────────────────────

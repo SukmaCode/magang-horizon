@@ -37,21 +37,23 @@ class DosenPembimbingController extends Controller
             $magangs = $dosen->magangAktifs()->with('pendaftaran.mahasiswa', 'laporanAkhir', 'penilaian')->get();
             $activeStudents = $magangs->count();
 
-            $pendingLaporan = $magangs->filter(fn ($m) => $m->laporanAkhir?->status_approval_kampus === StatusApproval::PENDING)->count();
-            
+            // ✅ Filter di PHP collection (data sudah di-load dengan eager load)
+            $pendingLaporan  = $magangs->filter(fn ($m) => $m->laporanAkhir?->status_approval_kampus === StatusApproval::PENDING)->count();
             $studentsToGrade = $magangs->filter(fn ($m) => $m->penilaian === null || $m->penilaian->nilai_kampus === null)->count();
 
-            $recentLaporan = LaporanAkhir::whereIn('magang_id', $magangs->pluck('id'))
+            // ✅ Ambil recent laporan dari magang yang sudah di-load, tidak perlu query terpisah
+            $magangIds = $magangs->pluck('id');
+            $recentLaporan = LaporanAkhir::whereIn('magang_id', $magangIds)
                 ->with('magangAktif.pendaftaran.mahasiswa')
                 ->latest()
                 ->take(5)
                 ->get()
                 ->map(fn ($l) => [
-                    'id' => $l->id,
-                    'mahasiswa' => $l->magangAktif->pendaftaran->mahasiswa->nama_lengkap,
-                    'nim' => $l->magangAktif->pendaftaran->mahasiswa->nim,
-                    'status' => $l->status_approval_kampus->value,
-                    'status_label' => $l->status_approval_kampus->label(),
+                    'id'         => $l->id,
+                    'mahasiswa'  => $l->magangAktif->pendaftaran->mahasiswa->nama_lengkap,
+                    'nim'        => $l->magangAktif->pendaftaran->mahasiswa->nim,
+                    'status'     => $l->status_approval_kampus->value,
+                    'status_label'=> $l->status_approval_kampus->label(),
                     'updated_at' => $l->updated_at->format('d M Y'),
                 ]);
         }
@@ -79,13 +81,14 @@ class DosenPembimbingController extends Controller
 
         if ($dosen) {
             $magangs = $dosen->magangAktifs()
-                ->with('pendaftaran.mahasiswa')
+                ->with('pendaftaran.mahasiswa', 'logbooks') // ✅ eager load logbooks
                 ->get()
                 ->map(fn ($m) => [
-                    'id' => $m->id,
+                    'id'           => $m->id,
                     'nama_lengkap' => $m->pendaftaran->mahasiswa->nama_lengkap,
-                    'nim' => $m->pendaftaran->mahasiswa->nim,
-                    'total_logbook' => $m->logbooks()->count(),
+                    'nim'          => $m->pendaftaran->mahasiswa->nim,
+                    // ✅ ->logbooks (property) bukan ->logbooks() (method) — tidak ada N+1
+                    'total_logbook'=> $m->logbooks->count(),
                 ]);
 
             if ($selectedMagangId) {

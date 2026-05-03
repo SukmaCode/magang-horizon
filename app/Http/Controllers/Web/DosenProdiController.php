@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\MagangAktif;
-use App\Models\User;
+use App\Models\Penilaian;
+use App\Enums\StatusTahapan;
 use App\Services\GradingService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -21,21 +22,25 @@ class DosenProdiController extends Controller
 
     public function dashboard(Request $request)
     {
-        // For MVP, just count all active internships
-        $activeMagangs = MagangAktif::with('pendaftaran.mahasiswa', 'pendaftaran.industri')->get();
-        
-        $totalActive = $activeMagangs->count();
-        $totalFinished = $activeMagangs->where('status_tahapan', 'lulus')->count();
-        
-        $recentMagangs = $activeMagangs->sortByDesc('created_at')->take(5)->map(fn ($m) => [
-            'id' => $m->id,
-            'mahasiswa' => $m->pendaftaran->mahasiswa->nama_lengkap,
-            'industri' => $m->pendaftaran->industri->nama_perusahaan,
-            'status' => $m->status_tahapan->label(),
-        ])->values();
+        // ✅ Filter di database, bukan di PHP collection
+        $totalActive   = MagangAktif::count();
+        $totalFinished = MagangAktif::where('status_tahapan', StatusTahapan::LULUS)->count();
+
+        // ✅ Query terpisah untuk recent list — hanya ambil 5 record
+        $recentMagangs = MagangAktif::with('pendaftaran.mahasiswa', 'pendaftaran.industri')
+            ->latest()
+            ->take(5)
+            ->get()
+            ->map(fn ($m) => [
+                'id'       => $m->id,
+                'mahasiswa'=> $m->pendaftaran->mahasiswa->nama_lengkap,
+                'industri' => $m->pendaftaran->industri->nama_perusahaan,
+                'status'   => $m->status_tahapan->label(),
+            ])
+            ->values();
 
         return Inertia::render('DosenProdi/Dashboard', [
-            'totalActive' => $totalActive,
+            'totalActive'   => $totalActive,
             'totalFinished' => $totalFinished,
             'recentMagangs' => $recentMagangs,
         ]);
@@ -47,7 +52,6 @@ class DosenProdiController extends Controller
 
     public function verifikasiKelulusan(Request $request)
     {
-        // Get all magangs that have complete grades but not yet verified
         $magangs = MagangAktif::with('pendaftaran.mahasiswa', 'penilaian', 'laporanAkhir')
             ->whereHas('penilaian', function ($q) {
                 $q->whereNotNull('nilai_industri')
@@ -56,15 +60,15 @@ class DosenProdiController extends Controller
             })
             ->get()
             ->map(fn ($m) => [
-                'id' => $m->id,
-                'mahasiswa' => [
+                'id'            => $m->id,
+                'mahasiswa'     => [
                     'nama_lengkap' => $m->pendaftaran->mahasiswa->nama_lengkap,
-                    'nim' => $m->pendaftaran->mahasiswa->nim,
+                    'nim'          => $m->pendaftaran->mahasiswa->nim,
                 ],
-                'nilai_industri' => $m->penilaian->nilai_industri,
-                'nilai_kampus' => $m->penilaian->nilai_kampus,
-                'nilai_akhir' => $m->penilaian->nilai_akhir,
-                'penilaian_id' => $m->penilaian->id,
+                'nilai_industri'=> $m->penilaian->nilai_industri,
+                'nilai_kampus'  => $m->penilaian->nilai_kampus,
+                'nilai_akhir'   => $m->penilaian->nilai_akhir,
+                'penilaian_id'  => $m->penilaian->id,
             ]);
 
         return Inertia::render('DosenProdi/VerifikasiKelulusan', [
@@ -75,11 +79,10 @@ class DosenProdiController extends Controller
     public function submitVerifikasi(Request $request, $penilaianId)
     {
         try {
-            $penilaian = \App\Models\Penilaian::findOrFail($penilaianId);
+            $penilaian = Penilaian::findOrFail($penilaianId);
+
+            // ✅ GradingService::verify() sekarang juga handle transisi status ke LULUS
             $this->gradingService->verify($penilaian);
-            
-            // Advance status to LULUS
-            $penilaian->magangAktif->update(['status_tahapan' => \App\Enums\StatusTahapan::LULUS]);
 
             return back()->with('success', 'Verifikasi kelulusan berhasil disetujui.');
         } catch (\Exception $e) {

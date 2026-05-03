@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\StatusApproval;
+use App\Enums\StatusTahapan;
 use App\Models\LaporanAkhir;
 use App\Models\MagangAktif;
 use App\Models\Penilaian;
@@ -60,11 +61,15 @@ class GradingService
 
         $penilaian->update(['status_verifikasi_admin' => true]);
 
+        // ✅ Business rule: setelah verifikasi admin, status magang otomatis jadi LULUS
+        // Dipindahkan dari DosenProdiController ke sini agar encapsulated di Service
+        $penilaian->magangAktif->update(['status_tahapan' => StatusTahapan::LULUS]);
+
         activity('grading')
             ->performedOn($penilaian)
-            ->log('Grading verified by admin');
+            ->log('Grading verified by admin — internship marked as LULUS');
 
-        return $penilaian;
+        return $penilaian->fresh();
     }
 
     /**
