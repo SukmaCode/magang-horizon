@@ -46,8 +46,8 @@
                     :href="item.href"
                     :class="[
                         item.current
-                            ? 'bg-white text-primary font-semibold'
-                            : 'text-white hover:bg-gray-50 hover:text-primary',
+                            ? 'bg-surface text-primary font-jakartaSemiBold'
+                            : 'text-white font-jakarta hover:bg-surface hover:text-primary',
                         'group flex items-center px-5 py-3 text-sm font-medium rounded-l-full transition-all duration-200',
                     ]"
                 >
@@ -220,12 +220,7 @@ const navigation = computed(() => {
             icon: HomeIcon,
             current: currentPath.includes("dashboard"),
         });
-        menu.push({
-            name: "Agreement",
-            href: "/mahasiswa/agreement",
-            icon: DocumentIcon,
-            current: currentPath.includes("agreement"),
-        });
+        
         menu.push({
             name: "Manajemen CV",
             href: "/mahasiswa/manajemen-cv",
@@ -237,6 +232,12 @@ const navigation = computed(() => {
             href: "/mahasiswa/kirim-cv",
             icon: DocumentIcon,
             current: currentPath.includes("kirim-cv"),
+        });
+        menu.push({
+            name: "Agreement",
+            href: "/mahasiswa/agreement",
+            icon: DocumentIcon,
+            current: currentPath.includes("agreement"),
         });
         menu.push({
             name: "Logbook",

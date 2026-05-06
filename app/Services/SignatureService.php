@@ -17,7 +17,7 @@ class SignatureService
         $imageData = $this->decodeBase64Image($base64Data);
 
         // Generate unique filename
-        $filename = "signatures/{$user->id}/" . uniqid('sig_') . '.png';
+        $filename = "signatures/{$user->id}/".uniqid('sig_').'.png';
 
         // Store in private disk
         Storage::disk('private')->put($filename, $imageData);
@@ -51,6 +51,7 @@ class SignatureService
     public function delete(Signature $signature): bool
     {
         Storage::disk('private')->delete($signature->signature_image_path);
+
         return $signature->delete();
     }
 

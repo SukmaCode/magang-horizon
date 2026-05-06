@@ -4,8 +4,8 @@
 
         <!-- Header -->
         <div class="mb-8">
-            <h1 class="text-xl font-bold text-text-primary font-jakarta">Laporan Akhir</h1>
-            <p class="text-sm text-text-secondary mt-1">Upload dan pantau status laporan akhir magang Anda.</p>
+            <h1 class="text-xl font-jakartaSemiBold text-text-primary">Laporan Akhir</h1>
+            <p class="text-sm font-jakarta text-text-secondary mt-1">Upload dan pantau status laporan akhir magang Anda.</p>
         </div>
 
         <!-- No Magang Warning -->
@@ -80,7 +80,7 @@
 
             <!-- Upload Form -->
             <div v-if="canUpload" class="bg-card rounded-xl border border-gray-100 p-6">
-                <h2 class="text-base font-bold text-text-primary font-jakarta mb-4">
+                <h2 class="text-base font-jakartaSemiBold text-text-primary mb-4">
                     {{ laporan ? 'Upload Ulang Laporan' : 'Upload Laporan Akhir' }}
                 </h2>
 
@@ -103,25 +103,25 @@
                             <svg class="w-10 h-10 text-success mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <p class="text-sm font-semibold text-text-primary">{{ selectedFile.name }}</p>
+                            <p class="text-sm font-jakartaSemiBold text-text-primary">{{ selectedFile.name }}</p>
                             <p class="text-xs text-text-secondary mt-1">{{ formatFileSize(selectedFile.size) }}</p>
                         </div>
                         <div v-else class="flex flex-col items-center">
                             <svg class="w-10 h-10 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                             </svg>
-                            <p class="text-sm font-semibold text-text-primary">Drag & drop file PDF di sini</p>
-                            <p class="text-xs text-text-secondary mt-1">atau klik untuk memilih file (max 20MB)</p>
+                            <p class="text-sm font-jakartaSemiBold text-text-primary">Drag & drop file PDF di sini</p>
+                            <p class="text-xs font-jakarta text-text-secondary mt-1">atau klik untuk memilih file (max 20MB)</p>
                         </div>
                     </div>
 
-                    <p v-if="uploadForm.errors.file" class="text-xs text-danger mt-2">{{ uploadForm.errors.file }}</p>
+                    <p v-if="uploadForm.errors.file" class="text-xs font-jakarta text-danger mt-2">{{ uploadForm.errors.file }}</p>
 
                     <!-- Submit -->
                     <button
                         type="submit"
                         :disabled="!selectedFile || uploadForm.processing"
-                        class="mt-4 w-full px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        class="mt-4 w-full px-4 py-2.5 text-sm font-jakartaSemiBold text-white bg-primary rounded-xl hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <span v-if="uploadForm.processing" class="flex items-center justify-center gap-2">
                             <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">

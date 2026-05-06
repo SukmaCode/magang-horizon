@@ -20,6 +20,7 @@ class MagangController extends Controller
     {
         $status = $request->query('status') ? StatusTahapan::tryFrom($request->query('status')) : null;
         $data = $this->internshipService->list($status);
+
         return response()->json($data);
     }
 

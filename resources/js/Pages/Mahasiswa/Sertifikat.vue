@@ -4,8 +4,8 @@
 
         <!-- Header -->
         <div class="mb-8">
-            <h1 class="text-xl font-bold text-text-primary font-jakarta">Sertifikat Kelulusan</h1>
-            <p class="text-sm text-text-secondary mt-1">Pantau status kelulusan dan unduh sertifikat magang Anda.</p>
+            <h1 class="text-xl font-jakartaSemiBold text-text-primary">Sertifikat Kelulusan</h1>
+            <p class="text-sm font-jakarta text-text-secondary mt-1">Pantau status kelulusan dan unduh sertifikat magang Anda.</p>
         </div>
 
         <!-- No Magang -->
@@ -14,8 +14,8 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div>
-                <p class="text-sm font-semibold text-text-primary">Belum memiliki magang aktif</p>
-                <p class="text-xs text-text-secondary mt-1">Silakan ajukan lamaran magang terlebih dahulu.</p>
+                <p class="text-sm font-jakartaSemiBold text-text-primary">Belum memiliki magang aktif</p>
+                <p class="text-xs font-jakarta text-text-secondary mt-1">Silakan ajukan lamaran magang terlebih dahulu.</p>
             </div>
         </div>
 
@@ -37,8 +37,8 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                             </svg>
                         </div>
-                        <h2 class="text-2xl font-bold text-primary font-jakarta">Selamat, Anda Telah Lulus! 🎉</h2>
-                        <p class="text-sm text-text-secondary mt-2">Magang Anda telah resmi selesai. Unduh sertifikat Anda di bawah.</p>
+                        <h2 class="text-2xl font-jakartaSemiBold text-primary">Selamat, Anda Telah Lulus! 🎉</h2>
+                        <p class="text-sm font-jakarta text-text-secondary mt-2">Magang Anda telah resmi selesai. Unduh sertifikat Anda di bawah.</p>
                     </div>
                 </template>
 
@@ -50,8 +50,8 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                             </svg>
                         </div>
-                        <h2 class="text-xl font-bold text-text-primary font-jakarta">Belum Lulus</h2>
-                        <p class="text-sm text-text-secondary mt-2">Selesaikan seluruh tahapan magang untuk mendapatkan sertifikat.</p>
+                        <h2 class="text-xl font-jakartaSemiBold text-text-primary">Belum Lulus</h2>
+                        <p class="text-sm font-jakarta text-text-secondary mt-2">Selesaikan seluruh tahapan magang untuk mendapatkan sertifikat.</p>
                     </div>
                 </template>
             </div>
@@ -59,25 +59,25 @@
             <!-- Grading Info -->
             <div v-if="penilaian" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                 <div class="bg-card rounded-xl border border-gray-100 p-5">
-                    <p class="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">Nilai Industri</p>
-                    <p class="text-2xl font-bold text-text-primary font-jakarta">
+                    <p class="text-xs font-jakartaSemiBold text-text-secondary uppercase tracking-wider mb-2">Nilai Industri</p>
+                    <p class="text-2xl font-jakartaSemiBold text-text-primary">
                         {{ penilaian.nilai_industri != null ? penilaian.nilai_industri : '—' }}
                     </p>
                 </div>
                 <div class="bg-card rounded-xl border border-gray-100 p-5">
-                    <p class="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">Nilai Akademis</p>
-                    <p class="text-2xl font-bold text-text-primary font-jakarta">
+                    <p class="text-xs font-jakartaSemiBold text-text-secondary uppercase tracking-wider mb-2">Nilai Akademis</p>
+                    <p class="text-2xl font-jakartaSemiBold text-text-primary">
                         {{ penilaian.nilai_kampus != null ? penilaian.nilai_kampus : '—' }}
                     </p>
                 </div>
-                <div class="bg-card rounded-xl border border-primary/20 p-5 bg-primary/5">
-                    <p class="text-xs font-semibold text-primary uppercase tracking-wider mb-2">Nilai Akhir</p>
-                    <p class="text-2xl font-bold text-primary font-jakarta">
+                <div class="bg-card rounded-xl border border-primary/20 p-5">
+                    <p class="text-xs font-jakartaSemiBold text-primary uppercase tracking-wider mb-2">Nilai Akhir</p>
+                    <p class="text-2xl font-jakartaSemiBold text-primary">
                         {{ penilaian.nilai_akhir != null ? penilaian.nilai_akhir : '—' }}
                     </p>
                     <span
                         v-if="penilaian.is_verified"
-                        class="inline-flex items-center gap-1 text-xs text-success font-medium mt-2"
+                        class="inline-flex items-center gap-1 text-xs text-success font-jakartaSemiBold mt-2"
                     >
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -86,7 +86,7 @@
                     </span>
                     <span
                         v-else
-                        class="inline-flex items-center gap-1 text-xs text-amber-600 font-medium mt-2"
+                        class="inline-flex items-center gap-1 text-xs text-amber-600 font-jakartaSemiBold mt-2"
                     >
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -105,21 +105,21 @@
                             <svg v-if="penilaian?.nilai_industri != null" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                             <span v-else class="text-xs font-bold">1</span>
                         </div>
-                        <span class="text-sm" :class="penilaian?.nilai_industri != null ? 'text-success font-medium' : 'text-text-secondary'">Nilai dari Industri</span>
+                        <span class="text-sm font-jakartaSemiBold" :class="penilaian?.nilai_industri != null ? 'text-success' : 'text-text-secondary'">Nilai dari Industri</span>
                     </div>
                     <div class="flex items-center gap-3 p-3 rounded-lg" :class="penilaian?.nilai_kampus != null ? 'bg-success/5' : 'bg-gray-50'">
                         <div :class="['w-6 h-6 rounded-full flex items-center justify-center shrink-0', penilaian?.nilai_kampus != null ? 'bg-success/20 text-success' : 'bg-gray-200 text-gray-400']">
                             <svg v-if="penilaian?.nilai_kampus != null" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                             <span v-else class="text-xs font-bold">2</span>
                         </div>
-                        <span class="text-sm" :class="penilaian?.nilai_kampus != null ? 'text-success font-medium' : 'text-text-secondary'">Nilai dari Kampus</span>
+                        <span class="text-sm font-jakartaSemiBold" :class="penilaian?.nilai_kampus != null ? 'text-success' : 'text-text-secondary'">Nilai dari Kampus</span>
                     </div>
                     <div class="flex items-center gap-3 p-3 rounded-lg" :class="penilaian?.is_verified ? 'bg-success/5' : 'bg-gray-50'">
                         <div :class="['w-6 h-6 rounded-full flex items-center justify-center shrink-0', penilaian?.is_verified ? 'bg-success/20 text-success' : 'bg-gray-200 text-gray-400']">
                             <svg v-if="penilaian?.is_verified" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                             <span v-else class="text-xs font-bold">3</span>
                         </div>
-                        <span class="text-sm" :class="penilaian?.is_verified ? 'text-success font-medium' : 'text-text-secondary'">Verifikasi Admin</span>
+                        <span class="text-sm font-jakartaSemiBold" :class="penilaian?.is_verified ? 'text-success' : 'text-text-secondary'">Verifikasi Admin</span>
                     </div>
                 </div>
             </div>
@@ -135,14 +135,14 @@
                     <a
                         v-if="sertifikat.has_file"
                         href="/mahasiswa/sertifikat/download"
-                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary-hover transition-colors duration-200 shadow-sm"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-jakartaSemiBold rounded-xl hover:bg-primary-hover transition-colors duration-200 shadow-sm"
                     >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                         Download PDF
                     </a>
-                    <span v-else class="text-xs text-amber-600 bg-amber-50 px-3 py-1.5 rounded-full font-medium">
+                    <span v-else class="text-xs text-amber-600 bg-amber-50 px-3 py-1.5 rounded-full font-jakartaSemiBold">
                         Sertifikat sedang diproses
                     </span>
                 </div>

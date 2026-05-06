@@ -14,8 +14,10 @@ use App\Services\DocumentService;
 use App\Services\GradingService;
 use App\Services\InternshipService;
 use App\Services\MahasiswaService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class MahasiswaController extends Controller
@@ -35,7 +37,7 @@ class MahasiswaController extends Controller
 
     public function kirimCV(Request $request)
     {
-        $user      = $request->user();
+        $user = $request->user();
         $mahasiswa = $user->mahasiswa;
 
         // ✅ List industri tetap di sini — ini data statis untuk form, bukan business logic
@@ -49,12 +51,12 @@ class MahasiswaController extends Controller
             : ['pendaftarans' => [], 'hasAccepted' => false, 'pendingCount' => 0, 'cvUploaded' => false];
 
         return Inertia::render('Mahasiswa/KirimCV', [
-            'industris'      => $industris,
-            'pendaftarans'   => $data['pendaftarans'],
-            'hasAccepted'    => $data['hasAccepted'],
-            'pendingCount'   => $data['pendingCount'],
-            'maxApplications'=> 3,
-            'cvUploaded'     => $data['cvUploaded'],
+            'industris' => $industris,
+            'pendaftarans' => $data['pendaftarans'],
+            'hasAccepted' => $data['hasAccepted'],
+            'pendingCount' => $data['pendingCount'],
+            'maxApplications' => 3,
+            'cvUploaded' => $data['cvUploaded'],
         ]);
     }
 
@@ -73,7 +75,7 @@ class MahasiswaController extends Controller
         $user = $request->user();
         $mahasiswa = $user->mahasiswa;
 
-        if (!$mahasiswa) {
+        if (! $mahasiswa) {
             return back()->with('error', 'Profil mahasiswa tidak ditemukan.');
         }
 
@@ -82,7 +84,7 @@ class MahasiswaController extends Controller
                 // Upload CV if provided
                 if ($request->hasFile('cv_file')) {
                     $cvFile = $request->file('cv_file');
-                    $cvPath = $cvFile->store('documents/cv/' . $mahasiswa->id, 'private');
+                    $cvPath = $cvFile->store('documents/cv/'.$mahasiswa->id, 'private');
 
                     // Update mahasiswa cv_file_path
                     $mahasiswa->update(['cv_file_path' => $cvPath]);
@@ -97,7 +99,7 @@ class MahasiswaController extends Controller
                 }
 
                 // Check if CV already exists (either just uploaded or already in DB)
-                if (!$mahasiswa->cv_file_path) {
+                if (! $mahasiswa->cv_file_path) {
                     throw new \Exception('Anda wajib mengunggah CV terlebih dahulu melalui menu Manajemen CV.');
                 }
 
@@ -109,7 +111,7 @@ class MahasiswaController extends Controller
 
                 return back()->with('success', 'Lamaran berhasil dikirim! Tunggu hasil seleksi dari industri.');
             });
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             return back()->withErrors($e->errors());
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -122,7 +124,7 @@ class MahasiswaController extends Controller
 
     public function agreement(Request $request)
     {
-        $user      = $request->user();
+        $user = $request->user();
         $mahasiswa = $user->mahasiswa;
 
         // ✅ Foreach loop + mapping dipindah ke MahasiswaService
@@ -138,18 +140,18 @@ class MahasiswaController extends Controller
     public function downloadAgreement(Request $request, MagangAktif $magangAktif)
     {
         $user = $request->user();
-        
+
         if ($magangAktif->pendaftaran->mahasiswa_id !== $user->mahasiswa->id) {
             abort(403, 'Unauthorized access to this document.');
         }
 
-        if (!$magangAktif->file_agreement_industri) {
+        if (! $magangAktif->file_agreement_industri) {
             return back()->with('error', 'Dokumen agreement belum tersedia.');
         }
 
-        $path = storage_path('app/private/' . $magangAktif->file_agreement_industri);
+        $path = storage_path('app/private/'.$magangAktif->file_agreement_industri);
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             return back()->with('error', 'File tidak ditemukan di server.');
         }
 
@@ -168,7 +170,7 @@ class MahasiswaController extends Controller
         }
 
         try {
-            $path = $request->file('file')->store('documents/agreements/mahasiswa/' . $magangAktif->id, 'private');
+            $path = $request->file('file')->store('documents/agreements/mahasiswa/'.$magangAktif->id, 'private');
             $this->internshipService->acceptAgreement($magangAktif, $path);
 
             return back()->with('success', 'Agreement berhasil diterima dan ditandatangani.');
@@ -242,12 +244,12 @@ class MahasiswaController extends Controller
 
                 // Recent logbooks
                 $recentLogbooks = $magang->logbooks()
-                    ->orderBy('tanggal', 'desc')
+                    ->orderBy('tanggal_waktu', 'desc')
                     ->take(5)
                     ->get()
                     ->map(fn (Logbook $l) => [
                         'id' => $l->id,
-                        'tanggal' => $l->tanggal->format('d M Y'),
+                        'tanggal_waktu' => $l->tanggal_waktu->format('d M Y'),
                         'kegiatan' => $l->kegiatan,
                         'status_presensi' => $l->status_presensi->label(),
                         'is_approved' => $l->is_approved_industri,
@@ -286,12 +288,12 @@ class MahasiswaController extends Controller
             $canSubmit = $magang->status_tahapan->allowsDailyLogs();
 
             $logbooks = $magang->logbooks()
-                ->orderBy('tanggal', 'desc')
+                ->orderBy('tanggal_waktu', 'desc')
                 ->paginate(15)
                 ->through(fn (Logbook $l) => [
                     'id' => $l->id,
-                    'tanggal' => $l->tanggal->format('Y-m-d'),
-                    'tanggal_display' => $l->tanggal->format('d M Y'),
+                    'tanggal' => $l->tanggal_waktu->format('Y-m-d\TH:i'),
+                    'tanggal_display' => $l->tanggal_waktu->format('d M Y H:i'),
                     'kegiatan' => $l->kegiatan,
                     'status_presensi' => $l->status_presensi->value,
                     'status_presensi_label' => $l->status_presensi->label(),
@@ -311,22 +313,33 @@ class MahasiswaController extends Controller
 
     public function storeLogbook(Request $request)
     {
-        $request->validate([
-            'kegiatan' => 'required|string|max:2000',
-            'status_presensi' => 'nullable|in:hadir,izin,sakit',
-        ]);
-
         $user = $request->user();
         $magang = $this->getActiveMagang($user->mahasiswa);
 
-        if (!$magang) {
+        if (! $magang) {
             return back()->with('error', 'Anda belum memiliki magang aktif.');
         }
 
+        $validated = $request->validate([
+            'kegiatan' => 'required|string|max:2000',
+            'status_presensi' => 'nullable|in:hadir,izin,sakit',
+            'tanggal_waktu' => [
+                'required',
+                'date_format:Y-m-d\TH:i',
+            ],
+        ]);
+
+        // Cek duplikat: satu logbook per hari
+        $alreadyExists = $magang->logbooks()
+            ->whereDate('tanggal_waktu', Carbon::parse($validated['tanggal_waktu'])->toDateString())
+            ->exists();
+
+        if ($alreadyExists) {
+            return back()->withErrors(['tanggal_waktu' => 'Anda sudah mengisi logbook pada tanggal tersebut.']);
+        }
+
         try {
-            $this->dailyLogService->submit($magang, $request->only([
-                'kegiatan', 'status_presensi'
-            ]));
+            $this->dailyLogService->submit($magang, $validated);
 
             return back()->with('success', 'Logbook berhasil disubmit.');
         } catch (\Exception $e) {
@@ -380,7 +393,7 @@ class MahasiswaController extends Controller
         $user = $request->user();
         $magang = $this->getActiveMagang($user->mahasiswa);
 
-        if (!$magang) {
+        if (! $magang) {
             return back()->with('error', 'Anda belum memiliki magang aktif.');
         }
 
@@ -444,19 +457,19 @@ class MahasiswaController extends Controller
         $user = $request->user();
         $magang = $this->getActiveMagang($user->mahasiswa);
 
-        if (!$magang || $magang->status_tahapan !== StatusTahapan::LULUS) {
+        if (! $magang || $magang->status_tahapan !== StatusTahapan::LULUS) {
             return back()->with('error', 'Anda belum berhak mendownload sertifikat.');
         }
 
         $sertifikat = $magang->sertifikat;
 
-        if (!$sertifikat || !$sertifikat->file_sertifikat_path) {
+        if (! $sertifikat || ! $sertifikat->file_sertifikat_path) {
             return back()->with('error', 'Sertifikat belum tersedia.');
         }
 
-        $path = storage_path('app/private/' . $sertifikat->file_sertifikat_path);
+        $path = storage_path('app/private/'.$sertifikat->file_sertifikat_path);
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             return back()->with('error', 'File sertifikat tidak ditemukan.');
         }
 
@@ -469,7 +482,7 @@ class MahasiswaController extends Controller
 
     private function getActiveMagang($mahasiswa): ?MagangAktif
     {
-        if (!$mahasiswa) {
+        if (! $mahasiswa) {
             return null;
         }
 

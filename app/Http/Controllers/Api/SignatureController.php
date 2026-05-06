@@ -27,6 +27,7 @@ class SignatureController extends Controller
     public function latest(Request $request): JsonResponse
     {
         $signature = $this->signatureService->getLatest($request->user());
+
         return response()->json($signature);
     }
 }

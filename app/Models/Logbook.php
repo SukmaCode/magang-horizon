@@ -13,7 +13,7 @@ class Logbook extends Model
 
     protected $fillable = [
         'magang_id',
-        'tanggal',
+        'tanggal_waktu',
         'kegiatan',
         'status_presensi',
         'is_approved_industri',
@@ -24,7 +24,7 @@ class Logbook extends Model
     protected function casts(): array
     {
         return [
-            'tanggal' => 'date',
+            'tanggal_waktu' => 'datetime',
             'status_presensi' => StatusPresensi::class,
             'is_approved_industri' => 'boolean',
             'is_checked_kampus' => 'boolean',
@@ -56,6 +56,6 @@ class Logbook extends Model
 
     public function scopeForDate($query, string $date)
     {
-        return $query->whereDate('tanggal', $date);
+        return $query->whereDate('tanggal_waktu', $date);
     }
 }

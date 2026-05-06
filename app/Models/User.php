@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\UserRole;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -84,7 +85,7 @@ class User extends Authenticatable
         return $this->hasOne(Dosen::class);
     }
 
-    public function signatures(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function signatures(): HasMany
     {
         return $this->hasMany(Signature::class);
     }

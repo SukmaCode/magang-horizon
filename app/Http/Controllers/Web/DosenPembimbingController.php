@@ -38,7 +38,7 @@ class DosenPembimbingController extends Controller
             $activeStudents = $magangs->count();
 
             // ✅ Filter di PHP collection (data sudah di-load dengan eager load)
-            $pendingLaporan  = $magangs->filter(fn ($m) => $m->laporanAkhir?->status_approval_kampus === StatusApproval::PENDING)->count();
+            $pendingLaporan = $magangs->filter(fn ($m) => $m->laporanAkhir?->status_approval_kampus === StatusApproval::PENDING)->count();
             $studentsToGrade = $magangs->filter(fn ($m) => $m->penilaian === null || $m->penilaian->nilai_kampus === null)->count();
 
             // ✅ Ambil recent laporan dari magang yang sudah di-load, tidak perlu query terpisah
@@ -49,20 +49,23 @@ class DosenPembimbingController extends Controller
                 ->take(5)
                 ->get()
                 ->map(fn ($l) => [
-                    'id'         => $l->id,
-                    'mahasiswa'  => $l->magangAktif->pendaftaran->mahasiswa->nama_lengkap,
-                    'nim'        => $l->magangAktif->pendaftaran->mahasiswa->nim,
-                    'status'     => $l->status_approval_kampus->value,
-                    'status_label'=> $l->status_approval_kampus->label(),
+                    'id' => $l->id,
+                    'mahasiswa' => $l->magangAktif->pendaftaran->mahasiswa->nama_lengkap,
+                    'nim' => $l->magangAktif->pendaftaran->mahasiswa->nim,
+                    'status' => $l->status_approval_kampus->value,
+                    'status_label' => $l->status_approval_kampus->label(),
                     'updated_at' => $l->updated_at->format('d M Y'),
                 ]);
         }
+
+        $hasSignature = $user->signatures()->exists();
 
         return Inertia::render('DosenPembimbing/Dashboard', [
             'activeStudents' => $activeStudents,
             'pendingLaporan' => $pendingLaporan,
             'studentsToGrade' => $studentsToGrade,
             'recentLaporan' => $recentLaporan,
+            'hasSignature' => $hasSignature,
         ]);
     }
 
@@ -84,22 +87,22 @@ class DosenPembimbingController extends Controller
                 ->with('pendaftaran.mahasiswa', 'logbooks') // ✅ eager load logbooks
                 ->get()
                 ->map(fn ($m) => [
-                    'id'           => $m->id,
+                    'id' => $m->id,
                     'nama_lengkap' => $m->pendaftaran->mahasiswa->nama_lengkap,
-                    'nim'          => $m->pendaftaran->mahasiswa->nim,
+                    'nim' => $m->pendaftaran->mahasiswa->nim,
                     // ✅ ->logbooks (property) bukan ->logbooks() (method) — tidak ada N+1
-                    'total_logbook'=> $m->logbooks->count(),
+                    'total_logbook' => $m->logbooks->count(),
                 ]);
 
             if ($selectedMagangId) {
                 $magang = $dosen->magangAktifs()->find($selectedMagangId);
                 if ($magang) {
                     $logbooks = $magang->logbooks()
-                        ->orderBy('tanggal', 'desc')
+                        ->orderBy('tanggal_waktu', 'desc')
                         ->paginate(15)
                         ->through(fn (Logbook $l) => [
                             'id' => $l->id,
-                            'tanggal' => $l->tanggal->format('d M Y'),
+                            'tanggal_waktu' => $l->tanggal_waktu->format('d M Y H:i'),
                             'kegiatan' => $l->kegiatan,
                             'status_presensi_label' => $l->status_presensi->label(),
                             'status_presensi' => $l->status_presensi->value,
@@ -169,6 +172,38 @@ class DosenPembimbingController extends Controller
         }
     }
 
+    public function downloadLaporan(Request $request, LaporanAkhir $laporan)
+    {
+        $user = $request->user();
+        $dosen = $user->dosen;
+
+        if (! $dosen) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        // Verify this laporan belongs to a student supervised by this dosen
+        $magangIds = $dosen->magangAktifs()->pluck('id');
+        if (! $magangIds->contains($laporan->magang_id)) {
+            abort(403, 'Anda tidak memiliki akses ke laporan ini.');
+        }
+
+        if (! $laporan->file_laporan) {
+            return back()->with('error', 'File laporan belum tersedia.');
+        }
+
+        $path = storage_path('app/private/'.$laporan->file_laporan);
+
+        if (! file_exists($path)) {
+            return back()->with('error', 'File tidak ditemukan di server.');
+        }
+
+        $mahasiswaName = $laporan->magangAktif->pendaftaran->mahasiswa->nama_lengkap ?? 'Mahasiswa';
+
+        return response()->file($path, [
+            'Content-Type' => 'application/pdf',
+        ]);
+    }
+
     // ──────────────────────────────────────
     // Input Nilai
     // ──────────────────────────────────────
@@ -209,6 +244,7 @@ class DosenPembimbingController extends Controller
 
         try {
             $this->gradingService->gradeByCampus($magangAktif, (float) $request->input('nilai'));
+
             return back()->with('success', 'Nilai akademis berhasil disimpan.');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());

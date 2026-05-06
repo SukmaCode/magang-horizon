@@ -24,6 +24,7 @@ class LogbookController extends Controller
             $request->query('start_date'),
             $request->query('end_date')
         );
+
         return response()->json($data);
     }
 
@@ -43,18 +44,21 @@ class LogbookController extends Controller
     {
         $request->validate(['komentar' => 'nullable|string|max:500']);
         $result = $this->dailyLogService->approve($logbook, $request->input('komentar'));
+
         return response()->json(['message' => 'Logbook approved.', 'data' => $result]);
     }
 
     public function check(Logbook $logbook): JsonResponse
     {
         $result = $this->dailyLogService->check($logbook);
+
         return response()->json(['message' => 'Logbook checked.', 'data' => $result]);
     }
 
     public function pending(Request $request): JsonResponse
     {
         $magangId = $request->query('magang_id');
+
         return response()->json($this->dailyLogService->getPendingApproval($magangId));
     }
 }

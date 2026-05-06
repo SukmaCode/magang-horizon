@@ -40,10 +40,10 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'tahun_akademik' => 'required|string',
-            'semester'       => 'required|in:ganjil,genap,pendek',
-            'tanggal_buka'   => 'required|date',
-            'tanggal_tutup'  => 'required|date|after:tanggal_buka',
-            'is_active'      => 'boolean',
+            'semester' => 'required|in:ganjil,genap,pendek',
+            'tanggal_buka' => 'required|date',
+            'tanggal_tutup' => 'required|date|after:tanggal_buka',
+            'is_active' => 'boolean',
         ]);
 
         $this->adminService->createPeriode($validated);
@@ -74,8 +74,8 @@ class AdminController extends Controller
     public function storeAssignPembimbing(Request $request)
     {
         $validated = $request->validate([
-            'dosen_id'     => 'required|exists:dosens,id',
-            'magang_ids'   => 'required|array',
+            'dosen_id' => 'required|exists:dosens,id',
+            'magang_ids' => 'required|array',
             'magang_ids.*' => 'exists:magang_aktifs,id',
         ]);
 
@@ -97,6 +97,7 @@ class AdminController extends Controller
     {
         try {
             $this->adminService->terbitkanSertifikat($magangAktif);
+
             return back()->with('success', 'Sertifikat kelulusan resmi diterbitkan.');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());

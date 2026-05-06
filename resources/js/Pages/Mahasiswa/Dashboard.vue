@@ -4,36 +4,36 @@
 
         <!-- Welcome Header -->
         <div class="mb-8">
-            <h1 class="text-xl font-bold text-text-primary font-jakarta">
+            <h1 class="text-xl font-jakartaSemiBold text-text-primary">
                 Selamat Datang, {{ user.nama_lengkap || user.username }}
             </h1>
-            <p class="text-sm text-text-secondary mt-1">
+            <p class="text-sm font-jakarta text-text-secondary mt-1">
                 Pantau progres magang dan kegiatan harian Anda di sini.
             </p>
         </div>
 
         <!-- Status Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <!-- Status Magang -->
-            <CardContainer padding="p-6" class="border-l-4 border-l-primary">
-                <h3 class="text-sm font-semibold text-text-secondary uppercase tracking-wider mb-2">
+            <CardContainer class="border-l-4 border-l-primary">
+                <h3 class="text-sm font-jakartaBold text-text-secondary uppercase tracking-wider mb-2">
                     Status Magang
                 </h3>
-                <p class="text-xl font-bold text-text-primary font-jakarta">
+                <p class="text-xl font-jakartaSemiBold text-text-primary">
                     {{ statusMagang }}
                 </p>
-                <p class="text-xs text-text-secondary mt-2">
+                <p class="text-xs font-jakarta text-text-secondary mt-2">
                     {{ statusDescription }}
                 </p>
             </CardContainer>
 
             <!-- Total Kehadiran -->
-            <CardContainer padding="p-6">
-                <h3 class="text-sm font-semibold text-text-secondary uppercase tracking-wider mb-2">
+            <CardContainer class="border-l-4 border-l-primary">
+                <h3 class="text-sm font-jakartaBold text-text-secondary uppercase tracking-wider mb-2">
                     Total Kehadiran
                 </h3>
                 <div class="flex items-end gap-2">
-                    <p class="text-xl font-bold text-text-primary font-jakarta">
+                    <p class="text-xl font-jakartaSemiBold text-text-primary">
                         {{ logbookStats.total }} Hari
                     </p>
                     <span v-if="logbookStats.pending > 0" class="text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full mb-0.5">
@@ -47,21 +47,22 @@
                             :style="{ width: Math.min((logbookStats.total / logbookStats.target) * 100, 100) + '%' }"
                         ></div>
                     </div>
-                    <p class="text-xs text-text-secondary mt-1">
+                    <p class="text-xs font-jakarta text-text-secondary mt-1">
                         Dari target {{ logbookStats.target }} hari
                     </p>
                 </div>
             </CardContainer>
+            
 
             <!-- Pengajuan CV -->
-            <CardContainer padding="p-6">
-                <h3 class="text-sm font-semibold text-text-secondary uppercase tracking-wider mb-2">
+            <CardContainer class="border-l-4 border-l-primary">
+                <h3 class="text-sm font-jakartaBold text-text-secondary uppercase tracking-wider mb-2">
                     Pengajuan CV
                 </h3>
-                <p class="text-xl font-bold text-primary font-jakarta">
+                <p class="text-xl font-jakartaSemiBold text-text-primary">
                     {{ pendaftaranCount }} / 3
                 </p>
-                <p class="text-xs text-text-secondary mt-2">
+                <p class="text-xs font-jakarta text-text-secondary mt-2">
                     Kuota lamaran aktif
                 </p>
             </CardContainer>
@@ -69,65 +70,32 @@
 
         <!-- Quick Actions -->
         <div v-if="hasMagang" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <Link
-                href="/mahasiswa/logbook"
-                class="flex flex-col items-center gap-2 p-4 bg-card rounded-xl border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all duration-200 group"
+            <CardContainer
+                v-for="(item, index) in quickAction"
+                :key="index"
             >
-                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
-                </div>
-                <span class="text-xs font-semibold text-text-primary">Logbook</span>
-            </Link>
-
-            <Link
-                href="/mahasiswa/laporan-akhir"
-                class="flex flex-col items-center gap-2 p-4 bg-card rounded-xl border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all duration-200 group"
-            >
-                <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                </div>
-                <span class="text-xs font-semibold text-text-primary">Laporan Akhir</span>
-            </Link>
-
-            <Link
-                href="/mahasiswa/sertifikat"
-                class="flex flex-col items-center gap-2 p-4 bg-card rounded-xl border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all duration-200 group"
-            >
-                <div class="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center group-hover:bg-success/20 transition-colors">
-                    <svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                    </svg>
-                </div>
-                <span class="text-xs font-semibold text-text-primary">Sertifikat</span>
-            </Link>
-
-            <Link
-                href="/mahasiswa/kirim-cv"
-                class="flex flex-col items-center gap-2 p-4 bg-card rounded-xl border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all duration-200 group"
-            >
-                <div class="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
-                    <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                    </svg>
-                </div>
-                <span class="text-xs font-semibold text-text-primary">Kirim CV</span>
-            </Link>
+                <Link
+                    :href="item.href"
+                    class="flex flex-col items-center gap-4"
+                >
+                    <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                        <span v-html="item.svg"></span>
+                    </div>
+                    <span class="text-xs font-jakartaSemiBold text-text-primary">{{ item.label }}</span>
+                </Link>
+            </CardContainer>
         </div>
 
         <!-- Recent Activity -->
         <CardContainer padding="p-6">
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-lg font-bold text-text-primary font-jakarta">
+                <h2 class="text-lg font-jakartaBold text-text-primary">
                     Aktivitas Terakhir
                 </h2>
                 <Link
                     v-if="recentLogbooks.length > 0"
                     href="/mahasiswa/logbook"
-                    class="text-sm text-primary font-semibold hover:text-primary-hover transition-colors"
+                    class="text-sm text-primary font-jakartaSemiBold hover:text-primary-hover transition-colors"
                 >
                     Lihat Semua
                 </Link>
@@ -138,7 +106,7 @@
                 <div
                     v-for="log in recentLogbooks"
                     :key="log.id"
-                    class="flex items-start gap-4 p-4 bg-gray-50/50 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors"
+                    class="flex items-center gap-4 p-4 bg-gray-50/50 rounded-xl border border-gray-100 hover:border-gray-300 transition-colors"
                 >
                     <div class="shrink-0 mt-0.5">
                         <div
@@ -158,22 +126,22 @@
                         </div>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="text-xs font-semibold text-text-secondary">{{ log.tanggal }}</span>
+                        <div class="flex items-center mb-1">
+                            <span class="text-xs font-jakartaSemiBold text-text-secondary">{{ log.tanggal }}</span>
                             <span
                                 :class="[
-                                    'text-xs px-2 py-0.5 rounded-full font-medium',
+                                    'text-sm font-jakartaSemiBold',
                                     log.status_presensi === 'Hadir'
-                                        ? 'bg-success/10 text-success'
+                                        ? ' text-success'
                                         : log.status_presensi === 'Izin'
-                                            ? 'bg-blue-50 text-blue-600'
-                                            : 'bg-amber-50 text-amber-600'
+                                            ? ' text-blue-600'
+                                            : ' text-amber-600'
                                 ]"
                             >
                                 {{ log.status_presensi }}
                             </span>
                         </div>
-                        <p class="text-sm text-text-primary line-clamp-2">{{ log.kegiatan }}</p>
+                        <p class="text-sm font-jakarta text-text-primary line-clamp-2">{{ log.kegiatan }}</p>
                     </div>
                 </div>
             </div>
@@ -245,5 +213,55 @@ const props = defineProps({
     pendaftaranCount: { type: Number, default: 0 },
     recentLogbooks: { type: Array, default: () => [] },
     hasMagang: { type: Boolean, default: false },
+});
+
+const quickAction = computed(() => {
+    if (!props.hasMagang) {
+        return [];
+    }
+    
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+
+    return [
+        {
+            icon: 'book-open',
+            label: 'Logbook',
+            href: '/mahasiswa/logbook',
+            svg : `<svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>`
+        },
+        {
+            icon: 'clipboard-list',
+            label: 'Laporan Akhir',
+            href: `/mahasiswa/laporan-akhir?month=${currentMonth}&year=${currentYear}`,
+            svg : `<div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>`
+        },
+        {
+            icon: 'certificate',
+            label: 'Sertifikat',
+            href: '/mahasiswa/sertifikat',
+            svg : `<div class="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center group-hover:bg-success/20 transition-colors">
+                        <svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                        </svg>
+                    </div>`
+        },
+        {
+            icon: 'document-text',
+            label: 'Kirim CV',
+            href: '/mahasiswa/kirim-cv',
+            svg : `<div class="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+                        <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                        </svg>
+                    </div>`
+        },
+    ];
 });
 </script>

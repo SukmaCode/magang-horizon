@@ -36,6 +36,7 @@ class PenilaianController extends Controller
     public function verify(Penilaian $penilaian): JsonResponse
     {
         $result = $this->gradingService->verify($penilaian);
+
         return response()->json([
             'message' => 'Penilaian verified.',
             'data' => $result,

@@ -2,23 +2,21 @@
 
 namespace App\Services;
 
+use App\Enums\StatusAgreement;
 use App\Enums\StatusSeleksi;
 use App\Models\MagangAktif;
-use App\Models\Mahasiswa;
 use App\Models\Pendaftaran;
 use App\Notifications\ApplicationStatusNotification;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class ApplicationService
 {
     /**
      * Create a new internship application.
      *
-     * @param  int  $mahasiswaId
-     * @param  int  $industriId
-     * @return Pendaftaran
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function apply(int $mahasiswaId, int $industriId): Pendaftaran
     {
@@ -29,26 +27,22 @@ class ApplicationService
             ->exists();
 
         if ($existingActive) {
-            throw \Illuminate\Validation\ValidationException::withMessages([
+            throw ValidationException::withMessages([
                 'industri_id' => ['Anda sudah memiliki pendaftaran aktif ke industri ini.'],
             ]);
         }
 
-        // Check if student already has an accepted internship
-        // Exclude pendaftarans where the agreement was rejected by the student
+        // Check if student already has an accepted internship WITH a signed agreement
         $hasAccepted = Pendaftaran::where('mahasiswa_id', $mahasiswaId)
-            ->where('status_seleksi', StatusSeleksi::DITERIMA)
+            ->whereIn('status_seleksi', [StatusSeleksi::DITERIMA, StatusSeleksi::MENUNGGU_MAHASISWA])
             ->whereHas('magangAktif', function ($q) {
-                $q->where(function ($sub) {
-                    $sub->whereNull('status_agreement')
-                        ->orWhere('status_agreement', '!=', 'rejected');
-                });
+                $q->where('status_agreement', StatusAgreement::ACCEPTED);
             })
             ->exists();
 
         if ($hasAccepted) {
-            throw \Illuminate\Validation\ValidationException::withMessages([
-                'mahasiswa_id' => ['Anda sudah diterima di industri lain.'],
+            throw ValidationException::withMessages([
+                'mahasiswa_id' => ['Anda telah menandatangani Agreement dari industri dan tidak dapat mengirim lamaran baru.'],
             ]);
         }
 
@@ -62,9 +56,6 @@ class ApplicationService
     /**
      * Accept a student's application (by industry).
      *
-     * @param  Pendaftaran  $pendaftaran
-     * @param  string|null  $keterangan
-     * @return Pendaftaran
      *
      * @throws \Exception
      */
@@ -94,9 +85,6 @@ class ApplicationService
     /**
      * Reject a student's application (by industry).
      *
-     * @param  Pendaftaran  $pendaftaran
-     * @param  string  $reason
-     * @return Pendaftaran
      *
      * @throws \Exception
      */
@@ -117,10 +105,6 @@ class ApplicationService
 
     /**
      * Reset rejected application — creates a new pendaftaran for re-application.
-     *
-     * @param  int  $mahasiswaId
-     * @param  int  $industriId
-     * @return Pendaftaran
      */
     public function reApply(int $mahasiswaId, int $industriId): Pendaftaran
     {

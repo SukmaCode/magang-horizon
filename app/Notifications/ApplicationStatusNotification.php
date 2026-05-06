@@ -35,7 +35,7 @@ class ApplicationStatusNotification extends Notification implements ShouldQueue
                 ->line('Silakan lanjutkan ke tahap persiapan.');
         } else {
             $mail->line("Mohon maaf, pendaftaran magang Anda di {$industri} DITOLAK.")
-                ->line("Keterangan: " . ($this->pendaftaran->keterangan_industri ?? '-'))
+                ->line('Keterangan: '.($this->pendaftaran->keterangan_industri ?? '-'))
                 ->line('Anda dapat mendaftar ke industri lain.');
         }
 

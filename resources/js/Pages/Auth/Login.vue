@@ -23,10 +23,10 @@
                     class="w-24 h-24"
                 />
 
-                <h1 class="text-2xl text-center font-sans font-bold text-text-primary">
+                <h1 class="text-2xl font-jakartaBold text-center text-text-primary">
                     Magang Horizon University Indonesia
                 </h1>
-                <p class="mt-1.5 text-sm text-center text-text-secondary">
+                <p class="mt-1.5 text-sm font-jakartaSemiBold text-center text-text-secondary">
                     Jl. Pangkal Perjuangan By Pass No.KM.1, Tanjungpura, Kec.
                     Karawang Bar., Karawang, Jawa Barat 41316, Indonesia
                 </p>
@@ -88,7 +88,7 @@
                                     class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary/30 transition-colors"
                                 />
                                 <span
-                                    class="text-sm text-text-secondary group-hover:text-text-primary transition-colors"
+                                    class="text-sm font-jakarta text-text-secondary group-hover:text-text-primary transition-colors"
                                 >
                                     Ingat saya
                                 </span>
@@ -108,12 +108,12 @@
                     <!-- Divider -->
                     <div class="relative mt-6 mb-6">
                         <div class="relative flex justify-center text-xs gap-2">
-                            <span class="bg-card text-text-secondary"
+                            <span class="bg-card font-jakarta text-text-secondary"
                                 >Belum punya akun?</span
                             >
                             <Link
                                 href="/register"
-                                class="text-primary font-semibold"
+                                class="text-primary font-jakartaSemiBold"
                             >
                                 Daftar Sekarang
                             </Link>
@@ -124,10 +124,10 @@
             </CardContainer>
 
             <!-- Footer -->
-            <p class="text-center text-xs text-text-secondary/60 mt-6">
-                &copy; {{ new Date().getFullYear() }} Magang Horizon. All rights
-                reserved.
+            <p class="text-center font-jakartaSemiBold text-xs text-text-secondary/60 mt-6">
+                &copy; {{ new Date().getFullYear() }} Internship Horizon University Indonesia.
             </p>
+            <p class="text-center font-jakartaSemiBold text-xs text-text-secondary/60">Faculty of Informatics and Computer Technology.</p>
         </div>
     </div>
 </template>

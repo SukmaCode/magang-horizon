@@ -39,7 +39,7 @@ class AgreementUploadedNotification extends Notification implements ShouldQueue
             'type' => 'agreement_uploaded',
             'magang_id' => $this->magang->id,
             'industri' => $this->magang->pendaftaran->industri->nama_perusahaan,
-            'message' => 'Agreement magang baru dari ' . $this->magang->pendaftaran->industri->nama_perusahaan,
+            'message' => 'Agreement magang baru dari '.$this->magang->pendaftaran->industri->nama_perusahaan,
         ];
     }
 }

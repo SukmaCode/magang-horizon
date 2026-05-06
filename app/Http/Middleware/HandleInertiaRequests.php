@@ -36,7 +36,7 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $user = $request->user();
-        
+
         // Muat relasi spesifik berdasarkan role
         if ($user) {
             $relation = match ($user->role?->value) {
@@ -56,7 +56,7 @@ class HandleInertiaRequests extends Middleware
                     'id' => $user->id,
                     'username   ' => $user->username,
                     'email' => $user->email,
-                    'role' => $user->role, 
+                    'role' => $user->role,
 
                     // Tabel Mahasiswa
                     'nama_lengkap' => $user->mahasiswa ? $user->mahasiswa->nama_lengkap : null,

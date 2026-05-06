@@ -11,13 +11,9 @@ return new class extends Migration
         Schema::create('logbooks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('magang_id')->constrained('magang_aktifs');
-            $table->date('tanggal');
+            $table->dateTime('tanggal_waktu');
             $table->text('kegiatan');
             $table->string('status_presensi')->default('hadir');
-
-            // Geolocation
-            $table->decimal('latitude', 10, 7)->nullable();
-            $table->decimal('longitude', 10, 7)->nullable();
 
             // Approval by industry supervisor
             $table->boolean('is_approved_industri')->default(false);
@@ -29,7 +25,7 @@ return new class extends Migration
             $table->timestamps();
 
             // Index for efficient querying
-            $table->index(['magang_id', 'tanggal']);
+            $table->index(['magang_id', 'tanggal_waktu']);
         });
     }
 

@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePendaftaranRequest;
 use App\Http\Requests\UpdateSeleksiRequest;
-use App\Services\ApplicationService;
 use App\Models\Pendaftaran;
+use App\Services\ApplicationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -23,9 +24,9 @@ class PendaftaranController extends Controller
     {
         $user = $request->user();
 
-        if ($user->isRole(\App\Enums\UserRole::STUDENT)) {
+        if ($user->isRole(UserRole::STUDENT)) {
             $data = $this->applicationService->getByMahasiswa($user->mahasiswa->id);
-        } elseif ($user->isRole(\App\Enums\UserRole::INDUSTRY)) {
+        } elseif ($user->isRole(UserRole::INDUSTRY)) {
             $data = $this->applicationService->getByIndustri($user->industri->id);
         } else {
             $data = Pendaftaran::with(['mahasiswa.user', 'industri'])->latest()->paginate(15);

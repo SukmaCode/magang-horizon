@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Enums\StatusTahapan;
 use App\Models\MagangAktif;
 use Closure;
 use Illuminate\Http\Request;
@@ -34,6 +33,7 @@ class EnsureInternshipStatus
 
         if (! in_array($currentStatus, $allowedStatuses)) {
             $allowed = implode(', ', $allowedStatuses);
+
             return response()->json([
                 'message' => "Action not allowed in current stage ({$currentStatus}). Allowed: {$allowed}.",
             ], 403);

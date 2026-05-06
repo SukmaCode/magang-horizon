@@ -50,7 +50,7 @@
                         </div>
                         <div class="hidden sm:flex flex-col items-end">
                             <span
-                                class="text-sm font-semibold text-text-primary font-jakarta"
+                                class="text-sm font-jakartaSemiBold text-text-primary"
                             >
                                 {{ user.nama_lengkap || user.nama_perusahaan }}
                                 <span v-if="user.prodi || user.kontak_person"
@@ -59,7 +59,7 @@
                                 {{ user.prodi || user.kontak_person }}</span
                             >
                             <span
-                                class="text-xs font-medium text-primary capitalize"
+                                class="text-xs font-jakartaSemiBold text-primary capitalize"
                                 >{{ userRoleLabel }}</span
                             >
                         </div>

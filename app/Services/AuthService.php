@@ -17,7 +17,6 @@ class AuthService
      * Register a new user with role-specific profile.
      *
      * @param  array  $data  Validated registration data
-     * @return User
      *
      * @throws \Throwable
      */
@@ -48,7 +47,6 @@ class AuthService
      * Attempt to authenticate a user.
      *
      * @param  array  $credentials  ['email' => ..., 'password' => ...]
-     * @return User
      *
      * @throws ValidationException
      */

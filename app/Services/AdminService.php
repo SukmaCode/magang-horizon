@@ -7,6 +7,8 @@ use App\Models\MagangAktif;
 use App\Models\Periode;
 use App\Models\Sertifikat;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 
 class AdminService
@@ -20,15 +22,15 @@ class AdminService
      */
     public function getDashboardStats(): array
     {
-        $totalUsers  = User::count();
+        $totalUsers = User::count();
         $totalMagang = MagangAktif::count();
-        $totalLulus  = MagangAktif::where('status_tahapan', 'lulus')->count();
+        $totalLulus = MagangAktif::where('status_tahapan', 'lulus')->count();
 
         $recentUsers = User::latest()->take(5)->get()->map(fn ($u) => [
-            'id'         => $u->id,
-            'name'       => $u->name ?? $u->username,
-            'email'      => $u->email,
-            'role'       => $u->role->value,
+            'id' => $u->id,
+            'name' => $u->name ?? $u->username,
+            'email' => $u->email,
+            'role' => $u->role->value,
             'created_at' => $u->created_at->format('d M Y'),
         ]);
 
@@ -42,7 +44,7 @@ class AdminService
     /**
      * Ambil list semua periode untuk halaman Kelola Periode.
      */
-    public function getPeriodes(): \Illuminate\Database\Eloquent\Collection
+    public function getPeriodes(): Collection
     {
         return Periode::latest()->get();
     }
@@ -53,7 +55,7 @@ class AdminService
      */
     public function createPeriode(array $data): Periode
     {
-        if (!empty($data['is_active'])) {
+        if (! empty($data['is_active'])) {
             Periode::query()->update(['is_active' => false]);
         }
 
@@ -82,20 +84,23 @@ class AdminService
      */
     public function getAssignPembimbingData(): array
     {
-        $dosens = Dosen::with('user')->get()->map(fn ($d) => [
-            'id'   => $d->id,
-            'nama' => $d->nama_dosen,
-            'nip'  => $d->nip,
-        ]);
+        $dosens = Dosen::with('user')
+            ->whereHas('user', fn ($q) => $q->where('role', 'dosen_pembimbing'))
+            ->get()
+            ->map(fn ($d) => [
+                'id' => $d->id,
+                'nama' => $d->nama_dosen,
+                'nip' => $d->nip,
+            ]);
 
         $magangs = MagangAktif::with('pendaftaran.mahasiswa', 'pendaftaran.industri')
             ->whereNull('supervisor_kampus_id')
             ->where('status_agreement', 'accepted')
             ->get()
             ->map(fn ($m) => [
-                'id'       => $m->id,
-                'mahasiswa'=> $m->pendaftaran->mahasiswa->nama_lengkap,
-                'nim'      => $m->pendaftaran->mahasiswa->nim,
+                'id' => $m->id,
+                'mahasiswa' => $m->pendaftaran->mahasiswa->nama_lengkap,
+                'nim' => $m->pendaftaran->mahasiswa->nim,
                 'industri' => $m->pendaftaran->industri->nama_perusahaan,
             ]);
 
@@ -105,15 +110,13 @@ class AdminService
             ->take(20)
             ->get()
             ->map(fn ($m) => [
-                'id'       => $m->id,
-                'mahasiswa'=> $m->pendaftaran->mahasiswa->nama_lengkap,
-                'dosen'    => $m->supervisorKampus->nama_dosen,
+                'id' => $m->id,
+                'mahasiswa' => $m->pendaftaran->mahasiswa->nama_lengkap,
+                'dosen' => $m->supervisorKampus->nama_dosen,
             ]);
 
         return compact('dosens', 'magangs', 'assignedMagangs');
     }
-
-
 
     /**
      * Tetapkan dosen pembimbing ke sejumlah magang aktif.
@@ -121,7 +124,7 @@ class AdminService
      * Logic: kelompokkan magang berdasarkan supervisor_industri masing-masing
      * agar bisa bulk-update dan menghindari N query UPDATE.
      *
-     * @param  int    $dosenId    ID dosen yang akan jadi pembimbing kampus
+     * @param  int  $dosenId  ID dosen yang akan jadi pembimbing kampus
      * @param  int[]  $magangIds  Daftar ID magang_aktif yang akan di-assign
      */
     public function assignPembimbing(int $dosenId, array $magangIds): void
@@ -139,11 +142,11 @@ class AdminService
 
         foreach ($groupedIds as $supervisorIndustriId => $ids) {
             MagangAktif::whereIn('id', $ids)->update([
-                'supervisor_kampus_id'   => $dosenId,
+                'supervisor_kampus_id' => $dosenId,
                 'supervisor_industri_id' => $supervisorIndustriId !== '' ? $supervisorIndustriId : null,
-                'status_tahapan'         => 'pelaksanaan',
-                'tanggal_mulai'          => now(),
-                'sk_pembimbing_path'     => $this->generateSkPath(),
+                'status_tahapan' => 'pelaksanaan',
+                'tanggal_mulai' => now(),
+                'sk_pembimbing_path' => $this->generateSkPath(),
             ]);
         }
     }
@@ -155,13 +158,13 @@ class AdminService
     /**
      * Ambil daftar user terpaginasi untuk halaman Manajemen User.
      */
-    public function getManajemenUserData(): \Illuminate\Pagination\LengthAwarePaginator
+    public function getManajemenUserData(): LengthAwarePaginator
     {
         return User::latest()->paginate(15)->through(fn ($u) => [
-            'id'         => $u->id,
-            'username'   => $u->username,
-            'email'      => $u->email,
-            'role'       => $u->role->value,
+            'id' => $u->id,
+            'username' => $u->username,
+            'email' => $u->email,
+            'role' => $u->role->value,
             'role_label' => $u->role->label(),
         ]);
     }
@@ -180,10 +183,10 @@ class AdminService
             ->doesntHave('sertifikat')
             ->get()
             ->map(fn ($m) => [
-                'id'          => $m->id,
-                'mahasiswa'   => $m->pendaftaran->mahasiswa->nama_lengkap,
-                'nim'         => $m->pendaftaran->mahasiswa->nim,
-                'industri'    => $m->pendaftaran->industri->nama_perusahaan,
+                'id' => $m->id,
+                'mahasiswa' => $m->pendaftaran->mahasiswa->nama_lengkap,
+                'nim' => $m->pendaftaran->mahasiswa->nim,
+                'industri' => $m->pendaftaran->industri->nama_perusahaan,
                 'nilai_akhir' => $m->penilaian?->nilai_akhir,
             ]);
 
@@ -192,10 +195,10 @@ class AdminService
             ->take(15)
             ->get()
             ->map(fn ($s) => [
-                'id'       => $s->id,
-                'nomor'    => $s->nomor_sertifikat,
-                'mahasiswa'=> $s->magangAktif->pendaftaran->mahasiswa->nama_lengkap,
-                'tanggal'  => $s->tanggal_terbit->format('d M Y'),
+                'id' => $s->id,
+                'nomor' => $s->nomor_sertifikat,
+                'mahasiswa' => $s->magangAktif->pendaftaran->mahasiswa->nama_lengkap,
+                'tanggal' => $s->tanggal_terbit->format('d M Y'),
             ]);
 
         return compact('magangs', 'sertifikats');
@@ -217,11 +220,11 @@ class AdminService
         }
 
         return Sertifikat::create([
-            'magang_id'        => $magangAktif->id,
+            'magang_id' => $magangAktif->id,
             'nomor_sertifikat' => $this->generateNomorSertifikat($magangAktif),
-            'file_sertifikat'  => 'certificates/cert_' . $magangAktif->id . '.pdf',
-            'tanggal_terbit'   => now(),
-            'is_valid'         => true,
+            'file_sertifikat' => 'certificates/cert_'.$magangAktif->id.'.pdf',
+            'tanggal_terbit' => now(),
+            'is_valid' => true,
         ]);
     }
 
@@ -235,7 +238,7 @@ class AdminService
      */
     private function generateSkPath(): string
     {
-        return 'generated_sk_' . Str::random(10) . '.pdf';
+        return 'generated_sk_'.Str::random(10).'.pdf';
     }
 
     /**
@@ -244,6 +247,6 @@ class AdminService
      */
     private function generateNomorSertifikat(MagangAktif $magangAktif): string
     {
-        return 'CERT-' . date('Y') . '-' . str_pad($magangAktif->id, 4, '0', STR_PAD_LEFT);
+        return 'CERT-'.date('Y').'-'.str_pad($magangAktif->id, 4, '0', STR_PAD_LEFT);
     }
 }

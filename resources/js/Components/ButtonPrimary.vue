@@ -3,7 +3,7 @@
     :type="type"
     :disabled="disabled || loading"
     :class="[
-      'relative inline-flex items-center justify-center gap-2 font-semibold text-sm rounded-sm px-6 py-3',
+      'relative inline-flex items-center justify-center gap-2 font-jakartaSemiBold text-sm rounded-sm px-5 py-2.5',
       'transition-all duration-200 ease-out',
       'focus:outline-none focus:ring-2 focus:ring-offset-2',
       'disabled:cursor-not-allowed',

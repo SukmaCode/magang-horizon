@@ -37,7 +37,7 @@ class AgreementResponseNotification extends Notification implements ShouldQueue
         } else {
             $mail->subject("Agreement Ditolak oleh {$mahasiswa}")
                 ->line("Mahasiswa {$mahasiswa} menolak agreement magang.")
-                ->line('Alasan: ' . ($this->magang->alasan_tolak_agreement ?? '-'))
+                ->line('Alasan: '.($this->magang->alasan_tolak_agreement ?? '-'))
                 ->line('Anda dapat mengunggah agreement baru jika diperlukan.')
                 ->action('Lihat Agreement', url('/industri/agreement'));
         }

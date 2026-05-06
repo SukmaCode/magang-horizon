@@ -31,7 +31,7 @@ class SertifikatController extends Controller
             return response()->json(['message' => 'Certificate not yet generated.'], 404);
         }
 
-        $path = storage_path('app/private/' . $sertifikat->file_sertifikat_path);
+        $path = storage_path('app/private/'.$sertifikat->file_sertifikat_path);
 
         if (! file_exists($path)) {
             return response()->json(['message' => 'Certificate file not found.'], 404);

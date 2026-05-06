@@ -26,9 +26,9 @@ class CvController extends Controller
 
         $cvBase64 = null;
         if ($mahasiswa && $mahasiswa->cv_file_path) {
-            $path = storage_path('app/private/' . $mahasiswa->cv_file_path);
+            $path = storage_path('app/private/'.$mahasiswa->cv_file_path);
             if (file_exists($path)) {
-                $cvBase64 = 'data:application/pdf;base64,' . base64_encode(file_get_contents($path));
+                $cvBase64 = 'data:application/pdf;base64,'.base64_encode(file_get_contents($path));
             }
         }
 
@@ -54,7 +54,7 @@ class CvController extends Controller
         $user = $request->user();
         $mahasiswa = $user->mahasiswa;
 
-        if (!$mahasiswa) {
+        if (! $mahasiswa) {
             return back()->with('error', 'Profil mahasiswa tidak ditemukan.');
         }
 
@@ -64,7 +64,7 @@ class CvController extends Controller
         }
 
         $cvFile = $request->file('cv_file');
-        $cvPath = $cvFile->store('documents/cv/' . $mahasiswa->id, 'private');
+        $cvPath = $cvFile->store('documents/cv/'.$mahasiswa->id, 'private');
 
         $mahasiswa->update(['cv_file_path' => $cvPath]);
 
@@ -90,6 +90,7 @@ class CvController extends Controller
         if ($mahasiswa && $mahasiswa->cv_file_path) {
             Storage::disk('private')->delete($mahasiswa->cv_file_path);
             $mahasiswa->update(['cv_file_path' => null]);
+
             return back()->with('success', 'CV berhasil dihapus.');
         }
 
@@ -104,19 +105,19 @@ class CvController extends Controller
         $user = $request->user();
         $mahasiswa = $user->mahasiswa;
 
-        if (!$mahasiswa || !$mahasiswa->cv_file_path) {
+        if (! $mahasiswa || ! $mahasiswa->cv_file_path) {
             abort(404, 'CV tidak ditemukan.');
         }
 
-        $path = storage_path('app/private/' . $mahasiswa->cv_file_path);
+        $path = storage_path('app/private/'.$mahasiswa->cv_file_path);
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             abort(404, 'File CV fisik tidak ditemukan.');
         }
 
         return response()->file($path, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="CV_' . $mahasiswa->nim . '.pdf"',
+            'Content-Disposition' => 'inline; filename="CV_'.$mahasiswa->nim.'.pdf"',
         ]);
     }
 
@@ -129,25 +130,25 @@ class CvController extends Controller
         $user = $request->user();
         $industri = $user->industri;
 
-        if (!$industri || $pendaftaran->industri_id !== $industri->id) {
+        if (! $industri || $pendaftaran->industri_id !== $industri->id) {
             abort(403, 'Akses ditolak.');
         }
 
         $mahasiswa = $pendaftaran->mahasiswa;
 
-        if (!$mahasiswa || !$mahasiswa->cv_file_path) {
+        if (! $mahasiswa || ! $mahasiswa->cv_file_path) {
             abort(404, 'Kandidat ini belum mengupload CV.');
         }
 
-        $path = storage_path('app/private/' . $mahasiswa->cv_file_path);
+        $path = storage_path('app/private/'.$mahasiswa->cv_file_path);
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             abort(404, 'File CV fisik tidak ditemukan.');
         }
 
         return response()->file($path, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="CV_' . $mahasiswa->nama_lengkap . '.pdf"',
+            'Content-Disposition' => 'inline; filename="CV_'.$mahasiswa->nama_lengkap.'.pdf"',
         ]);
     }
 }

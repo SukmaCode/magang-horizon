@@ -13,7 +13,7 @@
         id="reg-nim"
         v-model="form.nim"
         label="NIM"
-        placeholder="2024001"
+        placeholder="411275520..."
         :error="form.errors.nim"
         required
       />

@@ -5,19 +5,45 @@
         <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div>
-                <h1 class="text-xl font-bold text-text-primary font-jakarta">Logbook Kegiatan</h1>
-                <p class="text-sm text-text-secondary mt-1">Catat aktivitas harian Anda selama magang.</p>
+                <h1 class="text-xl font-jakartaSemiBold text-text-primary">Logbook Kegiatan</h1>
+                <p class="text-sm font-jakarta text-text-secondary mt-1">Catat aktivitas harian Anda selama magang.</p>
             </div>
-            <button
-                v-if="canSubmit"
-                @click="showForm = true"
-                class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary-hover transition-colors duration-200 shadow-sm"
-            >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                Tambah Logbook
-            </button>
+            <div class="flex items-center gap-3">
+                <a
+                    v-if="magangId"
+                    :href="`/logbook/report/${magangId}`"
+                    target="_blank"
+                    class="inline-flex items-center gap-2 py-2 px-4 text-white bg-primary text-sm font-jakartaSemiBold rounded-lg hover:bg-primary/90 transition-colors duration-200 shadow-sm"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Download PDF
+                </a>
+                <button
+                    v-if="canSubmit"
+                    @click="showForm = true"
+                    class="inline-flex items-center gap-2 py-2.5 text-primary text-sm font-jakartaSemiBold rounded-sm cursor-pointer transition-colors duration-200"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Tambah Logbook
+                </button>
+            </div>
+        </div>
+
+        <!-- Info Banner -->
+        <div v-if="canSubmit" class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-3">
+            <svg class="w-5 h-5 text-blue-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+                <p class="text-sm font-jakartaSemiBold text-blue-800">Informasi Logbook</p>
+                <p class="text-xs font-jakarta text-blue-600 mt-1">
+                    Pengisian kehadiran dan aktivitas logbook hanya dapat dilakukan <strong>satu kali dalam sehari</strong>.
+                </p>
+            </div>
         </div>
 
         <!-- Gate Warning -->
@@ -26,8 +52,8 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
             <div>
-                <p class="text-sm font-semibold text-amber-800">Logbook tidak dapat diisi</p>
-                <p class="text-xs text-amber-600 mt-1">
+                <p class="text-sm font-jakartaSemiBold text-amber-800">Logbook tidak dapat diisi</p>
+                <p class="text-xs font-jakarta text-amber-600 mt-1">
                     Logbook hanya bisa diisi saat status magang dalam tahap <strong>Pelaksanaan</strong>.
                     Status saat ini: <strong class="capitalize">{{ statusTahapan }}</strong>.
                 </p>
@@ -39,8 +65,8 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div>
-                <p class="text-sm font-semibold text-text-primary">Belum memiliki magang aktif</p>
-                <p class="text-xs text-text-secondary mt-1">Silakan ajukan lamaran magang terlebih dahulu melalui halaman Kirim CV.</p>
+                <p class="text-sm font-jakartaSemiBold text-text-primary">Belum memiliki magang aktif</p>
+                <p class="text-xs font-jakarta text-text-secondary mt-1">Silakan ajukan lamaran magang terlebih dahulu melalui halaman Kirim CV.</p>
             </div>
         </div>
 
@@ -67,7 +93,7 @@
                         <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
                             <h3 class="text-lg font-bold text-text-primary font-jakarta">Tambah Logbook</h3>
                             <button @click="showForm = false" class="p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
-                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
@@ -75,14 +101,40 @@
 
                         <!-- Modal Body -->
                         <form @submit.prevent="submitLogbook" class="p-6 space-y-5">
+                            <!-- Tanggal -->
+                            <!-- <div>
+                                <label class="block text-sm font-semibold text-text-primary mb-2">Tanggal <span class="text-danger">*</span></label>
+                                <input
+                                    type="date"
+                                    v-model="form.tanggal"
+                                    class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm text-text-primary focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                    :class="{ 'border-danger': form.errors.tanggal }"
+                                    required
+                                />
+                                <p v-if="form.errors.tanggal" class="text-xs text-danger mt-1">{{ form.errors.tanggal }}</p>
+                            </div> -->
+
+                            <!-- Waktu Kegiatan -->
+                            <div>
+                                <label class="block text-sm font-jakartaSemiBold text-text-primary mb-2">Tanggal dan Waktu <span class="text-danger">*</span></label>
+                                <input
+                                    type="datetime-local"
+                                    v-model="form.tanggal_waktu"
+                                    class="w-full px-4 py-3 font-jakarta border border-gray-200 rounded-xl text-sm text-text-primary focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                    :class="{ 'border-danger': form.errors.tanggal_waktu }"
+                                    required
+                                />
+                                <p v-if="form.errors.tanggal_waktu" class="text-xs text-danger mt-1">{{ form.errors.tanggal_waktu }}</p>
+                            </div>
+
                             <!-- Kegiatan -->
                             <div>
-                                <label class="block text-sm font-semibold text-text-primary mb-2">Kegiatan Hari Ini <span class="text-danger">*</span></label>
+                                <label class="block text-sm font-jakartaSemiBold text-text-primary mb-2">Kegiatan Hari Ini <span class="text-danger">*</span></label>
                                 <textarea
                                     v-model="form.kegiatan"
                                     rows="4"
                                     placeholder="Jelaskan aktivitas yang Anda kerjakan hari ini..."
-                                    class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm text-text-primary placeholder-gray-400 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
+                                    class="w-full px-4 py-3 font-jakarta border border-gray-200 rounded-xl text-sm text-text-primary placeholder-gray-400 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
                                     :class="{ 'border-danger': form.errors.kegiatan }"
                                 ></textarea>
                                 <p v-if="form.errors.kegiatan" class="text-xs text-danger mt-1">{{ form.errors.kegiatan }}</p>
@@ -90,13 +142,13 @@
 
                             <!-- Status Presensi -->
                             <div>
-                                <label class="block text-sm font-semibold text-text-primary mb-2">Status Presensi</label>
+                                <label class="block text-sm font-jakartaSemiBold text-text-primary mb-2">Status Presensi</label>
                                 <div class="flex gap-3">
                                     <label
                                         v-for="status in presensiOptions"
                                         :key="status.value"
                                         :class="[
-                                            'flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium cursor-pointer transition-all duration-200',
+                                            'flex-1 flex items-center font-jakarta justify-center gap-2 px-4 py-2.5 rounded-md border text-sm font-medium cursor-pointer transition-all duration-200',
                                             form.status_presensi === status.value
                                                 ? 'border-primary bg-primary/5 text-primary'
                                                 : 'border-gray-200 text-text-secondary hover:border-gray-300'
@@ -112,7 +164,7 @@
                             <!-- Location Toggle -->
                             <div>
                                 <div class="flex items-center justify-between">
-                                    <label class="text-sm font-semibold text-text-primary">Sertakan Lokasi</label>
+                                    <label class="text-sm font-jakartaSemiBold text-text-primary">Sertakan Lokasi</label>
                                     <button
                                         type="button"
                                         @click="toggleLocation"
@@ -147,14 +199,14 @@
                                 <button
                                     type="button"
                                     @click="showForm = false"
-                                    class="flex-1 px-4 py-2.5 text-sm font-medium text-text-secondary border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+                                    class="flex-1 px-4 py-2.5 text-sm font-jakartaSemiBold cursor-pointer text-text-secondary border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
                                 >
                                     Batal
                                 </button>
                                 <button
                                     type="submit"
                                     :disabled="form.processing"
-                                    class="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    class="flex-1 px-4 py-2.5 text-sm font-jakartaSemiBold cursor-pointer text-white bg-primary rounded-xl hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <span v-if="form.processing" class="flex items-center justify-center gap-2">
                                         <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -173,20 +225,18 @@
         </Transition>
 
         <!-- Logbook List -->
-        <div v-if="logbooks.data && logbooks.data.length > 0" class="space-y-4">
-            <div
+        <div v-if="logbooks.data && logbooks.data.length > 0" class="space-y-2">
+            <CardContainer
                 v-for="log in logbooks.data"
-                :key="log.id"
-                class="bg-card rounded-xl border border-gray-100 p-5 hover:shadow-md transition-all duration-200"
-            >
+                :key="log.id">
                 <div class="flex items-start justify-between gap-4">
                     <div class="flex-1 min-w-0">
                         <!-- Date & Status Row -->
                         <div class="flex flex-wrap items-center gap-2 mb-3">
-                            <span class="text-sm font-bold text-text-primary font-jakarta">{{ log.tanggal_display }}</span>
+                            <span class="text-sm font-jakartaSemiBold text-text-primary">{{ log.tanggal_display }}</span>
                             <span
                                 :class="[
-                                    'text-xs px-2.5 py-0.5 rounded-full font-medium',
+                                    'text-xs px-2.5 py-0.5 rounded-full font-jakartaSemiBold',
                                     presensiColor(log.status_presensi)
                                 ]"
                             >
@@ -195,12 +245,12 @@
                         </div>
 
                         <!-- Kegiatan -->
-                        <p class="text-sm text-text-primary leading-relaxed">{{ log.kegiatan }}</p>
+                        <p class="text-sm font-jakarta text-text-primary leading-relaxed">{{ log.kegiatan }}</p>
 
                         <!-- Komentar Industri -->
                         <div v-if="log.komentar_industri" class="mt-3 p-3 bg-blue-50/50 rounded-lg border border-blue-100">
-                            <p class="text-xs font-semibold text-blue-700 mb-1">Komentar Supervisor:</p>
-                            <p class="text-xs text-blue-600">{{ log.komentar_industri }}</p>
+                            <p class="text-xs font-jakartaSemiBold text-blue-700 mb-1">Komentar Supervisor:</p>
+                            <p class="text-xs font-jakarta text-blue-600">{{ log.komentar_industri }}</p>
                         </div>
                     </div>
 
@@ -208,7 +258,7 @@
                     <div class="flex flex-col gap-2 shrink-0">
                         <span
                             :class="[
-                                'inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full font-medium whitespace-nowrap',
+                                'inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full font-jakartaSemiBold whitespace-nowrap',
                                 log.is_approved
                                     ? 'bg-success/10 text-success'
                                     : 'bg-amber-50 text-amber-600'
@@ -231,7 +281,7 @@
                         </span>
                     </div>
                 </div>
-            </div>
+            </CardContainer>
 
             <!-- Pagination -->
             <div v-if="logbooks.links && logbooks.links.length > 3" class="flex justify-center gap-1 pt-4">
@@ -325,7 +375,14 @@ const presensiOptions = [
     { value: 'sakit', label: 'Sakit', dot: 'w-2 h-2 rounded-full bg-amber-500' },
 ];
 
+const getTodayDatetime = () => {
+    const d = new Date();
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 16);
+};
+
 const form = useForm({
+    tanggal_waktu: getTodayDatetime(),
     kegiatan: '',
     status_presensi: 'hadir',
     latitude: null,

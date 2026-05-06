@@ -3,7 +3,7 @@
         <label
             v-if="label"
             :for="id"
-            class="block text-sm font-medium text-text-primary mb-1.5"
+            class="block text-sm font-jakartaSemiBold text-text-primary mb-1.5"
         >
             {{ label }}
             <span v-if="required" class="text-accent">*</span>
@@ -22,7 +22,7 @@
                 :placeholder="placeholder"
                 :disabled="disabled"
                 :class="[
-                    'w-full border-b border-gray-300 bg-white px-4 py-3 text-sm text-text-primary placeholder:text-text-secondary/50',
+                    'w-full border-b font-jakarta border-gray-300 bg-white px-4 py-3 text-sm text-text-primary placeholder:text-text-secondary/50',
                     'transition-all duration-200 ease-out',
                     'focus:outline-none focus:border-b-2 focus:border-red-800',
                     'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-surface',

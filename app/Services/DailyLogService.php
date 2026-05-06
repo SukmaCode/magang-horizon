@@ -3,8 +3,6 @@
 namespace App\Services;
 
 use App\Enums\StatusPresensi;
-use App\Enums\StatusTahapan;
-use App\Models\Industri;
 use App\Models\Logbook;
 use App\Models\MagangAktif;
 use App\Notifications\LogbookSubmittedNotification;
@@ -15,9 +13,7 @@ class DailyLogService
     /**
      * Submit a daily log entry.
      *
-     * @param  MagangAktif  $magang
      * @param  array  $data  Validated logbook data
-     * @return Logbook
      *
      * @throws ValidationException|\Exception
      */
@@ -26,12 +22,12 @@ class DailyLogService
         // Validate internship is in execution phase
         $this->validateInternshipStatus($magang);
 
-        // Use server timestamp for the date
+        // Use provided datetime from data
         $logbook = Logbook::create([
             'magang_id' => $magang->id,
-            'tanggal' => now()->toDateString(),
+            'tanggal_waktu' => $data['tanggal_waktu'],
             'kegiatan' => $data['kegiatan'],
-            'status_presensi' => $data['status_presensi'] ?? StatusPresensi::HADIR->value
+            'status_presensi' => $data['status_presensi'] ?? StatusPresensi::HADIR->value,
         ]);
 
         // Notify industry supervisor (queued)
@@ -42,10 +38,6 @@ class DailyLogService
 
     /**
      * Approve a logbook entry (by industry supervisor).
-     *
-     * @param  Logbook  $logbook
-     * @param  string|null  $komentar
-     * @return Logbook
      */
     public function approve(Logbook $logbook, ?string $komentar = null): Logbook
     {
@@ -85,14 +77,14 @@ class DailyLogService
         $query = Logbook::where('magang_id', $magangId);
 
         if ($startDate) {
-            $query->where('tanggal', '>=', $startDate);
+            $query->where('tanggal_waktu', '>=', $startDate);
         }
 
         if ($endDate) {
-            $query->where('tanggal', '<=', $endDate);
+            $query->where('tanggal_waktu', '<=', $endDate);
         }
 
-        return $query->orderBy('tanggal', 'desc')->paginate(15);
+        return $query->orderBy('tanggal_waktu', 'desc')->paginate(15);
     }
 
     /**
@@ -102,7 +94,7 @@ class DailyLogService
     {
         return Logbook::where('magang_id', $magangId)
             ->where('is_approved_industri', false)
-            ->orderBy('tanggal', 'desc')
+            ->orderBy('tanggal_waktu', 'desc')
             ->paginate(15);
     }
 
@@ -127,7 +119,6 @@ class DailyLogService
      *
      * @throws ValidationException
      */
-    
 
     /**
      * Notify the industry supervisor about a new logbook entry.

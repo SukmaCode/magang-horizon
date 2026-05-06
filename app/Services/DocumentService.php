@@ -53,13 +53,17 @@ class DocumentService
     {
         Storage::disk('private')->delete($document->file_path);
         activity('document')->performedOn($document)->log("Document deleted: {$document->type->label()}");
+
         return $document->delete();
     }
 
     public function getForModel(Model $model, ?DocumentType $type = null)
     {
         $query = $model->documents();
-        if ($type) { $query->where('type', $type); }
+        if ($type) {
+            $query->where('type', $type);
+        }
+
         return $query->latest()->get();
     }
 

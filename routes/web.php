@@ -2,13 +2,14 @@
 
 use App\Http\Controllers\Web\AdminController;
 use App\Http\Controllers\Web\AuthController;
+use App\Http\Controllers\Web\CvController;
 use App\Http\Controllers\Web\DosenPembimbingController;
 use App\Http\Controllers\Web\DosenProdiController;
 use App\Http\Controllers\Web\IndustriController;
+use App\Http\Controllers\Web\LogbookReportController;
 use App\Http\Controllers\Web\MahasiswaController;
-use App\Http\Controllers\Web\CvController;
+use App\Http\Controllers\Web\SignatureController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,6 +28,15 @@ Route::middleware('guest')->group(function () {
 // Authenticated routes
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    // ──────────────────────────────────
+    // Shared Routes
+    // ──────────────────────────────────
+    Route::get('/logbook/report/{magangAktif}', [LogbookReportController::class, 'download'])
+        ->name('logbook.report.download');
+
+    Route::post('/signature', [SignatureController::class, 'store'])
+        ->name('signature.store');
 
     // ──────────────────────────────────
     // Mahasiswa Routes
@@ -95,17 +105,17 @@ Route::middleware('auth')->group(function () {
     // ──────────────────────────────────
     Route::prefix('admin')->middleware('checkRole:admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-        
+
         Route::get('/periode', [AdminController::class, 'kelolaPeriode'])->name('admin.periode');
         Route::post('/periode', [AdminController::class, 'storePeriode'])->name('admin.periode.store');
         Route::patch('/periode/{periode}', [AdminController::class, 'updatePeriode'])->name('admin.periode.update');
-        
+
         Route::get('/assign-pembimbing', [AdminController::class, 'assignPembimbing'])->name('admin.assign-pembimbing');
         Route::post('/assign-pembimbing', [AdminController::class, 'storeAssignPembimbing'])->name('admin.assign-pembimbing.store');
-        
+
         Route::get('/verifikasi-kelulusan', [AdminController::class, 'verifikasiKelulusan'])->name('admin.verifikasi');
         Route::post('/verifikasi-kelulusan/{magangAktif}/terbitkan', [AdminController::class, 'terbitkanSertifikat'])->name('admin.sertifikat.terbitkan');
-        
+
         Route::get('/manajemen-user', [AdminController::class, 'manajemenUser'])->name('admin.users');
     });
 
@@ -114,12 +124,13 @@ Route::middleware('auth')->group(function () {
     // ──────────────────────────────────
     Route::prefix('dosen-pembimbing')->middleware('checkRole:dosen_pembimbing')->group(function () {
         Route::get('/dashboard', [DosenPembimbingController::class, 'dashboard'])->name('dosen-pembimbing.dashboard');
-        
+
         Route::get('/monitoring-logbook', [DosenPembimbingController::class, 'monitoringLogbook'])->name('dosen-pembimbing.logbook');
-        
+
         Route::get('/review-laporan', [DosenPembimbingController::class, 'reviewLaporan'])->name('dosen-pembimbing.laporan');
         Route::post('/review-laporan/{laporan}/review', [DosenPembimbingController::class, 'submitReviewLaporan'])->name('dosen-pembimbing.laporan.review');
-        
+        Route::get('/review-laporan/{laporan}/download', [DosenPembimbingController::class, 'downloadLaporan'])->name('dosen-pembimbing.laporan.download');
+
         Route::get('/input-nilai', [DosenPembimbingController::class, 'inputNilai'])->name('dosen-pembimbing.input-nilai');
         Route::post('/input-nilai/{magangAktif}', [DosenPembimbingController::class, 'storeNilai'])->name('dosen-pembimbing.input-nilai.store');
     });
@@ -129,7 +140,7 @@ Route::middleware('auth')->group(function () {
     // ──────────────────────────────────
     Route::prefix('dosen-prodi')->middleware('checkRole:dosen_prodi')->group(function () {
         Route::get('/dashboard', [DosenProdiController::class, 'dashboard'])->name('dosen-prodi.dashboard');
-        
+
         Route::get('/verifikasi-kelulusan', [DosenProdiController::class, 'verifikasiKelulusan'])->name('dosen-prodi.verifikasi');
         Route::post('/verifikasi-kelulusan/{penilaian}/verify', [DosenProdiController::class, 'submitVerifikasi'])->name('dosen-prodi.verifikasi.submit');
     });
@@ -140,5 +151,6 @@ Route::get('/', function () {
     if (auth()->check()) {
         return redirect(auth()->user()->role->dashboardPath());
     }
+
     return redirect('/login');
 });

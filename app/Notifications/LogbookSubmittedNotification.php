@@ -7,6 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Str;
 
 class LogbookSubmittedNotification extends Notification implements ShouldQueue
 {
@@ -31,7 +32,7 @@ class LogbookSubmittedNotification extends Notification implements ShouldQueue
             ->greeting('Halo!')
             ->line("{$mahasiswa->nama_lengkap} telah mengirim logbook harian.")
             ->line("Tanggal: {$this->logbook->tanggal->format('d M Y')}")
-            ->line("Kegiatan: " . \Illuminate\Support\Str::limit($this->logbook->kegiatan, 100))
+            ->line('Kegiatan: '.Str::limit($this->logbook->kegiatan, 100))
             ->action('Review Logbook', url('/industri/logbook'))
             ->line('Silakan review dan approve logbook tersebut.');
     }

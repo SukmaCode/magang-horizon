@@ -6,7 +6,6 @@ use App\Enums\StatusAgreement;
 use App\Enums\StatusApproval;
 use App\Enums\StatusTahapan;
 use App\Models\Dosen;
-use App\Models\LaporanAkhir;
 use App\Models\MagangAktif;
 use App\Notifications\AgreementResponseNotification;
 use App\Notifications\AgreementUploadedNotification;
@@ -17,10 +16,8 @@ class InternshipService
     /**
      * Assign supervisors to an active internship.
      *
-     * @param  MagangAktif  $magang
      * @param  int  $dosenId  Campus supervisor (dosen) ID
      * @param  int  $supervisorIndustriId  Industry supervisor (user) ID
-     * @return MagangAktif
      */
     public function assignSupervisors(MagangAktif $magang, int $dosenId, int $supervisorIndustriId): MagangAktif
     {
@@ -46,9 +43,6 @@ class InternshipService
     /**
      * Transition internship to next stage.
      *
-     * @param  MagangAktif  $magang
-     * @param  StatusTahapan  $targetStatus
-     * @return MagangAktif
      *
      * @throws \Exception
      */
@@ -95,6 +89,30 @@ class InternshipService
      */
     public function uploadAgreementIndustri(MagangAktif $magang, string $filePath): MagangAktif
     {
+        $mahasiswaId = $magang->pendaftaran->mahasiswa_id;
+        $hasAccepted = MagangAktif::whereHas('pendaftaran', function ($q) use ($mahasiswaId) {
+            $q->where('mahasiswa_id', $mahasiswaId);
+        })->where('status_agreement', StatusAgreement::ACCEPTED)->exists();
+
+        if ($hasAccepted) {
+            $magang->update([
+                'file_agreement_industri' => $filePath,
+                'status_agreement' => StatusAgreement::REJECTED,
+                'alasan_tolak_agreement' => 'Otomatis ditolak karena mahasiswa telah menyetujui agreement dari perusahaan lain.',
+                'file_agreement_mahasiswa' => null,
+            ]);
+
+            // Notify the industry supervisor
+            $industriUser = $magang->pendaftaran->industri->user;
+            $industriUser->notify(new AgreementResponseNotification($magang, 'rejected'));
+
+            activity('internship')
+                ->performedOn($magang)
+                ->log('Industry agreement uploaded but auto-rejected (student already accepted another)');
+
+            return $magang;
+        }
+
         $magang->update([
             'file_agreement_industri' => $filePath,
             'status_agreement' => StatusAgreement::PENDING,
@@ -123,7 +141,17 @@ class InternshipService
             throw new \Exception('Agreement tidak dalam status menunggu persetujuan.');
         }
 
-        return DB::transaction(function () use ($magang, $signedFilePath) {
+        // Check if student already has another accepted agreement
+        $mahasiswaId = $magang->pendaftaran->mahasiswa_id;
+        $hasAccepted = MagangAktif::whereHas('pendaftaran', function ($q) use ($mahasiswaId) {
+            $q->where('mahasiswa_id', $mahasiswaId);
+        })->where('status_agreement', StatusAgreement::ACCEPTED)->exists();
+
+        if ($hasAccepted) {
+            throw new \Exception('Anda sudah menandatangani agreement dari perusahaan lain.');
+        }
+
+        return DB::transaction(function () use ($magang, $signedFilePath, $mahasiswaId) {
             $magang->update([
                 'file_agreement_mahasiswa' => $signedFilePath,
                 'status_agreement' => StatusAgreement::ACCEPTED,
@@ -136,6 +164,23 @@ class InternshipService
             // Notify the industry supervisor
             $industriUser = $magang->pendaftaran->industri->user;
             $industriUser->notify(new AgreementResponseNotification($magang, 'accepted'));
+
+            // Automatically reject other pending agreements
+            $otherMagangs = MagangAktif::whereHas('pendaftaran', function ($q) use ($mahasiswaId, $magang) {
+                $q->where('mahasiswa_id', $mahasiswaId)
+                    ->where('id', '!=', $magang->pendaftaran_id);
+            })->where('status_agreement', '!=', StatusAgreement::REJECTED)->get();
+
+            foreach ($otherMagangs as $other) {
+                $other->update([
+                    'status_agreement' => StatusAgreement::REJECTED,
+                    'alasan_tolak_agreement' => 'Otomatis ditolak karena mahasiswa telah menyetujui agreement dari perusahaan lain.',
+                ]);
+
+                // Notify the other industry supervisor
+                $otherIndustriUser = $other->pendaftaran->industri->user;
+                $otherIndustriUser->notify(new AgreementResponseNotification($other, 'rejected'));
+            }
 
             return $magang->fresh();
         });

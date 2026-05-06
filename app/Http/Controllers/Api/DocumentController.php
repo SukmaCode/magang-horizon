@@ -37,6 +37,7 @@ class DocumentController extends Controller
     public function download(Document $document)
     {
         $fileInfo = $this->documentService->download($document);
+
         return response()->download($fileInfo['path'], $fileInfo['name'], [
             'Content-Type' => $fileInfo['mime'],
         ]);
@@ -45,6 +46,7 @@ class DocumentController extends Controller
     public function destroy(Document $document): JsonResponse
     {
         $this->documentService->delete($document);
+
         return response()->json(['message' => 'Document deleted.']);
     }
 }

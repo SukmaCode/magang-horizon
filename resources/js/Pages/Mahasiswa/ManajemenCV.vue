@@ -5,13 +5,13 @@
         <!-- Header -->
         <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-                <h1 class="text-xl font-bold text-text-primary font-jakarta">Manajemen CV</h1>
-                <p class="text-sm text-text-secondary mt-1">Kelola Curriculum Vitae Anda untuk keperluan pendaftaran magang.</p>
+                <h1 class="text-xl font-jakartaSemiBold text-text-primary">Manajemen CV</h1>
+                <p class="text-sm font-jakarta text-text-secondary mt-1">Kelola Curriculum Vitae Anda untuk keperluan pendaftaran magang.</p>
             </div>
             <div v-if="hasCv">
                 <button
                     @click="deleteCv"
-                    class="px-4 py-2 text-sm font-semibold text-danger bg-danger/10 rounded-lg hover:bg-danger/20 transition-colors duration-200"
+                    class="px-4 py-2 text-sm font-jakartaSemiBold cursor-pointer text-danger bg-danger/10 rounded-md hover:bg-danger/20 transition-colors duration-200"
                     :disabled="deleteForm.processing"
                 >
                     <span v-if="deleteForm.processing">Menghapus...</span>
@@ -23,14 +23,14 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Left: Upload Section -->
             <div class="lg:col-span-1 space-y-6">
-                <div class="bg-card rounded-xl border border-gray-100 p-6">
-                    <h2 class="text-base font-bold text-text-primary font-jakarta mb-4">
+                <CardContainer>
+                    <h2 class="text-base font-jakartaBold text-text-primary mb-4">
                         {{ hasCv ? 'Perbarui CV' : 'Upload CV Baru' }}
                     </h2>
                     
                     <form @submit.prevent="submitCv">
                         <div
-                            class="border-2 border-dashed rounded-xl p-8 text-center transition-colors duration-200 cursor-pointer mb-4"
+                            class="border-2 border-dashed rounded-md p-8 text-center transition-colors duration-200 cursor-pointer mb-4"
                             :class="[
                                 dragOver ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300',
                                 selectedFile ? 'bg-primary/5 border-primary/30' : ''
@@ -58,16 +58,16 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                                     </svg>
                                 </div>
-                                <p class="text-sm font-medium text-text-primary">Pilih file PDF</p>
-                                <p class="text-xs text-text-secondary mt-1">Drag & drop atau klik area ini</p>
-                                <p class="text-[10px] text-text-secondary mt-2 font-medium">Maksimal 10MB</p>
+                                <p class="text-sm font-jakartaSemiBold text-text-primary">Pilih file PDF</p>
+                                <p class="text-xs font-jakarta text-text-secondary mt-1">Drag & drop atau klik area ini</p>
+                                <p class="text-[10px] text-text-secondary mt-2 font-jakarta">Maksimal 10MB</p>
                             </div>
                         </div>
 
                         <button
                             type="submit"
                             :disabled="!selectedFile || form.processing"
-                            class="w-full px-5 py-3 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary-hover transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4"
+                            class="w-full px-5 py-3 text-sm font-jakartaSemiBold text-white bg-primary rounded-md hover:bg-primary-hover transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4"
                         >
                             <template v-if="form.processing">
                                 <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
@@ -81,17 +81,17 @@
                             </template>
                         </button>
                     </form>
-                </div>
+                </CardContainer>
                 
                 <!-- Info Box -->
-                <div class="bg-primary/5 border border-primary/10 rounded-xl p-5">
+                <div class="bg-primary/5 border border-primary/10 rounded-md p-5">
                     <div class="flex items-start gap-3">
                         <svg class="w-5 h-5 text-primary shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <div>
-                            <h3 class="text-sm font-semibold text-text-primary">Informasi</h3>
-                            <ul class="text-xs text-text-secondary mt-2 space-y-1.5 list-disc list-outside ml-3">
+                            <h3 class="text-sm font-jakartaSemiBold text-text-primary">Informasi</h3>
+                            <ul class="text-xs font-jakarta text-text-secondary mt-2 space-y-1.5 list-disc list-outside ml-3">
                                 <li>CV wajib diunggah sebelum mendaftar magang.</li>
                                 <li>CV ini akan dilampirkan otomatis setiap kali Anda melamar ke industri.</li>
                                 <li>Supervisor Industri dapat melihat dan mengunduh CV Anda.</li>
@@ -103,10 +103,10 @@
 
             <!-- Right: Preview Section -->
             <div class="lg:col-span-2">
-                <div class="bg-card rounded-xl border border-gray-100 overflow-hidden h-[600px] flex flex-col">
+                <div class="bg-card rounded-md border border-gray-100 overflow-hidden h-[600px] flex flex-col">
                     <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                        <h2 class="text-base font-bold text-text-primary font-jakarta">Preview CV</h2>
-                        <a v-if="activePreviewUrl" :href="activePreviewUrl" target="_blank" class="text-sm font-medium text-primary hover:text-primary-hover flex items-center gap-1.5">
+                        <h2 class="text-base font-jakartaBold text-text-primary">Preview CV</h2>
+                        <a v-if="activePreviewUrl" :href="activePreviewUrl" target="_blank" class="text-sm font-jakartaSemiBold text-primary hover:text-primary-hover flex items-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                             </svg>
@@ -118,7 +118,7 @@
                         <iframe 
                             v-if="activePreviewUrl"
                             :src="activePreviewUrl + '#toolbar=0'" 
-                            class="w-full h-full border-0"
+                            class="w-full h-full no-scrollbar"
                             title="CV Preview"
                         ></iframe>
                         <div v-else-if="isLoadingPreview" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
@@ -148,7 +148,7 @@
             leave-from-class="translate-y-0 opacity-100"
             leave-to-class="translate-y-4 opacity-0"
         >
-            <div v-if="flashMsg" :class="['fixed bottom-6 right-6 px-5 py-3 rounded-xl shadow-lg text-sm font-medium z-50', flashType === 'success' ? 'bg-success text-white' : 'bg-danger text-white']">
+            <div v-if="flashMsg" :class="['fixed bottom-6 right-6 px-5 py-3 rounded-md shadow-lg text-sm font-medium z-50', flashType === 'success' ? 'bg-success text-white' : 'bg-danger text-white']">
                 {{ flashMsg }}
             </div>
         </Transition>
@@ -159,6 +159,7 @@
 import { ref, computed, watch, onMounted } from "vue";
 import { usePage, useForm, Head } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import CardContainer from "@/Components/CardContainer.vue";
 
 const page = usePage();
 const flash = computed(() => page.props.flash || {});

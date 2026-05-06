@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\PendaftaranController;
 use App\Http\Controllers\Api\PenilaianController;
 use App\Http\Controllers\Api\SertifikatController;
 use App\Http\Controllers\Api\SignatureController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -113,15 +114,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/sertifikat/{sertifikat}/download', [SertifikatController::class, 'download']);
 
     // Notifications
-    Route::get('/notifications', function (\Illuminate\Http\Request $request) {
+    Route::get('/notifications', function (Request $request) {
         return $request->user()->notifications()->paginate(15);
     });
-    Route::post('/notifications/{id}/read', function (\Illuminate\Http\Request $request, string $id) {
+    Route::post('/notifications/{id}/read', function (Request $request, string $id) {
         $request->user()->notifications()->findOrFail($id)->markAsRead();
+
         return response()->json(['message' => 'Notification marked as read.']);
     });
-    Route::post('/notifications/read-all', function (\Illuminate\Http\Request $request) {
+    Route::post('/notifications/read-all', function (Request $request) {
         $request->user()->unreadNotifications->markAsRead();
+
         return response()->json(['message' => 'All notifications marked as read.']);
     });
 });

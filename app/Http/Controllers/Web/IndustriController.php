@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Web;
 
-use App\Enums\DocumentType;
 use App\Enums\StatusSeleksi;
 use App\Enums\StatusTahapan;
 use App\Http\Controllers\Controller;
@@ -14,7 +13,6 @@ use App\Services\DailyLogService;
 use App\Services\GradingService;
 use App\Services\InternshipService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class IndustriController extends Controller
@@ -75,11 +73,14 @@ class IndustriController extends Controller
                 ]);
         }
 
+        $hasSignature = $user->signatures()->exists();
+
         return Inertia::render('Industri/Dashboard', [
             'pendingCount' => $pendingCount,
             'activeStudents' => $activeStudents,
             'pendingLogbooks' => $pendingLogbooks,
             'recentApplications' => $recentApplications,
+            'hasSignature' => $hasSignature,
         ]);
     }
 
@@ -131,6 +132,7 @@ class IndustriController extends Controller
 
         try {
             $this->applicationService->accept($pendaftaran, $request->input('keterangan'));
+
             return back()->with('success', 'Mahasiswa berhasil diterima.');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -149,13 +151,12 @@ class IndustriController extends Controller
 
         try {
             $this->applicationService->reject($pendaftaran, $request->input('keterangan'));
+
             return back()->with('success', 'Lamaran ditolak.');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
     }
-
-
 
     // ──────────────────────────────────────
     // Agreement Upload
@@ -196,7 +197,7 @@ class IndustriController extends Controller
         ]);
 
         try {
-            $path = $request->file('file')->store('documents/agreements/industri/' . $magangAktif->id, 'private');
+            $path = $request->file('file')->store('documents/agreements/industri/'.$magangAktif->id, 'private');
             $this->internshipService->uploadAgreementIndustri($magangAktif, $path);
 
             return back()->with('success', 'Agreement berhasil diupload.');
@@ -221,9 +222,9 @@ class IndustriController extends Controller
         if ($industri) {
             $activeMagangs = $this->getActiveMagangs($industri);
             $magangs = $activeMagangs->map(fn (MagangAktif $m) => [
-                'id'          => $m->id,
-                'nama_lengkap'=> $m->pendaftaran->mahasiswa->nama_lengkap,
-                'nim'         => $m->pendaftaran->mahasiswa->nim,
+                'id' => $m->id,
+                'nama_lengkap' => $m->pendaftaran->mahasiswa->nama_lengkap,
+                'nim' => $m->pendaftaran->mahasiswa->nim,
                 // ✅ ->logbooks (property) bukan ->logbooks() (method)
                 // Memanfaatkan eager load dari getActiveMagangs() — tidak ada query tambahan
                 'pending_count' => $m->logbooks->where('is_approved_industri', false)->count(),
@@ -234,11 +235,11 @@ class IndustriController extends Controller
                 $magang = $activeMagangs->firstWhere('id', $selectedMagangId);
                 if ($magang) {
                     $logbooks = $magang->logbooks()
-                        ->orderBy('tanggal', 'desc')
+                        ->orderBy('tanggal_waktu', 'desc')
                         ->paginate(15)
                         ->through(fn (Logbook $l) => [
                             'id' => $l->id,
-                            'tanggal' => $l->tanggal->format('d M Y'),
+                            'tanggal_waktu' => $l->tanggal_waktu->format('d M Y H:i'),
                             'kegiatan' => $l->kegiatan,
                             'status_presensi' => $l->status_presensi->value,
                             'status_presensi_label' => $l->status_presensi->label(),
@@ -264,6 +265,7 @@ class IndustriController extends Controller
 
         try {
             $this->dailyLogService->approve($logbook, $request->input('komentar'));
+
             return back()->with('success', 'Logbook berhasil disetujui.');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -283,18 +285,18 @@ class IndustriController extends Controller
         if ($industri) {
             $magangs = $this->getActiveMagangs($industri)
                 ->map(fn (MagangAktif $m) => [
-                    'id'       => $m->id,
-                    'mahasiswa'=> [
+                    'id' => $m->id,
+                    'mahasiswa' => [
                         'nama_lengkap' => $m->pendaftaran->mahasiswa->nama_lengkap,
-                        'nim'          => $m->pendaftaran->mahasiswa->nim,
-                        'prodi'        => $m->pendaftaran->mahasiswa->prodi,
+                        'nim' => $m->pendaftaran->mahasiswa->nim,
+                        'prodi' => $m->pendaftaran->mahasiswa->prodi,
                     ],
-                    'status'        => $m->status_tahapan->value,
-                    'status_label'  => $m->status_tahapan->label(),
-                    'nilai_industri'=> $m->penilaian?->nilai_industri,
-                    'has_graded'    => $m->penilaian?->nilai_industri !== null,
+                    'status' => $m->status_tahapan->value,
+                    'status_label' => $m->status_tahapan->label(),
+                    'nilai_industri' => $m->penilaian?->nilai_industri,
+                    'has_graded' => $m->penilaian?->nilai_industri !== null,
                     // ✅ ->logbooks (property) — pakai eager load, bukan query baru per iterasi
-                    'total_logbook'    => $m->logbooks->count(),
+                    'total_logbook' => $m->logbooks->count(),
                     'approved_logbook' => $m->logbooks->where('is_approved_industri', true)->count(),
                 ])
                 ->values();
@@ -317,6 +319,7 @@ class IndustriController extends Controller
 
         try {
             $this->gradingService->gradeByIndustry($magangAktif, (float) $request->input('nilai'));
+
             return back()->with('success', 'Nilai berhasil disimpan.');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -334,7 +337,7 @@ class IndustriController extends Controller
     {
         return MagangAktif::whereHas('pendaftaran', function ($q) use ($industri) {
             $q->where('industri_id', $industri->id)
-              ->where('status_seleksi', StatusSeleksi::DITERIMA);
+                ->where('status_seleksi', StatusSeleksi::DITERIMA);
         })
             ->with('pendaftaran.mahasiswa', 'logbooks', 'penilaian')
             ->get();
@@ -346,7 +349,7 @@ class IndustriController extends Controller
     private function authorizeIndustri(Request $request, Pendaftaran $pendaftaran): void
     {
         $industri = $request->user()->industri;
-        if (!$industri || $pendaftaran->industri_id !== $industri->id) {
+        if (! $industri || $pendaftaran->industri_id !== $industri->id) {
             abort(403, 'Unauthorized');
         }
     }

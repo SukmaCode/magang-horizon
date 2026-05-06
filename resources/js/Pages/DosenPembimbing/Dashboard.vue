@@ -27,34 +27,42 @@
             </CardContainer>
         </div>
 
-        <CardContainer padding="p-6">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-lg font-bold text-text-primary font-jakarta">Laporan Akhir Terbaru</h2>
-                <Link href="/dosen-pembimbing/review-laporan" class="text-sm text-primary font-semibold hover:text-primary-hover">Lihat Semua</Link>
-            </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2">
+                <CardContainer padding="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-bold text-text-primary font-jakarta">Laporan Akhir Terbaru</h2>
+                        <Link href="/dosen-pembimbing/review-laporan" class="text-sm text-primary font-semibold hover:text-primary-hover">Lihat Semua</Link>
+                    </div>
 
-            <div v-if="recentLaporan.length > 0" class="space-y-3">
-                <div v-for="laporan in recentLaporan" :key="laporan.id" class="flex items-center justify-between gap-4 p-4 bg-gray-50/50 rounded-xl border border-gray-100">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                            {{ laporan.mahasiswa.charAt(0) }}
-                        </div>
-                        <div>
-                            <p class="text-sm font-semibold text-text-primary">{{ laporan.mahasiswa }}</p>
-                            <p class="text-xs text-text-secondary">{{ laporan.nim }} · {{ laporan.updated_at }}</p>
+                    <div v-if="recentLaporan.length > 0" class="space-y-3">
+                        <div v-for="laporan in recentLaporan" :key="laporan.id" class="flex items-center justify-between gap-4 p-4 bg-gray-50/50 rounded-xl border border-gray-100">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                                    {{ laporan.mahasiswa.charAt(0) }}
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-text-primary">{{ laporan.mahasiswa }}</p>
+                                    <p class="text-xs text-text-secondary">{{ laporan.nim }} · {{ laporan.updated_at }}</p>
+                                </div>
+                            </div>
+                            <div>
+                                <span :class="['text-xs px-2.5 py-1 rounded-full font-medium', statusBadge(laporan.status)]">
+                                    {{ laporan.status_label }}
+                                </span>
+                            </div>
                         </div>
                     </div>
-                    <div>
-                        <span :class="['text-xs px-2.5 py-1 rounded-full font-medium', statusBadge(laporan.status)]">
-                            {{ laporan.status_label }}
-                        </span>
+                    <div v-else class="p-8 text-center text-text-secondary text-sm bg-gray-50 rounded-xl border border-dashed">
+                        Belum ada laporan akhir yang diupload mahasiswa bimbingan.
                     </div>
-                </div>
+                </CardContainer>
             </div>
-            <div v-else class="p-8 text-center text-text-secondary text-sm bg-gray-50 rounded-xl border border-dashed">
-                Belum ada laporan akhir yang diupload mahasiswa bimbingan.
+            
+            <div class="lg:col-span-1">
+                <SignatureUpload :has-signature="hasSignature" />
             </div>
-        </CardContainer>
+        </div>
     </AuthenticatedLayout>
 </template>
 
@@ -62,12 +70,14 @@
 import { Head, Link } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import CardContainer from '@/Components/CardContainer.vue';
+import SignatureUpload from '@/Components/SignatureUpload.vue';
 
 defineProps({
     activeStudents: Number,
     pendingLaporan: Number,
     studentsToGrade: Number,
     recentLaporan: Array,
+    hasSignature: { type: Boolean, default: false },
 });
 
 function statusBadge(status) {

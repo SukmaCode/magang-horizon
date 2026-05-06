@@ -6,6 +6,7 @@ use App\Enums\StatusApproval;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class LaporanAkhir extends Model
 {
@@ -34,7 +35,7 @@ class LaporanAkhir extends Model
         return $this->belongsTo(MagangAktif::class, 'magang_id');
     }
 
-    public function documents(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    public function documents(): MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
     }

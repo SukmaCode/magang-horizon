@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Enums\StatusTahapan;
 use App\Http\Controllers\Controller;
 use App\Models\MagangAktif;
 use App\Models\Penilaian;
-use App\Enums\StatusTahapan;
 use App\Services\GradingService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -23,7 +23,7 @@ class DosenProdiController extends Controller
     public function dashboard(Request $request)
     {
         // ✅ Filter di database, bukan di PHP collection
-        $totalActive   = MagangAktif::count();
+        $totalActive = MagangAktif::count();
         $totalFinished = MagangAktif::where('status_tahapan', StatusTahapan::LULUS)->count();
 
         // ✅ Query terpisah untuk recent list — hanya ambil 5 record
@@ -32,15 +32,15 @@ class DosenProdiController extends Controller
             ->take(5)
             ->get()
             ->map(fn ($m) => [
-                'id'       => $m->id,
-                'mahasiswa'=> $m->pendaftaran->mahasiswa->nama_lengkap,
+                'id' => $m->id,
+                'mahasiswa' => $m->pendaftaran->mahasiswa->nama_lengkap,
                 'industri' => $m->pendaftaran->industri->nama_perusahaan,
-                'status'   => $m->status_tahapan->label(),
+                'status' => $m->status_tahapan->label(),
             ])
             ->values();
 
         return Inertia::render('DosenProdi/Dashboard', [
-            'totalActive'   => $totalActive,
+            'totalActive' => $totalActive,
             'totalFinished' => $totalFinished,
             'recentMagangs' => $recentMagangs,
         ]);
@@ -55,20 +55,20 @@ class DosenProdiController extends Controller
         $magangs = MagangAktif::with('pendaftaran.mahasiswa', 'penilaian', 'laporanAkhir')
             ->whereHas('penilaian', function ($q) {
                 $q->whereNotNull('nilai_industri')
-                  ->whereNotNull('nilai_kampus')
-                  ->where('status_verifikasi_admin', false);
+                    ->whereNotNull('nilai_kampus')
+                    ->where('status_verifikasi_admin', false);
             })
             ->get()
             ->map(fn ($m) => [
-                'id'            => $m->id,
-                'mahasiswa'     => [
+                'id' => $m->id,
+                'mahasiswa' => [
                     'nama_lengkap' => $m->pendaftaran->mahasiswa->nama_lengkap,
-                    'nim'          => $m->pendaftaran->mahasiswa->nim,
+                    'nim' => $m->pendaftaran->mahasiswa->nim,
                 ],
-                'nilai_industri'=> $m->penilaian->nilai_industri,
-                'nilai_kampus'  => $m->penilaian->nilai_kampus,
-                'nilai_akhir'   => $m->penilaian->nilai_akhir,
-                'penilaian_id'  => $m->penilaian->id,
+                'nilai_industri' => $m->penilaian->nilai_industri,
+                'nilai_kampus' => $m->penilaian->nilai_kampus,
+                'nilai_akhir' => $m->penilaian->nilai_akhir,
+                'penilaian_id' => $m->penilaian->id,
             ]);
 
         return Inertia::render('DosenProdi/VerifikasiKelulusan', [

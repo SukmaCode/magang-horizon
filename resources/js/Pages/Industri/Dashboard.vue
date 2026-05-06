@@ -80,39 +80,47 @@
             </Link>
         </div>
 
-        <!-- Recent Applications -->
-        <CardContainer padding="p-6">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-lg font-bold text-text-primary font-jakarta">Lamaran Terbaru</h2>
-                <Link href="/industri/seleksi-cv" class="text-sm text-primary font-semibold hover:text-primary-hover transition-colors">Lihat Semua</Link>
-            </div>
+        <!-- Recent Applications & Signature -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2">
+                <CardContainer padding="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-bold text-text-primary font-jakarta">Lamaran Terbaru</h2>
+                        <Link href="/industri/seleksi-cv" class="text-sm text-primary font-semibold hover:text-primary-hover transition-colors">Lihat Semua</Link>
+                    </div>
 
-            <div v-if="recentApplications.length > 0" class="space-y-3">
-                <div v-for="app in recentApplications" :key="app.id" class="flex items-center justify-between gap-4 p-4 bg-gray-50/50 rounded-xl border border-gray-100">
-                    <div class="flex items-center gap-3 min-w-0">
-                        <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-bold shrink-0">
-                            {{ app.mahasiswa.nama_lengkap.charAt(0) }}
-                        </div>
-                        <div class="min-w-0">
-                            <p class="text-sm font-semibold text-text-primary truncate">{{ app.mahasiswa.nama_lengkap }}</p>
-                            <p class="text-xs text-text-secondary">{{ app.mahasiswa.nim }} · {{ app.mahasiswa.prodi }}</p>
+                    <div v-if="recentApplications.length > 0" class="space-y-3">
+                        <div v-for="app in recentApplications" :key="app.id" class="flex items-center justify-between gap-4 p-4 bg-gray-50/50 rounded-xl border border-gray-100">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-bold shrink-0">
+                                    {{ app.mahasiswa.nama_lengkap.charAt(0) }}
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-sm font-semibold text-text-primary truncate">{{ app.mahasiswa.nama_lengkap }}</p>
+                                    <p class="text-xs text-text-secondary">{{ app.mahasiswa.nim }} · {{ app.mahasiswa.prodi }}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 shrink-0">
+                                <span class="text-xs text-text-secondary">{{ app.created_at }}</span>
+                                <span :class="['text-xs px-2.5 py-0.5 rounded-full font-medium', statusBadge(app.status)]">{{ app.status_label }}</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="flex items-center gap-3 shrink-0">
-                        <span class="text-xs text-text-secondary">{{ app.created_at }}</span>
-                        <span :class="['text-xs px-2.5 py-0.5 rounded-full font-medium', statusBadge(app.status)]">{{ app.status_label }}</span>
-                    </div>
-                </div>
-            </div>
 
-            <div v-else class="flex flex-col items-center justify-center py-12 px-4 text-center bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                <svg class="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-                <h3 class="text-sm font-bold text-text-primary">Belum Ada Aktivitas</h3>
-                <p class="text-xs text-text-secondary mt-1">Belum ada peserta magang atau permohonan masuk.</p>
+                    <div v-else class="flex flex-col items-center justify-center py-12 px-4 text-center bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                        <svg class="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        <h3 class="text-sm font-bold text-text-primary">Belum Ada Aktivitas</h3>
+                        <p class="text-xs text-text-secondary mt-1">Belum ada peserta magang atau permohonan masuk.</p>
+                    </div>
+                </CardContainer>
             </div>
-        </CardContainer>
+            
+            <div class="lg:col-span-1">
+                <SignatureUpload :has-signature="hasSignature" />
+            </div>
+        </div>
     </AuthenticatedLayout>
 </template>
 
@@ -120,12 +128,14 @@
 import { Head, Link } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import CardContainer from '@/Components/CardContainer.vue';
+import SignatureUpload from '@/Components/SignatureUpload.vue';
 
 defineProps({
     pendingCount: { type: Number, default: 0 },
     activeStudents: { type: Number, default: 0 },
     pendingLogbooks: { type: Number, default: 0 },
     recentApplications: { type: Array, default: () => [] },
+    hasSignature: { type: Boolean, default: false },
 });
 
 function statusBadge(status) {
