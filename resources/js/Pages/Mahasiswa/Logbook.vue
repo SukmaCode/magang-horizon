@@ -225,60 +225,83 @@
         </Transition>
 
         <!-- Logbook List -->
+        <!-- <table class="w-full">
+            <thead>
+                <tr class="border border-gray-300">
+                    <th style="padding: 10px;" width="5%" class="font-jakartaSemiBold text-xs border border-gray-300">No</th>
+                    <th style="padding: 10px;" width="15%" class="font-jakartaSemiBold text-xs border border-gray-300">Tanggal</th>
+                    <th style="padding: 10px;" class="font-jakartaSemiBold text-xs border border-gray-300">Aktivitas</th>
+                    <th style="padding: 10px;" width="15%" class="font-jakartaSemiBold text-xs border border-gray-300">Ket</th>
+                    <th style="padding: 10px;" width="10%" class="font-jakartaSemiBold text-xs border border-gray-300">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="log in logbooks.data" :key="log.id" class="border border-gray-300">
+                    <td style="padding: 10px;" class="font-jakarta text-xs  text-center border border-gray-300">{{ log.id }}</td>
+                    <td style="padding: 10px;" class="font-jakarta text-xs text-center border border-gray-300">{{ log.tanggal_display }}</td>
+                    <td style="padding: 10px;" class="font-jakarta text-xs text-center border border-gray-300">{{ log.kegiatan }}</td>
+                    <td style="padding: 10px;" class="font-jakarta text-xs text-center border border-gray-300">{{ log.status_presensi_label }}</td>
+                    <td style="padding: 10px;" class="font-jakarta text-xs text-center border border-gray-300">{{ log.is_approved ? 'Disetujui' : 'Pending' }}</td>
+                </tr>
+            </tbody>
+        </table> -->
         <div v-if="logbooks.data && logbooks.data.length > 0" class="space-y-2">
             <CardContainer
                 v-for="log in logbooks.data"
                 :key="log.id">
                 <div class="flex items-start justify-between gap-4">
-                    <div class="flex-1 min-w-0">
+                    <div class="flex flex-col w-full min-w-0 gap-2">
                         <!-- Date & Status Row -->
-                        <div class="flex flex-wrap items-center gap-2 mb-3">
-                            <span class="text-sm font-jakartaSemiBold text-text-primary">{{ log.tanggal_display }}</span>
-                            <span
-                                :class="[
-                                    'text-xs px-2.5 py-0.5 rounded-full font-jakartaSemiBold',
-                                    presensiColor(log.status_presensi)
-                                ]"
-                            >
-                                {{ log.status_presensi_label }}
-                            </span>
+                        <div class="flex flex-row justify-between border-b border-gray-300 pb-4">
+                            <div class="flex flex-col gap-2">
+                                <span class="text-sm font-jakartaSemiBold text-text-primary">{{ log.tanggal_display }}</span>
+                                <span
+                                    :class="[
+                                        'text-xs w-fit rounded-full font-jakartaSemiBold',
+                                        presensiColor(log.status_presensi)
+                                    ]"
+                                >
+                                    {{ log.status_presensi_label }}
+                                </span>
+                            </div>
+                            <!-- Approval Badges -->
+                            <div class="flex flex-col gap-2 shrink-0">
+                                <span
+                                    :class="[
+                                        'inline-flex items-center gap-1.5 text-xs rounded-full font-jakartaSemiBold whitespace-nowrap',
+                                        log.is_approved
+                                            ? 'text-success'
+                                            : 'text-amber-600'
+                                    ]"
+                                >
+                                    <span :class="[
+                                        'w-1.5 h-1.5 rounded-full',
+                                        log.is_approved ? 'bg-success' : 'bg-amber-500'
+                                    ]"></span>
+                                    {{ log.is_approved ? 'Disetujui' : 'Pending' }}
+                                </span>
+                                <span
+                                    v-if="log.is_checked_kampus"
+                                    class="inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full font-medium bg-primary/10 text-primary whitespace-nowrap"
+                                >
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    Dicek Kampus
+                                </span>
+                            </div>
+                        </div>
+                        <!-- Kegiatan -->
+                        <div class="flex flex-col">
+                            <span class="font-jakartaSemiBold text-text-primary text-sm">Kegiatan:</span>
+                            <p class="text-sm font-jakarta text-text-primary leading-relaxed">{{ log.kegiatan }}</p>
                         </div>
 
-                        <!-- Kegiatan -->
-                        <p class="text-sm font-jakarta text-text-primary leading-relaxed">{{ log.kegiatan }}</p>
-
                         <!-- Komentar Industri -->
-                        <div v-if="log.komentar_industri" class="mt-3 p-3 bg-blue-50/50 rounded-lg border border-blue-100">
+                        <div class="mt-3 p-3 bg-blue-50/50 rounded-lg border border-blue-100">
                             <p class="text-xs font-jakartaSemiBold text-blue-700 mb-1">Komentar Supervisor:</p>
                             <p class="text-xs font-jakarta text-blue-600">{{ log.komentar_industri }}</p>
                         </div>
-                    </div>
-
-                    <!-- Approval Badges -->
-                    <div class="flex flex-col gap-2 shrink-0">
-                        <span
-                            :class="[
-                                'inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full font-jakartaSemiBold whitespace-nowrap',
-                                log.is_approved
-                                    ? 'bg-success/10 text-success'
-                                    : 'bg-amber-50 text-amber-600'
-                            ]"
-                        >
-                            <span :class="[
-                                'w-1.5 h-1.5 rounded-full',
-                                log.is_approved ? 'bg-success' : 'bg-amber-500'
-                            ]"></span>
-                            {{ log.is_approved ? 'Disetujui' : 'Pending' }}
-                        </span>
-                        <span
-                            v-if="log.is_checked_kampus"
-                            class="inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full font-medium bg-primary/10 text-primary whitespace-nowrap"
-                        >
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                            Dicek Kampus
-                        </span>
                     </div>
                 </div>
             </CardContainer>
@@ -391,11 +414,11 @@ const form = useForm({
 
 function presensiColor(status) {
     const map = {
-        hadir: 'bg-success/10 text-success',
-        izin: 'bg-blue-50 text-blue-600',
-        sakit: 'bg-amber-50 text-amber-600',
+        hadir: 'text-success',
+        izin: 'text-blue-600',
+        sakit: 'text-amber-600',
     };
-    return map[status] || 'bg-gray-100 text-gray-600';
+    return map[status] || 'text-gray-600';
 }
 
 function toggleLocation() {

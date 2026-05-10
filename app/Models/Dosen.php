@@ -33,4 +33,9 @@ class Dosen extends Model
     {
         return $this->hasMany(MagangAktif::class, 'supervisor_kampus_id');
     }
+
+    public function pembimbingAssignments(): HasMany
+    {
+        return $this->hasMany(PembimbingAssignment::class, 'dosen_id');
+    }
 }

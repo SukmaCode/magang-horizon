@@ -60,12 +60,30 @@ class DosenPembimbingController extends Controller
 
         $hasSignature = $user->signatures()->exists();
 
+        // Ambil SK pembimbing jika sudah di-upload oleh Kaprodi
+        $suratKeputusan = null;
+        if ($dosen) {
+            $assignment = $dosen->pembimbingAssignments()
+                ->whereHas('suratKeputusan')
+                ->with('suratKeputusan')
+                ->first();
+
+            if ($assignment && $assignment->suratKeputusan) {
+                $suratKeputusan = [
+                    'id' => $assignment->suratKeputusan->id,
+                    'nomor_sk' => $assignment->suratKeputusan->nomor_sk,
+                    'tanggal_sk' => $assignment->suratKeputusan->tanggal_sk->format('d M Y'),
+                ];
+            }
+        }
+
         return Inertia::render('DosenPembimbing/Dashboard', [
             'activeStudents' => $activeStudents,
             'pendingLaporan' => $pendingLaporan,
             'studentsToGrade' => $studentsToGrade,
             'recentLaporan' => $recentLaporan,
             'hasSignature' => $hasSignature,
+            'suratKeputusan' => $suratKeputusan,
         ]);
     }
 

@@ -43,28 +43,35 @@
 
             <!-- Main: Logbook List -->
             <div class="lg:col-span-3">
-                <CardContainer v-if="selectedMagangId" class="overflow-hidden flex flex-col gap-6">
+                <CardContainer v-if="selectedMagangId" class="overflow-hidden flex flex-col gap-4">
                     <div class="flex items-center justify-between">
-                        <h2 class="text-base font-jakartaBold text-text-primary">Daftar Kegiatan</h2>
+                        <h2 class="text-sm font-jakartaBold text-text-primary">Daftar Kegiatan</h2>
                     </div>
 
                     <div v-if="logbooks.data && logbooks.data.length > 0" class="divide-y-10 divide-gray-50">
                         <div v-for="log in logbooks.data" :key="log.id" class=" hover:bg-gray-50/30 transition-colors">
-                            <div class="flex flex-col md:flex-row gap-4 justify-between">
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <span class="text-sm font-jakartaSemiBold text-text-primary">{{ log.tanggal }}</span>
-                                        <span :class="['text-xs px-2 py-0.5 rounded-full font-jakartaSemiBold', presensiColor(log.status_presensi)]">
-                                            {{ log.status_presensi_label }}
-                                        </span>
-                                        <span v-if="log.is_approved" class="text-xs px-2 py-0.5 rounded-full font-jakartaSemiBold bg-success/10 text-success">
-                                            Disetujui
-                                        </span>
-                                        <span v-else class="text-xs px-2 py-0.5 rounded-full font-jakartaSemiBold bg-amber-50 text-amber-600">
-                                            Pending
-                                        </span>
+                            <div class="flex flex-col gap-4 justify-between">
+                                <div class="flex flex-col gap-4">
+                                    <div class="w-full flex justify-between">
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-jakartaSemiBold text-text-primary">{{ log.tanggal_waktu }}</span>
+                                            <span :class="['w-fit text-xs font-jakartaSemiBold', presensiColor(log.status_presensi)]">
+                                                {{ log.status_presensi_label }}
+                                            </span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span v-if="log.is_approved" class="text-xs font-jakartaSemiBold text-success">
+                                                Disetujui
+                                            </span>
+                                            <span v-else class="text-xs font-jakartaSemiBold text-amber-600">
+                                                Pending
+                                            </span>
+                                        </div>
                                     </div>
-                                    <p class="text-sm font-jakarta text-text-primary leading-relaxed whitespace-pre-wrap">{{ log.kegiatan }}</p>
+                                    <div class="flex flex-col">
+                                        <span class="font-jakartaSemiBold text-text-primary text-sm">Kegiatan:</span>
+                                        <p class="text-sm font-jakarta text-text-primary leading-relaxed">{{ log.kegiatan }}</p>
+                                    </div>
                                     
                                     <div v-if="log.komentar_industri" class="mt-3 p-3 bg-blue-50/50 rounded-lg border border-blue-100">
                                         <p class="text-xs font-jakartaSemiBold text-blue-700 mb-0.5">Komentar Anda:</p>
@@ -157,10 +164,10 @@ defineProps({
 
 function presensiColor(status) {
     return {
-        hadir: 'bg-success/10 text-success',
-        izin: 'bg-blue-50 text-blue-600',
-        sakit: 'bg-amber-50 text-amber-600',
-    }[status] || 'bg-gray-100 text-gray-600';
+        hadir: 'text-success',
+        izin: 'text-blue-600',
+        sakit: 'text-amber-600',
+    }[status] || 'text-gray-600';
 }
 
 const showApproveModal = ref(false);

@@ -9,6 +9,7 @@ use App\Models\Logbook;
 use App\Models\MagangAktif;
 use App\Models\Pendaftaran;
 use App\Services\ApplicationService;
+use App\Services\CompletionLetterService;
 use App\Services\DailyLogService;
 use App\Services\GradingService;
 use App\Services\InternshipService;
@@ -19,6 +20,7 @@ class IndustriController extends Controller
 {
     public function __construct(
         private readonly ApplicationService $applicationService,
+        private readonly CompletionLetterService $completionLetterService,
         private readonly DailyLogService $dailyLogService,
         private readonly GradingService $gradingService,
         private readonly InternshipService $internshipService,
@@ -96,7 +98,7 @@ class IndustriController extends Controller
         $pendaftarans = [];
         if ($industri) {
             $pendaftarans = $industri->pendaftarans()
-                ->with('mahasiswa:id,nama_lengkap,nim,prodi,cv_file_path')
+                ->with('mahasiswa:id,nama_lengkap,nim,prodi,cv_file_path,linkedin_url,bio,skills,profile_photo_path')
                 ->latest()
                 ->paginate(15)
                 ->through(fn (Pendaftaran $p) => [
@@ -106,6 +108,10 @@ class IndustriController extends Controller
                         'nim' => $p->mahasiswa->nim,
                         'prodi' => $p->mahasiswa->prodi,
                         'has_cv' => $p->mahasiswa->cv_file_path !== null,
+                        'linkedin_url' => $p->mahasiswa->linkedin_url,
+                        'bio' => $p->mahasiswa->bio,
+                        'skills' => $p->mahasiswa->skills,
+                        'profile_photo_url' => $p->mahasiswa->profile_photo_url,
                     ],
                     'status' => $p->status_seleksi->value,
                     'status_label' => $p->status_seleksi->label(),
@@ -324,6 +330,87 @@ class IndustriController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
+    }
+
+    // ──────────────────────────────────────
+    // Internship Completion Letter
+    // ──────────────────────────────────────
+
+    public function completionLetter(Request $request)
+    {
+        $user = $request->user();
+        $industri = $user->industri;
+
+        $magangs = $industri
+            ? $this->completionLetterService->getMagangsForIndustri($industri)
+            : [];
+
+        return Inertia::render('Industri/InternshipCompletionLetter', [
+            'magangs' => $magangs,
+        ]);
+    }
+
+    public function storeCompletionLetter(Request $request, MagangAktif $magangAktif)
+    {
+        $validated = $request->validate([
+            'posisi_magang' => 'required|string|max:255',
+            'departemen' => 'required|string|max:255',
+            'deskripsi_tugas' => 'required|string|max:5000',
+            'komentar_penutup' => 'required|string|max:5000',
+        ], [
+            'posisi_magang.required' => 'Posisi magang wajib diisi.',
+            'departemen.required' => 'Departemen wajib diisi.',
+            'deskripsi_tugas.required' => 'Deskripsi tugas wajib diisi.',
+            'komentar_penutup.required' => 'Komentar penutup wajib diisi.',
+        ]);
+
+        try {
+            $this->completionLetterService->storeCompletionLetter($magangAktif, $validated);
+
+            return back()->with('success', 'Data Internship Completion Letter berhasil disimpan.');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    // ──────────────────────────────────────
+    // Applicant Profile (View)
+    // ──────────────────────────────────────
+
+    /**
+     * Show full profile of a student applicant.
+     * Only accessible by the industry that received the application.
+     */
+    public function applicantProfile(Request $request, Pendaftaran $pendaftaran)
+    {
+        $this->authorizeIndustri($request, $pendaftaran);
+
+        $mahasiswa = $pendaftaran->mahasiswa;
+
+        return Inertia::render('Industri/ApplicantProfile', [
+            'pendaftaran' => [
+                'id' => $pendaftaran->id,
+                'status' => $pendaftaran->status_seleksi->value,
+                'status_label' => $pendaftaran->status_seleksi->label(),
+                'keterangan' => $pendaftaran->keterangan_industri,
+                'created_at' => $pendaftaran->created_at->format('d M Y H:i'),
+            ],
+            'mahasiswa' => [
+                'nama_lengkap' => $mahasiswa->nama_lengkap,
+                'nim' => $mahasiswa->nim,
+                'prodi' => $mahasiswa->prodi,
+                'email' => $mahasiswa->user->email,
+                'nomor_hp' => $mahasiswa->nomor_hp,
+                'bio' => $mahasiswa->bio,
+                'skills' => $mahasiswa->skills,
+                'linkedin_url' => $mahasiswa->linkedin_url,
+                'profile_photo_url' => $mahasiswa->profile_photo_url,
+                'has_cv' => $mahasiswa->cv_file_path !== null,
+                'cv_url' => $mahasiswa->cv_file_path
+                    ? route('industri.seleksi-cv.download-cv', $pendaftaran->id)
+                    : null,
+            ],
+        ]);
     }
 
     // ──────────────────────────────────────

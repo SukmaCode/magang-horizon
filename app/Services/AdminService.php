@@ -4,12 +4,12 @@ namespace App\Services;
 
 use App\Models\Dosen;
 use App\Models\MagangAktif;
+use App\Models\PembimbingAssignment;
 use App\Models\Periode;
 use App\Models\Sertifikat;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Str;
 
 class AdminService
 {
@@ -93,8 +93,9 @@ class AdminService
                 'nip' => $d->nip,
             ]);
 
+        // Tampilkan magang aktif yang belum punya assignment di tabel pembimbing_assignments
         $magangs = MagangAktif::with('pendaftaran.mahasiswa', 'pendaftaran.industri')
-            ->whereNull('supervisor_kampus_id')
+            ->doesntHave('pembimbingAssignment')
             ->where('status_agreement', 'accepted')
             ->get()
             ->map(fn ($m) => [
@@ -104,52 +105,23 @@ class AdminService
                 'industri' => $m->pendaftaran->industri->nama_perusahaan,
             ]);
 
-        $assignedMagangs = MagangAktif::with('pendaftaran.mahasiswa', 'supervisorKampus')
-            ->whereNotNull('supervisor_kampus_id')
+        // Ambil daftar penugasan terbaru dari tabel pembimbing_assignments
+        $assignedMagangs = PembimbingAssignment::with('magangAktif.pendaftaran.mahasiswa', 'dosen')
             ->latest()
             ->take(20)
             ->get()
-            ->map(fn ($m) => [
-                'id' => $m->id,
-                'mahasiswa' => $m->pendaftaran->mahasiswa->nama_lengkap,
-                'dosen' => $m->supervisorKampus->nama_dosen,
+            ->map(fn ($a) => [
+                'id' => $a->id,
+                'mahasiswa' => $a->magangAktif->pendaftaran->mahasiswa->nama_lengkap,
+                'dosen' => $a->dosen->nama_dosen,
             ]);
 
         return compact('dosens', 'magangs', 'assignedMagangs');
     }
 
-    /**
-     * Tetapkan dosen pembimbing ke sejumlah magang aktif.
-     *
-     * Logic: kelompokkan magang berdasarkan supervisor_industri masing-masing
-     * agar bisa bulk-update dan menghindari N query UPDATE.
-     *
-     * @param  int  $dosenId  ID dosen yang akan jadi pembimbing kampus
-     * @param  int[]  $magangIds  Daftar ID magang_aktif yang akan di-assign
-     */
-    public function assignPembimbing(int $dosenId, array $magangIds): void
-    {
-        $magangs = MagangAktif::with('pendaftaran.industri')
-            ->whereIn('id', $magangIds)
-            ->get();
-
-        // Kelompokkan ID berdasarkan supervisor_industri_id agar bisa bulk-update
-        $groupedIds = [];
-        foreach ($magangs as $magang) {
-            $supervisorIndustriId = $magang->pendaftaran->industri->user_id ?? '';
-            $groupedIds[$supervisorIndustriId][] = $magang->id;
-        }
-
-        foreach ($groupedIds as $supervisorIndustriId => $ids) {
-            MagangAktif::whereIn('id', $ids)->update([
-                'supervisor_kampus_id' => $dosenId,
-                'supervisor_industri_id' => $supervisorIndustriId !== '' ? $supervisorIndustriId : null,
-                'status_tahapan' => 'pelaksanaan',
-                'tanggal_mulai' => now(),
-                'sk_pembimbing_path' => $this->generateSkPath(),
-            ]);
-        }
-    }
+    // assignPembimbing() telah dipindahkan ke PembimbingAssignmentService
+    // Fitur assign pembimbing hanya sebagai bukti resmi penugasan,
+    // TIDAK mempengaruhi status_tahapan atau alur kelulusan mahasiswa.
 
     // ──────────────────────────────────────
     // Manajemen User
@@ -231,15 +203,6 @@ class AdminService
     // ──────────────────────────────────────
     // Private Helpers
     // ──────────────────────────────────────
-
-    /**
-     * Generate nama file SK Pembimbing (sementara, MVP placeholder).
-     * Dipusatkan di sini agar mudah diganti saat implementasi PDF asli.
-     */
-    private function generateSkPath(): string
-    {
-        return 'generated_sk_'.Str::random(10).'.pdf';
-    }
 
     /**
      * Generate nomor sertifikat dengan format: CERT-YYYY-XXXX

@@ -63,7 +63,12 @@
                                 >{{ userRoleLabel }}</span
                             >
                         </div>
-                        <div
+                        <div v-if="user.profile_photo_url"
+                            class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 shadow-sm"
+                        >
+                            <img :src="user.profile_photo_url" alt="Foto Profil" class="w-full h-full object-cover" />
+                        </div>
+                        <div v-else
                             class="w-10 h-10 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center text-primary font-bold"
                         >
                             <svg

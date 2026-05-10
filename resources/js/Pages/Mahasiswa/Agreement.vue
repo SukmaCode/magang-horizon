@@ -87,9 +87,9 @@
                                 tanggapan Anda.
                             </p>
                             <div class="flex flex-col sm:flex-row gap-3">
-                                <a :href="agr.download_url" class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-primary bg-white border border-primary/20 rounded-lg hover:bg-primary/5 transition-colors">Unduh &amp; Baca Agreement</a>
-                                <button @click="openAcceptModal(agr)" class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-success rounded-lg hover:bg-success/90 transition-colors">Terima &amp; Unggah TTD</button>
-                                <button @click="openRejectModal(agr)" class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-danger bg-white border border-danger/20 rounded-lg hover:bg-danger/5 transition-colors">Tolak Agreement</button>
+                                <a :href="agr.download_url" class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-jakartaSemiBold text-primary bg-white border border-primary/20 rounded-lg hover:bg-primary/5 transition-colors">Unduh &amp; Baca Agreement</a>
+                                <button @click="openAcceptModal(agr)" class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-jakartaSemiBold text-white bg-success rounded-lg hover:bg-success/90 transition-colors">Terima &amp; Unggah TTD</button>
+                                <button @click="openRejectModal(agr)" class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-jakartaSemiBold text-danger bg-white border border-danger/20 rounded-lg hover:bg-danger/5 transition-colors">Tolak Agreement</button>
                             </div>
                         </div>
 
@@ -121,11 +121,11 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                 </div>
-                                <p class="text-sm font-semibold text-text-primary">Agreement Ditolak</p>
+                                <p class="text-sm font-jakartaSemiBold text-text-primary">Agreement Ditolak</p>
                             </div>
                             <div class="bg-danger/5 border border-danger/10 rounded-lg p-3">
-                                <p class="text-xs font-semibold text-danger mb-1">Alasan Penolakan:</p>
-                                <p class="text-sm text-text-primary">{{ agr.alasan_tolak }}</p>
+                                <p class="text-xs font-jakartaSemiBold text-danger mb-1">Alasan Penolakan:</p>
+                                <p class="text-sm font-jakarta text-text-primary">{{ agr.alasan_tolak }}</p>
                             </div>
                         </div>
                     </div>
@@ -146,7 +146,7 @@
                 <div class="bg-card rounded-2xl shadow-2xl w-full max-w-md">
                     <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
                         <div>
-                            <h3 class="text-lg font-bold text-text-primary font-jakarta">Terima &amp; Unggah TTD</h3>
+                            <h3 class="text-lg font-jakartaSemiBold text-text-primary font-jakarta">Terima &amp; Unggah TTD</h3>
                             <p class="text-xs text-text-secondary mt-0.5">{{ selectedAgreement?.industri }}</p>
                         </div>
                         <button @click="closeModals" class="text-gray-400 hover:text-gray-600">
@@ -156,7 +156,7 @@
                         </button>
                     </div>
                     <form @submit.prevent="submitAccept" class="p-6">
-                        <p class="text-sm text-text-secondary mb-4">
+                        <p class="text-sm font-jakarta text-text-secondary mb-4">
                             Silakan unggah kembali dokumen agreement yang telah
                             <strong>Anda tandatangani</strong> (format PDF).
                         </p>
@@ -170,23 +170,23 @@
                                     <svg class="w-8 h-8 text-primary mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <p class="text-sm font-semibold text-text-primary">{{ selectedFile.name }}</p>
+                                    <p class="text-sm font-jakartaSemiBold text-text-primary">{{ selectedFile.name }}</p>
                                     <p class="text-xs text-text-secondary mt-1">{{ formatFileSize(selectedFile.size) }}</p>
                                 </div>
                                 <div v-else class="flex flex-col items-center">
                                     <svg class="w-8 h-8 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                     </svg>
-                                    <p class="text-sm font-semibold text-text-primary">Pilih File PDF</p>
-                                    <p class="text-xs text-text-secondary mt-1">Atau drag and drop kesini</p>
+                                    <p class="text-sm font-jakartaSemiBold text-text-primary">Pilih File PDF</p>
+                                    <p class="text-xs font-jakarta text-text-secondary mt-1">Atau drag and drop kesini</p>
                                 </div>
                             </div>
                             <p v-if="acceptForm.errors.file" class="text-xs text-danger mt-1">{{ acceptForm.errors.file }}</p>
                         </div>
 
                         <div class="flex gap-3">
-                            <button type="button" @click="closeModals" class="flex-1 px-4 py-2.5 text-sm font-medium border border-gray-200 rounded-xl hover:bg-gray-50">Batal</button>
-                            <button type="submit" :disabled="!selectedFile || acceptForm.processing" class="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-success rounded-xl hover:bg-success/90 flex justify-center items-center gap-2 disabled:opacity-50">
+                            <button type="button" @click="closeModals" class="flex-1 px-4 py-2.5 text-sm font-jakartaSemiBold border border-gray-200 rounded-xl hover:bg-gray-50">Batal</button>
+                            <button type="submit" :disabled="!selectedFile || acceptForm.processing" class="flex-1 px-4 py-2.5 text-sm font-jakartaSemiBold text-white bg-success rounded-xl hover:bg-success/90 flex justify-center items-center gap-2 disabled:opacity-50">
                                 <span v-if="acceptForm.processing" class="animate-spin w-4 h-4 border-2 border-white/20 border-t-white rounded-full"></span>
                                 Konfirmasi &amp; Kirim
                             </button>
@@ -209,7 +209,7 @@
                 <div class="bg-card rounded-2xl shadow-2xl w-full max-w-md">
                     <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
                         <div>
-                            <h3 class="text-lg font-bold text-danger font-jakarta">Tolak Agreement</h3>
+                            <h3 class="text-lg font-jakartaSemiBold text-danger font-jakarta">Tolak Agreement</h3>
                             <p class="text-xs text-text-secondary mt-0.5">{{ selectedAgreement?.industri }}</p>
                         </div>
                         <button @click="closeModals" class="text-gray-400 hover:text-gray-600">
@@ -225,7 +225,7 @@
                         </p>
 
                         <div class="mb-5">
-                            <label class="block text-sm font-semibold text-text-primary mb-2">
+                            <label class="block text-sm font-jakartaSemiBold text-text-primary mb-2">
                                 Alasan Penolakan <span class="text-danger">*</span>
                             </label>
                             <textarea v-model="rejectForm.alasan" rows="3" class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-danger/20 focus:border-danger" :class="{'border-danger': rejectForm.errors.alasan}" placeholder="Contoh: Terdapat ketidaksesuaian pada poin jam kerja..."></textarea>
@@ -234,7 +234,7 @@
 
                         <div class="flex gap-3">
                             <button type="button" @click="closeModals" class="flex-1 px-4 py-2.5 text-sm font-medium border border-gray-200 rounded-xl hover:bg-gray-50">Kembali</button>
-                            <button type="submit" :disabled="rejectForm.processing" class="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-danger rounded-xl hover:bg-danger/90 flex justify-center items-center gap-2">
+                            <button type="submit" :disabled="rejectForm.processing" class="flex-1 px-4 py-2.5 text-sm font-jakartaSemiBold text-white bg-danger rounded-xl hover:bg-danger/90 flex justify-center items-center gap-2">
                                 <span v-if="rejectForm.processing" class="animate-spin w-4 h-4 border-2 border-white/20 border-t-white rounded-full"></span>
                                 Tolak Agreement
                             </button>

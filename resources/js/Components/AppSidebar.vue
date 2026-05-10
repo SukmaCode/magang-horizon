@@ -73,7 +73,7 @@
                 href="/logout"
                 method="post"
                 as="button"
-                class="w-full flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-card cursor-pointer hover:text-danger rounded-xl transition-colors duration-200"
+                class="w-full flex items-center gap-2 px-3 py-2.5 text-sm font-jakartaSemiBold text-card cursor-pointer hover:text-danger rounded-xl transition-colors duration-200"
             >
                 <svg
                     class="w-5 h-5"
@@ -204,6 +204,21 @@ const CertificateIcon = {
             ],
         ),
 };
+const UserIcon = {
+    render: () =>
+        h(
+            "svg",
+            { fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
+            [
+                h("path", {
+                    "stroke-linecap": "round",
+                    "stroke-linejoin": "round",
+                    "stroke-width": "2",
+                    d: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z",
+                }),
+            ],
+        ),
+};
 
 // ─── Navigation ─────────────────────────────────────────────────────────
 const navigation = computed(() => {
@@ -219,6 +234,13 @@ const navigation = computed(() => {
             href: "/mahasiswa/dashboard",
             icon: HomeIcon,
             current: currentPath.includes("dashboard"),
+        });
+
+        menu.push({
+            name: "Profil Saya",
+            href: "/mahasiswa/profil",
+            icon: UserIcon,
+            current: currentPath === "/mahasiswa/profil",
         });
         
         menu.push({
@@ -250,6 +272,12 @@ const navigation = computed(() => {
             href: "/mahasiswa/laporan-akhir",
             icon: UploadIcon,
             current: currentPath.includes("laporan-akhir"),
+        });
+        menu.push({
+            name: "Hasil Evaluasi",
+            href: "/mahasiswa/evaluasi",
+            icon: CheckIcon,
+            current: currentPath === "/mahasiswa/evaluasi",
         });
         menu.push({
             name: "Sertifikat",
@@ -314,10 +342,22 @@ const navigation = computed(() => {
             current: currentPath.includes("persetujuan-logbook"),
         });
         menu.push({
+            name: "Evaluasi Mahasiswa",
+            href: "/industri/evaluasi",
+            icon: ClipboardIcon,
+            current: currentPath.includes("evaluasi"),
+        });
+        menu.push({
             name: "Input Nilai",
             href: "/industri/input-nilai",
             icon: CertificateIcon,
             current: currentPath.includes("input-nilai"),
+        });
+        menu.push({
+            name: "Completion Letter",
+            href: "/industri/completion-letter",
+            icon: DocumentIcon,
+            current: currentPath.includes("completion-letter"),
         });
     }
 
@@ -334,6 +374,12 @@ const navigation = computed(() => {
             href: "/dosen-prodi/verifikasi-kelulusan",
             icon: CheckIcon,
             current: currentPath.includes("verifikasi-kelulusan"),
+        });
+        menu.push({
+            name: "Upload SK",
+            href: "/dosen-prodi/surat-keputusan",
+            icon: CheckIcon,
+            current: currentPath.includes("surat-keputusan"),
         });
     }
 

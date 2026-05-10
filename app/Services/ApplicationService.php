@@ -20,6 +20,21 @@ class ApplicationService
      */
     public function apply(int $mahasiswaId, int $industriId): Pendaftaran
     {
+        // Validate profile completeness (LinkedIn + CV required)
+        $mahasiswa = \App\Models\Mahasiswa::findOrFail($mahasiswaId);
+
+        if (! $mahasiswa->hasLinkedIn()) {
+            throw ValidationException::withMessages([
+                'linkedin_url' => ['Lengkapi profil LinkedIn terlebih dahulu sebelum melamar magang.'],
+            ]);
+        }
+
+        if (! $mahasiswa->cv_file_path) {
+            throw ValidationException::withMessages([
+                'cv_file' => ['Upload CV terlebih dahulu sebelum melamar magang.'],
+            ]);
+        }
+
         // Check if student already has an active application to this industry
         $existingActive = Pendaftaran::where('mahasiswa_id', $mahasiswaId)
             ->where('industri_id', $industriId)

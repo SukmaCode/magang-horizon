@@ -40,22 +40,6 @@ const prodiOptions = [
   { value: 'S1 Informatika', label: 'S1 Informatika' },
   { value: 'S1 Sistem Informasi', label: 'S1 Sistem Informasi' },
   { value: 'S1 Teknologi Informasi', label: 'S1 Teknologi Informasi' },
-  // FMB
-  { value: 'S1 Akuntansi', label: 'S1 Akuntansi' },
-  { value: 'S1 Manajemen', label: 'S1 Manajemen' },
-  { value: 'S1 Pariwisata', label: 'S1 Pariwisata' },
-  // FHS
-  { value: 'S1 Keperawatan', label: 'S1 Keperawatan' },
-  { value: 'S1 Kebidanan', label: 'S1 Kebidanan' },
-  { value: 'Profesi Ners', label: 'Profesi Ners' },
-  { value: 'D3 Keperawatan', label: 'D3 Keperawatan' },
-  { value: 'D3 Kebidanan', label: 'D3 Kebidanan' },
-  // FESS
-  { value: 'S1 Pendidikan Bahasa Inggris', label: 'S1 Pendidikan Bahasa Inggris' },
-  { value: 'S1 PGSD', label: 'S1 PGSD' },
-  { value: 'S1 PGPAUD', label: 'S1 PGPAUD' },
-  { value: 'S1 Ilmu Komunikasi', label: 'S1 Ilmu Komunikasi' },
-  { value: 'S1 Psikologi', label: 'S1 Psikologi' },
 ];
 
 defineProps({

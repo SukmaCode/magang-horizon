@@ -83,6 +83,11 @@ class MagangAktif extends Model
         return $this->hasOne(Penilaian::class, 'magang_id');
     }
 
+    public function internshipEvaluation(): HasOne
+    {
+        return $this->hasOne(InternshipEvaluation::class, 'magang_id');
+    }
+
     public function sertifikat(): HasOne
     {
         return $this->hasOne(Sertifikat::class, 'magang_id');
@@ -150,5 +155,10 @@ class MagangAktif extends Model
         return $this->hasSupervisorsAssigned()
             && $this->hasAgreementsUploaded()
             && $this->status_tahapan === StatusTahapan::PERSIAPAN;
+    }
+
+    public function pembimbingAssignment(): HasOne
+    {
+        return $this->hasOne(PembimbingAssignment::class, 'magang_aktif_id');
     }
 }

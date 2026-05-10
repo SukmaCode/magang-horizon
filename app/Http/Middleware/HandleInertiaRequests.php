@@ -61,6 +61,7 @@ class HandleInertiaRequests extends Middleware
                     // Tabel Mahasiswa
                     'nama_lengkap' => $user->mahasiswa ? $user->mahasiswa->nama_lengkap : null,
                     'prodi' => $user->mahasiswa ? $user->mahasiswa->prodi : null,
+                    'profile_photo_url' => $user->mahasiswa ? $user->mahasiswa->profile_photo_url : null,
 
                     // Tabel Industri
                     'nama_perusahaan' => $user->industri ? $user->industri->nama_perusahaan : null,

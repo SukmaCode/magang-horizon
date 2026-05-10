@@ -73,15 +73,29 @@
             <CardContainer
                 v-for="(item, index) in quickAction"
                 :key="index"
+                padding="p-0"
             >
-                <Link
+                <!-- Use native <a> for download links, Inertia <Link> for SPA navigation -->
+                <a
+                    v-if="item.isDownload"
                     :href="item.href"
-                    class="flex flex-col items-center gap-4"
+                    target="_blank"
+                    class="flex flex-col items-center gap-4 p-6"
                 >
                     <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                         <span v-html="item.svg"></span>
                     </div>
-                    <span class="text-xs font-jakartaSemiBold text-text-primary">{{ item.label }}</span>
+                    <span class="text-xs font-jakartaSemiBold text-center text-text-primary">{{ item.label }}</span>
+                </a>
+                <Link
+                    v-else
+                    :href="item.href"
+                    class="flex flex-col items-center gap-4 p-6"
+                >
+                    <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                        <span v-html="item.svg"></span>
+                    </div>
+                    <span class="text-xs font-jakartaSemiBold text-center text-text-primary">{{ item.label }}</span>
                 </Link>
             </CardContainer>
         </div>
@@ -213,6 +227,7 @@ const props = defineProps({
     pendaftaranCount: { type: Number, default: 0 },
     recentLogbooks: { type: Array, default: () => [] },
     hasMagang: { type: Boolean, default: false },
+    magang: { type: Object, default: () => ({}) }
 });
 
 const quickAction = computed(() => {
@@ -223,7 +238,7 @@ const quickAction = computed(() => {
     const currentMonth = new Date().getMonth() + 1;
     const currentYear = new Date().getFullYear();
 
-    return [
+    const actions = [
         {
             icon: 'book-open',
             label: 'Logbook',
@@ -263,5 +278,22 @@ const quickAction = computed(() => {
                     </div>`
         },
     ];
+
+    // Only show download button when completion letter data has been filled by industri
+    if (props.magang?.has_completion_letter) {
+        actions.push({
+            icon: 'download',
+            label: 'Internship Completion Letter',
+            href: `/completion-letter/${props.magang.id}/download`,
+            isDownload: true,
+            svg : `<div class="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>`
+        });
+    }
+
+    return actions;
 });
 </script>

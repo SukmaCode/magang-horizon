@@ -1,6 +1,6 @@
 <template>
   <div class="w-full">
-    <label v-if="label" :for="id" class="block text-sm font-medium text-text-primary mb-1.5">
+    <label v-if="label" :for="id" class="block text-sm font-jakartaSemiBold text-text-primary mb-1.5">
       {{ label }}
       <span v-if="required" class="text-accent">*</span>
     </label>
@@ -10,7 +10,7 @@
         :value="modelValue"
         :disabled="disabled"
         :class="[
-          'w-full rounded-xl border bg-white px-4 py-3 text-sm text-text-primary appearance-none',
+          'w-full rounded-xl border bg-white font-jakarta px-4 py-3 text-sm text-text-primary appearance-none',
           'transition-all duration-200 ease-out cursor-pointer',
           'focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent',
           'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-surface',

@@ -57,6 +57,7 @@ class MahasiswaController extends Controller
             'pendingCount' => $data['pendingCount'],
             'maxApplications' => 3,
             'cvUploaded' => $data['cvUploaded'],
+            'linkedinFilled' => $mahasiswa?->hasLinkedIn() ?? false,
         ]);
     }
 
@@ -264,6 +265,10 @@ class MahasiswaController extends Controller
             'pendaftaranCount' => $pendaftaranCount,
             'recentLogbooks' => $recentLogbooks,
             'hasMagang' => $magang !== null,
+            'magang' => $magang ? [
+                'id' => $magang->id,
+                'has_completion_letter' => $magang->sertifikat?->posisi_magang !== null,
+            ] : null,
         ]);
     }
 

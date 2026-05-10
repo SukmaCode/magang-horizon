@@ -19,14 +19,57 @@ class Mahasiswa extends Model
         'nim',
         'nama_lengkap',
         'prodi',
+        'nomor_hp',
+        'profile_photo_path',
+        'bio',
+        'skills',
+        'linkedin_url',
         'cv_file_path',
     ];
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['nim', 'nama_lengkap', 'prodi', 'cv_file_path'])
+            ->logOnly(['nim', 'nama_lengkap', 'prodi', 'cv_file_path', 'linkedin_url', 'bio', 'skills'])
             ->logOnlyDirty();
+    }
+
+    // ──────────────────────────────────────
+    // Accessors
+    // ──────────────────────────────────────
+
+    /**
+     * Get the URL for the profile photo.
+     */
+    public function getProfilePhotoUrlAttribute(): ?string
+    {
+        if ($this->profile_photo_path) {
+            return asset('storage/'.$this->profile_photo_path);
+        }
+
+        return null;
+    }
+
+    // ──────────────────────────────────────
+    // Helpers
+    // ──────────────────────────────────────
+
+    /**
+     * Check if profile is complete enough for internship application.
+     * Requires LinkedIn and CV.
+     */
+    public function isProfileComplete(): bool
+    {
+        return $this->hasLinkedIn()
+            && $this->cv_file_path !== null;
+    }
+
+    /**
+     * Check if LinkedIn URL is filled.
+     */
+    public function hasLinkedIn(): bool
+    {
+        return $this->linkedin_url !== null && $this->linkedin_url !== '';
     }
 
     // ──────────────────────────────────────

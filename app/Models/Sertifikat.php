@@ -15,6 +15,10 @@ class Sertifikat extends Model
         'nomor_sertifikat',
         'file_sertifikat_path',
         'tanggal_terbit',
+        'posisi_magang',
+        'departemen',
+        'deskripsi_tugas',
+        'komentar_penutup',
     ];
 
     protected function casts(): array

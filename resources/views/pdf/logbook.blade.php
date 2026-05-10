@@ -58,8 +58,7 @@
             float: right;
         }
         .signature-img {
-            height: 80px;
-            margin: 10px 0;
+            height: 50px;
         }
         .signature-placeholder {
             height: 80px;
@@ -115,7 +114,7 @@
                 <th width="15%">Check-Out time</th>
                 <th width="10%">Total Hours</th>
                 <th width="30%">Remarks</th>
-                <th width="25%">Supervisor</th>
+                <th width="25%">Supervisor Signature</th>
             </tr>
         </thead>
         <tbody>
@@ -126,7 +125,13 @@
                 <td>{{ ucfirst($logbook->status_presensi->value ?? '') }}</td>
                 <td>Disetujui</td>
                 <td>{{ $logbook->kegiatan }}</td>
-                <td>{{$logbook->is_approved_industri->value ?? '-'}}</td>
+                <td>
+                    @if(isset($industriSignatureBase64) && $industriSignatureBase64)
+                        <img src="{{ $industriSignatureBase64 }}" class="signature-img" alt="Tanda Tangan Supervisor">
+                    @else
+                        <div class="signature-placeholder">(Belum ada tanda tangan)</div>
+                    @endif
+                </td>
             </tr>
             @empty
             <tr>
@@ -144,7 +149,7 @@
             @else
                 <div class="signature-placeholder">(Belum ada tanda tangan)</div>
             @endif
-            <p><strong>{{ $dosen ? $dosen->nama : '-' }}</strong><br>NIDN. {{ $dosen ? $dosen->nidn : '-' }}</p>
+            <p><strong>{{ $dosen ? $dosen->nama_dosen : '-' }}</strong><br>NIDN. {{ $dosen ? $dosen->nip : '-' }}</p>
         </div>
 
         <div class="signature-box right">

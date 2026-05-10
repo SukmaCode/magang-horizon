@@ -1,17 +1,17 @@
 <template>
     <div class="bg-card p-6 rounded-xl shadow-sm border border-gray-100">
-        <h3 class="text-lg font-bold text-text-primary mb-2 font-jakarta">Tanda Tangan Digital</h3>
-        <p class="text-sm text-text-secondary mb-4">
+        <h3 class="text-lg font-jakartaSemiBold text-text-primary mb-2">Tanda Tangan Digital</h3>
+        <p class="text-sm font-jakarta text-text-secondary mb-4">
             Upload tanda tangan digital Anda. Ini akan digunakan untuk menandatangani dokumen seperti Laporan Logbook.
         </p>
 
         <div v-if="hasSignature && !isEditing" class="flex flex-col items-start gap-4">
             <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                <span class="text-xs font-semibold text-success flex items-center gap-1 mb-2">
+                <span class="text-xs font-jakartaSemiBold text-success flex items-center gap-1 mb-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                     Tanda tangan sudah diupload
                 </span>
-                <p class="text-xs text-text-secondary">Anda dapat memperbarui tanda tangan dengan mengklik tombol di bawah.</p>
+                <p class="text-xs font-jakarta text-text-secondary">Anda dapat memperbarui tanda tangan dengan mengklik tombol di bawah.</p>
             </div>
             <button @click="isEditing = true" class="text-sm font-semibold text-primary hover:text-primary-hover transition-colors">
                 Perbarui Tanda Tangan

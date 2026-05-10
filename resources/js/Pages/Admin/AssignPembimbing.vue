@@ -48,7 +48,7 @@
                         <div class="w-full flex justify-center">
                             <button type="submit" :disabled="form.processing || form.magang_ids.length === 0 || !form.dosen_id" class="w-full py-3 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2 shadow-sm">
                                 <span v-if="form.processing" class="animate-spin w-4 h-4 border-2 border-white/20 border-t-white rounded-full"></span>
-                                Simpan Tugas & Terbitkan SK
+                                Tetapkan Pembimbing
                             </button>
                         </div>
                     </form>

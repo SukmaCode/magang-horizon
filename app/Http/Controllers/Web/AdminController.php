@@ -71,18 +71,9 @@ class AdminController extends Controller
         return Inertia::render('Admin/AssignPembimbing', $this->adminService->getAssignPembimbingData());
     }
 
-    public function storeAssignPembimbing(Request $request)
-    {
-        $validated = $request->validate([
-            'dosen_id' => 'required|exists:dosens,id',
-            'magang_ids' => 'required|array',
-            'magang_ids.*' => 'exists:magang_aktifs,id',
-        ]);
-
-        $this->adminService->assignPembimbing($validated['dosen_id'], $validated['magang_ids']);
-
-        return back()->with('success', 'Dosen pembimbing berhasil ditetapkan ke mahasiswa terpilih.');
-    }
+    // storeAssignPembimbing() telah dipindahkan ke PembimbingAssignmentController::store()
+    // Assign pembimbing hanya bersifat dokumentasi penugasan resmi,
+    // TIDAK mempengaruhi status_tahapan atau alur kelulusan.
 
     // ──────────────────────────────────────
     // Verifikasi Kelulusan (Penerbitan Sertifikat)

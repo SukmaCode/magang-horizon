@@ -112,6 +112,29 @@
                             </div>
                         </div>
 
+                        <!-- LinkedIn Check -->
+                        <div v-if="!linkedinFilled" class="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+                            <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                            </svg>
+                            <div>
+                                <p class="text-sm font-jakartaSemiBold text-amber-700">LinkedIn Belum Diisi!</p>
+                                <p class="text-xs font-jakarta text-text-secondary mt-1">Lengkapi profil LinkedIn terlebih dahulu sebelum melamar magang.</p>
+                                <Link href="/mahasiswa/profil" class="mt-2 inline-block px-3 py-2 text-xs font-jakartaSemiBold text-white bg-amber-600 rounded-md hover:bg-amber-700 transition-colors">
+                                    Lengkapi Profil Sekarang
+                                </Link>
+                            </div>
+                        </div>
+                        <div v-else class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-3">
+                            <svg class="w-5 h-5 text-blue-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                            </svg>
+                            <div>
+                                <p class="text-sm font-jakartaSemiBold text-blue-700">LinkedIn Terhubung</p>
+                                <p class="text-xs font-jakarta text-text-secondary mt-1">Profil LinkedIn Anda sudah terlampir dan akan dilihat oleh industri.</p>
+                            </div>
+                        </div>
+
                         <!-- Submit -->
                         <button
                             type="submit"
@@ -236,6 +259,7 @@ const props = defineProps({
     pendingCount: { type: Number, default: 0 },
     maxApplications: { type: Number, default: 3 },
     cvUploaded: { type: Boolean, default: false },
+    linkedinFilled: { type: Boolean, default: false },
 });
 
 const searchQuery = ref('');
@@ -294,6 +318,7 @@ const canSubmit = computed(() => {
     if (props.pendingCount >= props.maxApplications) return false;
     if (!form.industri_id) return false;
     if (!props.cvUploaded) return false;
+    if (!props.linkedinFilled) return false;
     return true;
 });
 

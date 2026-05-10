@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
         $admin = User::create([
             'username' => 'admin',
             'email' => 'admin@magang-horizon.test',
-            'password' => 'password',
+            'password' => '12345678',
             'role' => UserRole::ADMIN->value,
         ]);
         $admin->assignRole('admin');
@@ -32,7 +32,7 @@ class DatabaseSeeder extends Seeder
         $studentUser = User::create([
             'username' => 'mahasiswa01',
             'email' => 'mahasiswa01@magang-horizon.test',
-            'password' => 'password',
+            'password' => '12345678',
             'role' => UserRole::STUDENT->value,
         ]);
         $studentUser->assignRole('student');
@@ -47,7 +47,7 @@ class DatabaseSeeder extends Seeder
         $industryUser = User::create([
             'username' => 'ptmajumapan',
             'email' => 'industri@magang-horizon.test',
-            'password' => 'password',
+            'password' => '12345678',
             'role' => UserRole::INDUSTRY->value,
         ]);
         $industryUser->assignRole('industry');
@@ -56,16 +56,13 @@ class DatabaseSeeder extends Seeder
             'nama_perusahaan' => 'PT Maju Mapan',
             'alamat' => 'Jl. Sudirman No. 123, Jakarta',
             'kontak_person' => 'Budi Santoso',
-            'latitude' => -6.2088000,
-            'longitude' => 106.8456000,
-            'geofence_radius' => 500,
         ]);
 
         // 5. Create sample Dosen Pembimbing
         $dosenUser1 = User::create([
             'username' => 'dosenpembimbing01',
             'email' => 'dosen1@magang-horizon.test',
-            'password' => 'password',
+            'password' => '12345678',
             'role' => UserRole::SUPERVISOR_1->value,
         ]);
         $dosenUser1->assignRole('supervisor_1');
@@ -79,7 +76,7 @@ class DatabaseSeeder extends Seeder
         $dosenUser2 = User::create([
             'username' => 'dosenprodi01',
             'email' => 'dosen2@magang-horizon.test',
-            'password' => 'password',
+            'password' => '12345678',
             'role' => UserRole::SUPERVISOR_2->value,
         ]);
         $dosenUser2->assignRole('supervisor_2');
