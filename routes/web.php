@@ -4,6 +4,7 @@ use App\Http\Controllers\Web\AdminController;
 use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\CompletionLetterController;
 use App\Http\Controllers\Web\CvController;
+use App\Http\Controllers\Web\DeclarationOfOriginalityController;
 use App\Http\Controllers\Web\DosenPembimbingController;
 use App\Http\Controllers\Web\DosenProdiController;
 use App\Http\Controllers\Web\EvaluationReportController;
@@ -92,6 +93,12 @@ Route::middleware('auth')->group(function () {
         // Evaluasi Magang
         Route::get('/evaluasi', [InternshipEvaluationController::class, 'show'])->name('mahasiswa.evaluasi');
 
+        // Declaration of Originality
+        Route::get('/declaration', [DeclarationOfOriginalityController::class, 'show'])->name('mahasiswa.declaration');
+        Route::post('/declaration', [DeclarationOfOriginalityController::class, 'upload'])->name('mahasiswa.declaration.upload');
+        Route::post('/declaration/{declaration}/update', [DeclarationOfOriginalityController::class, 'update'])->name('mahasiswa.declaration.update');
+        Route::get('/declaration/{declaration}/preview', [DeclarationOfOriginalityController::class, 'preview'])->name('mahasiswa.declaration.preview');
+
         // Sertifikat / Kelulusan
         Route::get('/sertifikat', [MahasiswaController::class, 'sertifikat'])->name('mahasiswa.sertifikat');
         Route::get('/sertifikat/download', [MahasiswaController::class, 'downloadSertifikat'])->name('mahasiswa.sertifikat.download');
@@ -170,6 +177,13 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/input-nilai', [DosenPembimbingController::class, 'inputNilai'])->name('dosen-pembimbing.input-nilai');
         Route::post('/input-nilai/{magangAktif}', [DosenPembimbingController::class, 'storeNilai'])->name('dosen-pembimbing.input-nilai.store');
+
+        // Declaration of Originality
+        Route::get('/declaration', [DeclarationOfOriginalityController::class, 'reviewIndex'])->name('dosen-pembimbing.declaration');
+        Route::get('/declaration/{declaration}/download', [DeclarationOfOriginalityController::class, 'download'])->name('dosen-pembimbing.declaration.download');
+        Route::get('/declaration/{declaration}/preview', [DeclarationOfOriginalityController::class, 'preview'])->name('dosen-pembimbing.declaration.preview');
+        Route::post('/declaration/{declaration}/approve', [DeclarationOfOriginalityController::class, 'approve'])->name('dosen-pembimbing.declaration.approve');
+        Route::post('/declaration/{declaration}/reject', [DeclarationOfOriginalityController::class, 'reject'])->name('dosen-pembimbing.declaration.reject');
     });
 
     // ──────────────────────────────────
@@ -184,6 +198,13 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/verifikasi-kelulusan', [DosenProdiController::class, 'verifikasiKelulusan'])->name('dosen-prodi.verifikasi');
         Route::post('/verifikasi-kelulusan/{penilaian}/verify', [DosenProdiController::class, 'submitVerifikasi'])->name('dosen-prodi.verifikasi.submit');
+
+        // Declaration of Originality
+        Route::get('/declaration', [DeclarationOfOriginalityController::class, 'reviewIndex'])->name('dosen-prodi.declaration');
+        Route::get('/declaration/{declaration}/download', [DeclarationOfOriginalityController::class, 'download'])->name('dosen-prodi.declaration.download');
+        Route::get('/declaration/{declaration}/preview', [DeclarationOfOriginalityController::class, 'preview'])->name('dosen-prodi.declaration.preview');
+        Route::post('/declaration/{declaration}/approve', [DeclarationOfOriginalityController::class, 'approve'])->name('dosen-prodi.declaration.approve');
+        Route::post('/declaration/{declaration}/reject', [DeclarationOfOriginalityController::class, 'reject'])->name('dosen-prodi.declaration.reject');
     });
 });
 

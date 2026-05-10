@@ -14,7 +14,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div>
-                <p class="text-sm font-semibold text-text-primary">Belum memiliki magang aktif</p>
+                <p class="text-sm font-jakartaSemiBold text-text-primary">Belum memiliki magang aktif</p>
                 <p class="text-xs text-text-secondary mt-1">Silakan ajukan lamaran magang terlebih dahulu.</p>
             </div>
         </div>
@@ -26,7 +26,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
                 <div>
-                    <p class="text-sm font-semibold text-amber-800">Upload tidak tersedia</p>
+                    <p class="text-sm font-jakartaSemiBold text-amber-800">Upload tidak tersedia</p>
                     <p class="text-xs text-amber-600 mt-1">Laporan akhir hanya dapat diupload saat tahap <strong>Pelaksanaan</strong> atau <strong>Penutupan</strong>.</p>
                 </div>
             </div>
@@ -34,10 +34,10 @@
             <!-- Existing Report Status -->
             <div v-if="laporan" class="bg-card rounded-xl border border-gray-100 p-6 mb-6">
                 <div class="flex items-start justify-between gap-4 mb-4">
-                    <h2 class="text-base font-bold text-text-primary font-jakarta">Status Laporan</h2>
+                    <h2 class="text-base font-jakartaSemiBold text-text-primary">Status Laporan</h2>
                     <span
                         :class="[
-                            'text-xs px-3 py-1 rounded-full font-semibold',
+                            'text-xs px-3 py-1 rounded-full font-jakartaSemiBold',
                             statusColor(laporan.status)
                         ]"
                     >
@@ -47,19 +47,19 @@
 
                 <!-- Status Timeline -->
                 <div class="flex items-center gap-2 mb-6">
-                    <div :class="['w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold', laporan.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-success/10 text-success']">
+                    <div :class="['w-8 h-8 rounded-full flex items-center justify-center text-xs font-jakartaSemiBold', laporan.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-success/10 text-success']">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
                     </div>
                     <div class="flex-1 h-0.5 bg-gray-200 rounded">
                         <div :class="['h-full rounded transition-all duration-500', laporan.status !== 'pending' ? 'bg-success w-full' : 'bg-amber-400 w-1/3']"></div>
                     </div>
-                    <div :class="['w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold', laporan.status === 'disetujui' ? 'bg-success/10 text-success' : laporan.status === 'revisi' ? 'bg-danger/10 text-danger' : 'bg-gray-100 text-gray-400']">
+                    <div :class="['w-8 h-8 rounded-full flex items-center justify-center text-xs font-jakartaSemiBold', laporan.status === 'disetujui' ? 'bg-success/10 text-success' : laporan.status === 'revisi' ? 'bg-danger/10 text-danger' : 'bg-gray-100 text-gray-400']">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                     </div>
                     <div class="flex-1 h-0.5 bg-gray-200 rounded">
                         <div :class="['h-full rounded transition-all duration-500', laporan.status === 'disetujui' ? 'bg-success w-full' : 'w-0']"></div>
                     </div>
-                    <div :class="['w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold', laporan.status === 'disetujui' ? 'bg-success/10 text-success' : 'bg-gray-100 text-gray-400']">
+                    <div :class="['w-8 h-8 rounded-full flex items-center justify-center text-xs font-jakartaSemiBold', laporan.status === 'disetujui' ? 'bg-success/10 text-success' : 'bg-gray-100 text-gray-400']">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                     </div>
                 </div>
@@ -72,7 +72,7 @@
                         <svg class="w-4 h-4 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
-                        <p class="text-sm font-semibold text-danger">Catatan Revisi dari Dosen</p>
+                        <p class="text-sm font-jakartaSemiBold text-danger">Catatan Revisi dari Dosen</p>
                     </div>
                     <p class="text-sm text-text-primary leading-relaxed">{{ laporan.catatan_revisi }}</p>
                 </div>

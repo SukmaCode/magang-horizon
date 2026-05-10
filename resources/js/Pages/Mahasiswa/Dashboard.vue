@@ -12,11 +12,12 @@
             </p>
         </div>
 
+        <h2 class="mb-4 text-md font-jakartaSemiBold text-text-primary">Informasi Magang</h2>
         <!-- Status Cards -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <!-- Status Magang -->
-            <CardContainer class="border-l-4 border-l-primary">
-                <h3 class="text-sm font-jakartaBold text-text-secondary uppercase tracking-wider mb-2">
+            <CardContainer padding="p-4" class="border-l-4 border-l-primary">
+                <h3 class="text-sm font-jakartaBold text-primary uppercase tracking-wider mb-2">
                     Status Magang
                 </h3>
                 <p class="text-xl font-jakartaSemiBold text-text-primary">
@@ -28,8 +29,8 @@
             </CardContainer>
 
             <!-- Total Kehadiran -->
-            <CardContainer class="border-l-4 border-l-primary">
-                <h3 class="text-sm font-jakartaBold text-text-secondary uppercase tracking-wider mb-2">
+            <CardContainer padding="p-4" class="border-l-4 border-l-primary">
+                <h3 class="text-sm font-jakartaBold text-primary uppercase tracking-wider mb-2">
                     Total Kehadiran
                 </h3>
                 <div class="flex items-end gap-2">
@@ -55,8 +56,8 @@
             
 
             <!-- Pengajuan CV -->
-            <CardContainer class="border-l-4 border-l-primary">
-                <h3 class="text-sm font-jakartaBold text-text-secondary uppercase tracking-wider mb-2">
+            <CardContainer padding="p-4" class="border-l-4 border-l-primary">
+                <h3 class="text-sm font-jakartaBold text-primary uppercase tracking-wider mb-2">
                     Pengajuan CV
                 </h3>
                 <p class="text-xl font-jakartaSemiBold text-text-primary">
@@ -69,6 +70,7 @@
         </div>
 
         <!-- Quick Actions -->
+         <h2 class="mb-4 text-md font-jakartaSemiBold text-text-primary">Aksi Cepat</h2>
         <div v-if="hasMagang" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <CardContainer
                 v-for="(item, index) in quickAction"
@@ -100,8 +102,9 @@
             </CardContainer>
         </div>
 
+        <h2 class="mb-4 text-md font-jakartaSemiBold text-text-primary">Lainnya</h2>
         <!-- Recent Activity -->
-        <CardContainer padding="p-6">
+        <CardContainer padding="p-4">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-lg font-jakartaBold text-text-primary">
                     Aktivitas Terakhir
@@ -125,7 +128,7 @@
                     <div class="shrink-0 mt-0.5">
                         <div
                             :class="[
-                                'w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold',
+                                'w-8 h-8 rounded-full flex items-center justify-center text-xs font-jakartaSemiBold',
                                 log.is_approved
                                     ? 'bg-success/10 text-success'
                                     : 'bg-amber-50 text-amber-600'
@@ -168,7 +171,7 @@
                 <svg class="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <h3 class="text-sm font-bold text-text-primary">
+                <h3 class="text-sm font-jakartaSemiBold text-text-primary">
                     Belum Ada Aktivitas
                 </h3>
                 <p class="text-xs text-text-secondary mt-1">
@@ -186,7 +189,7 @@
             leave-from-class="translate-y-0 opacity-100"
             leave-to-class="translate-y-4 opacity-0"
         >
-            <div v-if="flash.success" class="fixed bottom-6 right-6 bg-success text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium z-50">
+            <div v-if="flash.success" class="fixed bottom-6 right-6 bg-success text-white px-5 py-3 rounded-xl shadow-lg text-sm font-jakartaSemiBold z-50">
                 {{ flash.success }}
             </div>
         </Transition>
@@ -198,7 +201,7 @@
             leave-from-class="translate-y-0 opacity-100"
             leave-to-class="translate-y-4 opacity-0"
         >
-            <div v-if="flash.error" class="fixed bottom-6 right-6 bg-danger text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium z-50">
+            <div v-if="flash.error" class="fixed bottom-6 right-6 bg-danger text-white px-5 py-3 rounded-xl shadow-lg text-sm font-jakartaSemiBold z-50">
                 {{ flash.error }}
             </div>
         </Transition>
@@ -241,8 +244,8 @@ const quickAction = computed(() => {
     const actions = [
         {
             icon: 'book-open',
-            label: 'Logbook',
-            href: '/mahasiswa/logbook',
+            label: 'Agreement',
+            href: '/mahasiswa/agreement',
             svg : `<svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                         </svg>`

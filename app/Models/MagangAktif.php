@@ -161,4 +161,9 @@ class MagangAktif extends Model
     {
         return $this->hasOne(PembimbingAssignment::class, 'magang_aktif_id');
     }
+
+    public function declarationOfOriginality(): HasOne
+    {
+        return $this->hasOne(DeclarationOfOriginality::class);
+    }
 }

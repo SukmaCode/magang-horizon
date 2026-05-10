@@ -236,12 +236,12 @@ const navigation = computed(() => {
             current: currentPath.includes("dashboard"),
         });
 
-        menu.push({
-            name: "Profil Saya",
-            href: "/mahasiswa/profil",
-            icon: UserIcon,
-            current: currentPath === "/mahasiswa/profil",
-        });
+        // menu.push({
+        //     name: "Profil Saya",
+        //     href: "/mahasiswa/profil",
+        //     icon: UserIcon,
+        //     current: currentPath === "/mahasiswa/profil",
+        // });
         
         menu.push({
             name: "Manajemen CV",
@@ -249,30 +249,30 @@ const navigation = computed(() => {
             icon: DocumentIcon,
             current: currentPath.includes("manajemen-cv"),
         });
-        menu.push({
-            name: "Kirim CV",
-            href: "/mahasiswa/kirim-cv",
-            icon: DocumentIcon,
-            current: currentPath.includes("kirim-cv"),
-        });
-        menu.push({
-            name: "Agreement",
-            href: "/mahasiswa/agreement",
-            icon: DocumentIcon,
-            current: currentPath.includes("agreement"),
-        });
+        // menu.push({
+        //     name: "Kirim CV",
+        //     href: "/mahasiswa/kirim-cv",
+        //     icon: DocumentIcon,
+        //     current: currentPath.includes("kirim-cv"),
+        // });
+        // menu.push({
+        //     name: "Agreement",
+        //     href: "/mahasiswa/agreement",
+        //     icon: DocumentIcon,
+        //     current: currentPath.includes("agreement"),
+        // });
         menu.push({
             name: "Logbook",
             href: "/mahasiswa/logbook",
             icon: ClipboardIcon,
             current: currentPath.includes("logbook"),
         });
-        menu.push({
-            name: "Laporan Akhir",
-            href: "/mahasiswa/laporan-akhir",
-            icon: UploadIcon,
-            current: currentPath.includes("laporan-akhir"),
-        });
+        // menu.push({
+        //     name: "Laporan Akhir",
+        //     href: "/mahasiswa/laporan-akhir",
+        //     icon: UploadIcon,
+        //     current: currentPath.includes("laporan-akhir"),
+        // });
         menu.push({
             name: "Hasil Evaluasi",
             href: "/mahasiswa/evaluasi",
@@ -280,11 +280,17 @@ const navigation = computed(() => {
             current: currentPath === "/mahasiswa/evaluasi",
         });
         menu.push({
-            name: "Sertifikat",
-            href: "/mahasiswa/sertifikat",
-            icon: CertificateIcon,
-            current: currentPath.includes("sertifikat"),
+            name: "Surat Orisinalitas",
+            href: "/mahasiswa/declaration",
+            icon: DocumentIcon,
+            current: currentPath.includes("declaration"),
         });
+        // menu.push({
+        //     name: "Sertifikat",
+        //     href: "/mahasiswa/sertifikat",
+        //     icon: CertificateIcon,
+        //     current: currentPath.includes("sertifikat"),
+        // });
     }
 
     // 3. Tambahan menu KHUSUS DOSEN PEMBIMBING
@@ -312,6 +318,12 @@ const navigation = computed(() => {
             href: "/dosen-pembimbing/input-nilai",
             icon: CertificateIcon,
             current: currentPath.includes("input-nilai"),
+        });
+        menu.push({
+            name: "Verifikasi Declaration",
+            href: "/dosen-pembimbing/declaration",
+            icon: DocumentIcon,
+            current: currentPath.includes("declaration"),
         });
     }
 
@@ -380,6 +392,12 @@ const navigation = computed(() => {
             href: "/dosen-prodi/surat-keputusan",
             icon: CheckIcon,
             current: currentPath.includes("surat-keputusan"),
+        });
+        menu.push({
+            name: "Verifikasi Declaration",
+            href: "/dosen-prodi/declaration",
+            icon: DocumentIcon,
+            current: currentPath.includes("declaration"),
         });
     }
 
