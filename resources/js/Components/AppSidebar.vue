@@ -325,6 +325,12 @@ const navigation = computed(() => {
             icon: DocumentIcon,
             current: currentPath.includes("declaration"),
         });
+        menu.push({
+            name: "Clearance",
+            href: "/dosen-pembimbing/clearance",
+            icon: DocumentIcon,
+            current: currentPath.includes("clearance"),
+        });
     }
 
     // 4. Tambahan menu KHUSUS INDUSTRI
@@ -370,6 +376,12 @@ const navigation = computed(() => {
             href: "/industri/completion-letter",
             icon: DocumentIcon,
             current: currentPath.includes("completion-letter"),
+        });
+        menu.push({
+            name: "Surat Tanggung Jawab",
+            href: "/industri/clearance",
+            icon: DocumentIcon,
+            current: currentPath.includes("clearance"),
         });
     }
 

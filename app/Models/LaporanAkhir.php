@@ -17,6 +17,7 @@ class LaporanAkhir extends Model
         'file_laporan',
         'status_approval_kampus',
         'catatan_revisi',
+        'approval_letter_file',
     ];
 
     protected function casts(): array

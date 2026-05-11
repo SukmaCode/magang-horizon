@@ -166,4 +166,9 @@ class MagangAktif extends Model
     {
         return $this->hasOne(DeclarationOfOriginality::class);
     }
+
+    public function internshipClearance(): HasOne
+    {
+        return $this->hasOne(InternshipClearance::class);
+    }
 }

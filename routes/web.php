@@ -9,6 +9,7 @@ use App\Http\Controllers\Web\DosenPembimbingController;
 use App\Http\Controllers\Web\DosenProdiController;
 use App\Http\Controllers\Web\EvaluationReportController;
 use App\Http\Controllers\Web\IndustriController;
+use App\Http\Controllers\Web\InternshipClearanceController;
 use App\Http\Controllers\Web\InternshipEvaluationController;
 use App\Http\Controllers\Web\LogbookReportController;
 use App\Http\Controllers\Web\MahasiswaController;
@@ -99,6 +100,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/declaration/{declaration}/update', [DeclarationOfOriginalityController::class, 'update'])->name('mahasiswa.declaration.update');
         Route::get('/declaration/{declaration}/preview', [DeclarationOfOriginalityController::class, 'preview'])->name('mahasiswa.declaration.preview');
 
+        // Clearance Issued By Company
+        Route::get('/clearance', [InternshipClearanceController::class, 'studentShow'])->name('mahasiswa.clearance');
+        Route::post('/clearance/{clearance}/submit', [InternshipClearanceController::class, 'submit'])->name('mahasiswa.clearance.submit');
+        Route::get('/clearance/{clearance}/preview', [InternshipClearanceController::class, 'preview'])->name('mahasiswa.clearance.preview');
+
         // Sertifikat / Kelulusan
         Route::get('/sertifikat', [MahasiswaController::class, 'sertifikat'])->name('mahasiswa.sertifikat');
         Route::get('/sertifikat/download', [MahasiswaController::class, 'downloadSertifikat'])->name('mahasiswa.sertifikat.download');
@@ -139,6 +145,11 @@ Route::middleware('auth')->group(function () {
         // Internship Completion Letter
         Route::get('/completion-letter', [IndustriController::class, 'completionLetter'])->name('industri.completion-letter');
         Route::post('/completion-letter/{magangAktif}', [IndustriController::class, 'storeCompletionLetter'])->name('industri.completion-letter.store');
+
+        // Clearance Issued By Company
+        Route::get('/clearance', [InternshipClearanceController::class, 'industryIndex'])->name('industri.clearance');
+        Route::post('/clearance/{magangAktif}', [InternshipClearanceController::class, 'upload'])->name('industri.clearance.upload');
+        Route::post('/clearance/{clearance}/update', [InternshipClearanceController::class, 'update'])->name('industri.clearance.update');
     });
 
     // ──────────────────────────────────
@@ -174,6 +185,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/review-laporan', [DosenPembimbingController::class, 'reviewLaporan'])->name('dosen-pembimbing.laporan');
         Route::post('/review-laporan/{laporan}/review', [DosenPembimbingController::class, 'submitReviewLaporan'])->name('dosen-pembimbing.laporan.review');
         Route::get('/review-laporan/{laporan}/download', [DosenPembimbingController::class, 'downloadLaporan'])->name('dosen-pembimbing.laporan.download');
+        Route::get('/review-laporan/{laporan}/generate-approval', [DosenPembimbingController::class, 'generateApprovalLetter'])->name('dosen-pembimbing.laporan.generate-approval');
+        Route::get('/review-laporan/{laporan}/download-approval', [DosenPembimbingController::class, 'downloadApprovalLetter'])->name('dosen-pembimbing.laporan.download-approval');
 
         Route::get('/input-nilai', [DosenPembimbingController::class, 'inputNilai'])->name('dosen-pembimbing.input-nilai');
         Route::post('/input-nilai/{magangAktif}', [DosenPembimbingController::class, 'storeNilai'])->name('dosen-pembimbing.input-nilai.store');
@@ -184,6 +197,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/declaration/{declaration}/preview', [DeclarationOfOriginalityController::class, 'preview'])->name('dosen-pembimbing.declaration.preview');
         Route::post('/declaration/{declaration}/approve', [DeclarationOfOriginalityController::class, 'approve'])->name('dosen-pembimbing.declaration.approve');
         Route::post('/declaration/{declaration}/reject', [DeclarationOfOriginalityController::class, 'reject'])->name('dosen-pembimbing.declaration.reject');
+
+        // Clearance Issued By Company
+        Route::get('/clearance', [InternshipClearanceController::class, 'reviewIndex'])->name('dosen-pembimbing.clearance');
+        Route::get('/clearance/{clearance}/download', [InternshipClearanceController::class, 'download'])->name('dosen-pembimbing.clearance.download');
+        Route::get('/clearance/{clearance}/preview', [InternshipClearanceController::class, 'preview'])->name('dosen-pembimbing.clearance.preview');
+        Route::post('/clearance/{clearance}/approve', [InternshipClearanceController::class, 'approve'])->name('dosen-pembimbing.clearance.approve');
+        Route::post('/clearance/{clearance}/reject', [InternshipClearanceController::class, 'reject'])->name('dosen-pembimbing.clearance.reject');
     });
 
     // ──────────────────────────────────
@@ -205,6 +225,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/declaration/{declaration}/preview', [DeclarationOfOriginalityController::class, 'preview'])->name('dosen-prodi.declaration.preview');
         Route::post('/declaration/{declaration}/approve', [DeclarationOfOriginalityController::class, 'approve'])->name('dosen-prodi.declaration.approve');
         Route::post('/declaration/{declaration}/reject', [DeclarationOfOriginalityController::class, 'reject'])->name('dosen-prodi.declaration.reject');
+
+        // Clearance Issued By Company
+        Route::get('/clearance', [InternshipClearanceController::class, 'reviewIndex'])->name('dosen-prodi.clearance');
+        Route::get('/clearance/{clearance}/download', [InternshipClearanceController::class, 'download'])->name('dosen-prodi.clearance.download');
+        Route::get('/clearance/{clearance}/preview', [InternshipClearanceController::class, 'preview'])->name('dosen-prodi.clearance.preview');
+        Route::post('/clearance/{clearance}/approve', [InternshipClearanceController::class, 'approve'])->name('dosen-prodi.clearance.approve');
+        Route::post('/clearance/{clearance}/reject', [InternshipClearanceController::class, 'reject'])->name('dosen-prodi.clearance.reject');
     });
 });
 

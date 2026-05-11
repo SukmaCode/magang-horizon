@@ -80,6 +80,27 @@
                                         </svg>
                                         Buka PDF
                                     </a>
+                                    <a
+                                        v-if="laporan.approval_letter_file"
+                                        :href="`/dosen-pembimbing/review-laporan/${laporan.id}/download-approval`"
+                                        target="_blank"
+                                        class="text-xs font-semibold text-success hover:text-success/80 flex items-center gap-1"
+                                    >
+                                        <svg
+                                            class="w-4 h-4"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                            />
+                                        </svg>
+                                        Approval Letter
+                                    </a>
                                 </div>
                                 <div
                                     v-if="laporan.catatan_revisi"
@@ -103,14 +124,14 @@
                             <button
                                 v-if="laporan.status !== 'disetujui'"
                                 @click="openReviewModal(laporan, 'revisi')"
-                                class="px-4 py-2 text-sm font-semibold text-danger border border-danger/20 rounded-xl hover:bg-danger/5 transition-colors"
+                                class="px-4 py-2 text-sm font-semibold text-danger border border-danger/20 rounded-md hover:bg-danger/5 transition-colors"
                             >
                                 Revisi
                             </button>
                             <button
                                 v-if="laporan.status !== 'disetujui'"
                                 @click="openReviewModal(laporan, 'disetujui')"
-                                class="px-4 py-2 text-sm font-semibold text-white bg-success rounded-xl hover:bg-success/90 transition-colors shadow-sm"
+                                class="px-4 py-2 text-sm font-semibold text-white bg-success rounded-md hover:bg-success/90 transition-colors shadow-sm"
                             >
                                 Setujui
                             </button>
@@ -233,23 +254,26 @@
                             }}</strong
                             >.
                         </p>
-                        <div class="mb-5">
+                        <div class="mb-5" v-if="reviewType === 'revisi'">
                             <label
                                 class="block text-sm font-semibold text-text-primary mb-2"
                                 >Catatan (Wajib jika revisi)
-                                <span
-                                    v-if="reviewType === 'revisi'"
-                                    class="text-danger"
-                                    >*</span
-                                ></label
+                                <span class="text-danger">*</span></label
                             >
                             <textarea
                                 v-model="reviewForm.catatan"
                                 rows="4"
                                 class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-primary/20 focus:border-primary"
-                                :required="reviewType === 'revisi'"
+                                required
                                 placeholder="Berikan catatan detail..."
                             ></textarea>
+                            <div v-if="reviewForm.errors.catatan" class="text-danger text-xs mt-1">{{ reviewForm.errors.catatan }}</div>
+                        </div>
+
+                        <div class="mb-5" v-if="reviewType === 'disetujui'">
+                            <p class="text-sm text-text-secondary mb-3">
+                                Approval Letter akan di-generate secara otomatis saat Anda menyetujui laporan ini.
+                            </p>
                         </div>
                         <div class="flex gap-3">
                             <button
@@ -343,12 +367,15 @@ function openReviewModal(laporan, type) {
     reviewType.value = type;
     reviewForm.status = type;
     reviewForm.catatan = laporan.catatan_revisi || "";
+    reviewForm.clearErrors();
     showReviewModal.value = true;
 }
 
 function closeModal() {
     showReviewModal.value = false;
     selectedLaporan.value = null;
+    reviewForm.reset();
+    reviewForm.clearErrors();
 }
 
 function submitReview() {
@@ -357,6 +384,7 @@ function submitReview() {
         `/dosen-pembimbing/review-laporan/${selectedLaporan.value.id}/review`,
         {
             preserveScroll: true,
+            forceFormData: true,
             onSuccess: closeModal,
         },
     );

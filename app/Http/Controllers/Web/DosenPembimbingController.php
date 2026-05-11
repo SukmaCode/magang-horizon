@@ -10,7 +10,9 @@ use App\Models\MagangAktif;
 use App\Services\DailyLogService;
 use App\Services\GradingService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class DosenPembimbingController extends Controller
 {
@@ -164,6 +166,7 @@ class DosenPembimbingController extends Controller
                     'status' => $l->status_approval_kampus->value,
                     'status_label' => $l->status_approval_kampus->label(),
                     'catatan_revisi' => $l->catatan_revisi,
+                    'approval_letter_file' => $l->approval_letter_file,
                     'updated_at' => $l->updated_at->format('d M Y H:i'),
                 ]);
         }
@@ -182,6 +185,41 @@ class DosenPembimbingController extends Controller
 
         try {
             $statusEnum = $request->status === 'disetujui' ? StatusApproval::DISETUJUI : StatusApproval::REVISI;
+            
+            if ($request->status === 'disetujui') {
+                $user = $request->user();
+                $dosen = $user->dosen;
+                
+                // Cek apakah laporan milik mahasiswa bimbingan dosen ini
+                $magangIds = $dosen->magangAktifs()->pluck('id');
+                if (! $magangIds->contains($laporan->magang_id)) {
+                    abort(403, 'Anda tidak memiliki akses ke laporan ini.');
+                }
+
+                $mahasiswa = $laporan->magangAktif->pendaftaran->mahasiswa;
+                $signature = $user->signatures()->latest()->first();
+                $signatureBase64 = null;
+                
+                if ($signature && $signature->file_path && Storage::disk('private')->exists($signature->file_path)) {
+                    $mime = mime_content_type(storage_path('app/private/' . $signature->file_path));
+                    $data = base64_encode(Storage::disk('private')->get($signature->file_path));
+                    $signatureBase64 = 'data:' . $mime . ';base64,' . $data;
+                }
+
+                $pdf = Pdf::loadView('pdf.approval-letter', [
+                    'mahasiswa_name' => $mahasiswa->nama_lengkap,
+                    'study_program' => $mahasiswa->prodi ?? 'Program Studi',
+                    'mentor_name' => $dosen->nama_lengkap ?? $user->name,
+                    'mentor_signature' => $signatureBase64,
+                ]);
+
+                // Format: approval_letter_studentNIM_timestamp.pdf
+                $fileName = 'approval_letters/approval_letter_' . $mahasiswa->nim . '_' . time() . '.pdf';
+                Storage::disk('private')->put($fileName, $pdf->output());
+                
+                $laporan->update(['approval_letter_file' => $fileName]);
+            }
+            
             $this->gradingService->reviewLaporan($laporan, $statusEnum, $request->input('catatan'));
 
             return back()->with('success', 'Review laporan berhasil disimpan.');
@@ -195,7 +233,42 @@ class DosenPembimbingController extends Controller
         $user = $request->user();
         $dosen = $user->dosen;
 
-        if (! $dosen) {
+        if (!$dosen) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        // Verify this laporan belongs to a student supervised by this dosen
+        $magangIds = $dosen->magangAktifs()->pluck('id');
+        if (!$magangIds->contains($laporan->magang_id)) {
+            abort(403, 'Anda tidak memiliki akses ke laporan ini.');
+        }
+
+        if (!$laporan->file_laporan) {
+            return back()->with('error', 'File laporan belum tersedia.');
+        }
+
+        $path = storage_path('app/private/'.$laporan->file_laporan);
+
+        if (!file_exists($path)) {
+            return back()->with('error', 'File tidak ditemukan di server.');
+        }
+
+        $mahasiswaName = $laporan->magangAktif->pendaftaran->mahasiswa->nama_lengkap ?? 'Mahasiswa';
+
+        return response()->file($path, [
+            'Content-Type' => 'application/pdf',
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
+        ]);
+    }
+
+    public function generateApprovalLetter(Request $request, LaporanAkhir $laporan)
+    {
+        $user = $request->user();
+        $dosen = $user->dosen;
+
+        if (!$dosen) {
             abort(403, 'Unauthorized access.');
         }
 
@@ -204,18 +277,49 @@ class DosenPembimbingController extends Controller
         if (! $magangIds->contains($laporan->magang_id)) {
             abort(403, 'Anda tidak memiliki akses ke laporan ini.');
         }
-
-        if (! $laporan->file_laporan) {
-            return back()->with('error', 'File laporan belum tersedia.');
+        
+        $mahasiswa = $laporan->magangAktif->pendaftaran->mahasiswa;
+        $signature = $user->signatures()->latest()->first();
+        $signatureBase64 = null;
+        if ($signature && $signature->file_path && Storage::disk('private')->exists($signature->file_path)) {
+            $mime = mime_content_type(storage_path('app/private/' . $signature->file_path));
+            $data = base64_encode(Storage::disk('private')->get($signature->file_path));
+            $signatureBase64 = 'data:' . $mime . ';base64,' . $data;
         }
 
-        $path = storage_path('app/private/'.$laporan->file_laporan);
+        $pdf = Pdf::loadView('pdf.approval-letter', [
+            'mahasiswa_name' => $mahasiswa->nama_lengkap,
+            'study_program' => $mahasiswa->prodi ?? 'Program Studi',
+            'mentor_name' => $dosen->nama_lengkap ?? $user->name,
+            'mentor_signature' => $signatureBase64,
+        ]);
+
+        return $pdf->stream('Approval_Letter_' . $mahasiswa->nim . '.pdf');
+    }
+
+    public function downloadApprovalLetter(Request $request, LaporanAkhir $laporan)
+    {
+        $user = $request->user();
+        $dosen = $user->dosen;
+
+        if (! $dosen) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        $magangIds = $dosen->magangAktifs()->pluck('id');
+        if (! $magangIds->contains($laporan->magang_id)) {
+            abort(403, 'Anda tidak memiliki akses ke laporan ini.');
+        }
+
+        if (! $laporan->approval_letter_file) {
+            return back()->with('error', 'File Approval Letter belum tersedia.');
+        }
+
+        $path = storage_path('app/private/'.$laporan->approval_letter_file);
 
         if (! file_exists($path)) {
             return back()->with('error', 'File tidak ditemukan di server.');
         }
-
-        $mahasiswaName = $laporan->magangAktif->pendaftaran->mahasiswa->nama_lengkap ?? 'Mahasiswa';
 
         return response()->file($path, [
             'Content-Type' => 'application/pdf',

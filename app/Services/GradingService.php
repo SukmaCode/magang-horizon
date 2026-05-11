@@ -7,6 +7,7 @@ use App\Enums\StatusTahapan;
 use App\Models\LaporanAkhir;
 use App\Models\MagangAktif;
 use App\Models\Penilaian;
+use Illuminate\Support\Facades\Storage;
 
 class GradingService
 {
@@ -101,6 +102,12 @@ class GradingService
     {
         if (! $magang->status_tahapan->allowsReportUpload()) {
             throw new \Exception('Reports can only be uploaded during pelaksanaan or penutupan phase.');
+        }
+
+        // Hapus file lama jika ada untuk menghemat ruang
+        $existingLaporan = LaporanAkhir::where('magang_id', $magang->id)->first();
+        if ($existingLaporan && $existingLaporan->file_laporan) {
+            Storage::disk('private')->delete($existingLaporan->file_laporan);
         }
 
         $laporan = LaporanAkhir::updateOrCreate(
