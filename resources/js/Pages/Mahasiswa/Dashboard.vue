@@ -45,7 +45,7 @@
                     </p>
                     <span
                         v-if="logbookStats.pending > 0"
-                        class="text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full mb-0.5"
+                        class="text-xs font-jakartaSemiBold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full mb-0.5"
                     >
                         {{ logbookStats.pending }} pending
                     </span>

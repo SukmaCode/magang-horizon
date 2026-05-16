@@ -3,7 +3,7 @@
         <Head title="Verifikasi Kelulusan (Admin)" />
 
         <div class="mb-8">
-            <h1 class="text-xl font-jakartaSemiBold text-text-primary font-jakarta">Verifikasi Kelulusan</h1>
+            <h1 class="text-xl font-jakartaSemiBold text-text-primary">Verifikasi Kelulusan</h1>
             <p class="text-sm text-text-secondary mt-1">Terbitkan sertifikat kelulusan resmi untuk mahasiswa yang telah disetujui Dosen Prodi.</p>
         </div>
 

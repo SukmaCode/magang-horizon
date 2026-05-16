@@ -11,7 +11,7 @@
             <div v-if="hasCv">
                 <button
                     @click="deleteCv"
-                    class="px-4 py-2 text-sm font-jakartaSemiBold cursor-pointer text-danger bg-danger/10 rounded-md hover:bg-danger/20 transition-colors duration-200"
+                    class="text-sm font-jakartaSemiBold cursor-pointer text-danger transition-colors duration-200"
                     :disabled="deleteForm.processing"
                 >
                     <span v-if="deleteForm.processing">Menghapus...</span>

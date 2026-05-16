@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen bg-surface">
+    <div class="min-h-screen bg-white">
         <!-- Sidebar Component (fixed, never scrolls) -->
         <AppSidebar :isOpen="isSidebarOpen" @close="isSidebarOpen = false" />
 
@@ -37,13 +37,13 @@
                             <svg
                                 class="w-6 h-6"
                                 fill="none"
-                                stroke="#8B0000"
+                                stroke="#000"
                                 viewBox="0 0 24 24"
                             >
                                 <path
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
-                                    stroke-width="2"
+                                    stroke-width="1"
                                     d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
                                 />
                             </svg>
@@ -94,7 +94,7 @@
             </header>
 
             <!-- Page Content (scrollable independently) -->
-            <main class="flex-1 overflow-y-auto bg-surface p-4 lg:p-6">
+            <main class="flex-1 overflow-y-auto bg-gradient-to-b from-surface via-gray-200 to-surface p-4 lg:p-6">
                 <div class="max-w-7xl mx-auto">
                     <slot />
                 </div>

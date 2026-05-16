@@ -248,13 +248,13 @@ const navigation = computed(() => {
             current: currentPath.includes("kirim-cv"),
         });
         menu.push({
-            name: "Agreement",
+            name: "Perjanjian",
             href: "/mahasiswa/agreement",
             icon: DocumentIcon,
             current: currentPath.includes("agreement"),
         });
         menu.push({
-            name: "Logbook",
+            name: "Buku Absen",
             href: "/mahasiswa/logbook",
             icon: ClipboardIcon,
             current: currentPath.includes("logbook"),
@@ -266,7 +266,7 @@ const navigation = computed(() => {
             current: currentPath.includes("laporan-akhir"),
         });
         menu.push({
-            name: "Clearance",
+            name: "Surat Perizinan",
             href: "/mahasiswa/clearance",
             icon: UploadIcon,
             current: currentPath.includes("clearance"),

@@ -6,7 +6,8 @@
       hoverable ? 'hover:shadow-md hover:-translate-y-0.5' : '',
       padding,
       bgColor,
-      shadow
+      shadow,
+      width
     ]"
   >
     <slot />
@@ -18,6 +19,7 @@ defineProps({
   hoverable: { type: Boolean, default: false },
   padding: { type: String, default: 'p-6' },
   bgColor: {type: String, default: 'bg-white'},
-  shadow: {type: String, default: 'shadow-md'}
+  shadow: {type: String, default: 'shadow-md'},
+  width: {type: String, default: 'w-full'}
 });
 </script>
