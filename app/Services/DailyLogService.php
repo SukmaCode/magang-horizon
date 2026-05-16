@@ -22,6 +22,17 @@ class DailyLogService
         // Validate internship is in execution phase
         $this->validateInternshipStatus($magang);
 
+        // Check duplicate entry for the same date
+        $alreadyExists = $magang->logbooks()
+            ->whereDate('tanggal_waktu', \Carbon\Carbon::parse($data['tanggal_waktu'])->toDateString())
+            ->exists();
+
+        if ($alreadyExists) {
+            throw ValidationException::withMessages([
+                'tanggal_waktu' => ['Anda sudah mengisi logbook pada tanggal tersebut.']
+            ]);
+        }
+
         // Use provided datetime from data
         $logbook = Logbook::create([
             'magang_id' => $magang->id,

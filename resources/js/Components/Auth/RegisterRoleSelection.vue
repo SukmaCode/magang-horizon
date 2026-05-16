@@ -38,7 +38,7 @@
         <div>
           <p
             :class="[
-              'text-sm font-semibold transition-colors',
+              'text-sm font-jakartaSemiBold transition-colors',
               modelValue === role.value ? 'text-primary' : 'text-text-primary',
             ]"
           >

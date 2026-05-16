@@ -2,12 +2,14 @@
 
 namespace App\Services;
 
+use App\Enums\StatusTahapan;
 use App\Models\Dosen;
 use App\Models\MagangAktif;
 use App\Models\PembimbingAssignment;
 use App\Models\Periode;
 use App\Models\Sertifikat;
 use App\Models\User;
+use App\Services\PdfService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -31,7 +33,7 @@ class AdminService
             'name' => $u->name ?? $u->username,
             'email' => $u->email,
             'role' => $u->role->value,
-            'created_at' => $u->created_at->format('d M Y'),
+            'created_at' => $u->created_at?->format('d M Y') ?? '-',
         ]);
 
         return compact('totalUsers', 'totalMagang', 'totalLulus', 'recentUsers');
@@ -150,9 +152,14 @@ class AdminService
      */
     public function getVerifikasiKelulusanData(): array
     {
-        $magangs = MagangAktif::with('pendaftaran.mahasiswa', 'pendaftaran.industri', 'penilaian', 'sertifikat')
-            ->where('status_tahapan', 'lulus')
-            ->doesntHave('sertifikat')
+        $magangs = MagangAktif::with('pendaftaran.mahasiswa', 'pendaftaran.industri', 'penilaian.performanceEvaluation', 'penilaian.internshipEvaluation', 'sertifikat')
+            ->where('status_tahapan', StatusTahapan::LULUS)
+            ->where(function ($query) {
+                $query->whereDoesntHave('sertifikat')
+                      ->orWhereHas('sertifikat', function ($subQuery) {
+                          $subQuery->whereNull('nomor_sertifikat');
+                      });
+            })
             ->get()
             ->map(fn ($m) => [
                 'id' => $m->id,
@@ -163,6 +170,7 @@ class AdminService
             ]);
 
         $sertifikats = Sertifikat::with('magangAktif.pendaftaran.mahasiswa')
+            ->whereNotNull('nomor_sertifikat')
             ->latest()
             ->take(15)
             ->get()
@@ -170,7 +178,7 @@ class AdminService
                 'id' => $s->id,
                 'nomor' => $s->nomor_sertifikat,
                 'mahasiswa' => $s->magangAktif->pendaftaran->mahasiswa->nama_lengkap,
-                'tanggal' => $s->tanggal_terbit->format('d M Y'),
+                'tanggal' => $s->tanggal_terbit?->format('d M Y') ?? '-',
             ]);
 
         return compact('magangs', 'sertifikats');
@@ -183,33 +191,26 @@ class AdminService
      */
     public function terbitkanSertifikat(MagangAktif $magangAktif): Sertifikat
     {
-        if ($magangAktif->status_tahapan->value !== 'lulus') {
+        // Check if the status is NOT LULUS (or null/empty, just in case)
+        if ($magangAktif->status_tahapan !== StatusTahapan::LULUS) {
             throw new \Exception('Mahasiswa belum dinyatakan lulus oleh Dosen Prodi.');
         }
 
-        if ($magangAktif->sertifikat) {
-            throw new \Exception('Sertifikat sudah diterbitkan.');
+        if ($magangAktif->sertifikat && $magangAktif->sertifikat->nomor_sertifikat !== null) {
+            $path = $magangAktif->sertifikat->file_sertifikat_path;
+            if ($path && \Illuminate\Support\Facades\Storage::disk('private')->exists($path)) {
+                throw new \Exception('Sertifikat sudah diterbitkan.');
+            }
         }
 
-        return Sertifikat::create([
-            'magang_id' => $magangAktif->id,
-            'nomor_sertifikat' => $this->generateNomorSertifikat($magangAktif),
-            'file_sertifikat' => 'certificates/cert_'.$magangAktif->id.'.pdf',
-            'tanggal_terbit' => now(),
-            'is_valid' => true,
-        ]);
+        // Delegate to PdfService to generate the PDF file and update the database record
+        return app(PdfService::class)->generateCertificate($magangAktif);
     }
 
     // ──────────────────────────────────────
     // Private Helpers
     // ──────────────────────────────────────
 
-    /**
-     * Generate nomor sertifikat dengan format: CERT-YYYY-XXXX
-     * Dipusatkan di sini agar format mudah diubah tanpa menyentuh controller.
-     */
-    private function generateNomorSertifikat(MagangAktif $magangAktif): string
-    {
-        return 'CERT-'.date('Y').'-'.str_pad($magangAktif->id, 4, '0', STR_PAD_LEFT);
-    }
+    // private function generateNomorSertifikat has been moved to PdfService
+
 }

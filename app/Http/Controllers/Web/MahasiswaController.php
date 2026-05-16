@@ -19,6 +19,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
+use function PHPUnit\Framework\isNull;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Bimbingan;
 
 class MahasiswaController extends Controller
 {
@@ -81,37 +84,13 @@ class MahasiswaController extends Controller
         }
 
         try {
-            return DB::transaction(function () use ($request, $mahasiswa) {
-                // Upload CV if provided
-                if ($request->hasFile('cv_file')) {
-                    $cvFile = $request->file('cv_file');
-                    $cvPath = $cvFile->store('documents/cv/'.$mahasiswa->id, 'private');
+            $this->applicationService->submitApplication(
+                $mahasiswa,
+                $request->input('industri_id'),
+                $request->file('cv_file')
+            );
 
-                    // Update mahasiswa cv_file_path
-                    $mahasiswa->update(['cv_file_path' => $cvPath]);
-
-                    // Also store in documents table for tracking
-                    $this->documentService->upload(
-                        $cvFile,
-                        DocumentType::CV,
-                        $mahasiswa,
-                        $mahasiswa->user_id
-                    );
-                }
-
-                // Check if CV already exists (either just uploaded or already in DB)
-                if (! $mahasiswa->cv_file_path) {
-                    throw new \Exception('Anda wajib mengunggah CV terlebih dahulu melalui menu Manajemen CV.');
-                }
-
-                // Create the application via service (handles logic gates)
-                $this->applicationService->apply(
-                    $mahasiswa->id,
-                    $request->input('industri_id')
-                );
-
-                return back()->with('success', 'Lamaran berhasil dikirim! Tunggu hasil seleksi dari industri.');
-            });
+            return back()->with('success', 'Lamaran berhasil dikirim! Tunggu hasil seleksi dari industri.');
         } catch (ValidationException $e) {
             return back()->withErrors($e->errors());
         } catch (\Exception $e) {
@@ -209,65 +188,18 @@ class MahasiswaController extends Controller
         $user = $request->user();
         $mahasiswa = $user->mahasiswa;
 
-        // Get active internship (if exists)
-        $magang = null;
-        $logbookStats = [
-            'total' => 0,
-            'approved' => 0,
-            'pending' => 0,
-            'target' => 60,
-        ];
-        $pendaftaranCount = 0;
-        $recentLogbooks = [];
-        $statusMagang = 'Belum Dimulai';
-        $statusDescription = 'Menunggu penempatan industri';
-
-        if ($mahasiswa) {
-            // Count pendaftarans
-            $pendaftaranCount = $mahasiswa->pendaftarans()->count();
-
-            // Find active magang through accepted pendaftaran
-            $activePendaftaran = $mahasiswa->pendaftarans()
-                ->where('status_seleksi', 'diterima')
-                ->with('magangAktif')
-                ->first();
-
-            if ($activePendaftaran && $activePendaftaran->magangAktif) {
-                $magang = $activePendaftaran->magangAktif;
-                $statusMagang = $magang->status_tahapan->label();
-                // ✅ Business rule: deskripsi status dipindah ke MahasiswaService
-                $statusDescription = $this->mahasiswaService->getStatusDescription($magang->status_tahapan);
-
-                // Logbook statistics
-                $logbookStats['total'] = $magang->logbooks()->count();
-                $logbookStats['approved'] = $magang->logbooks()->approved()->count();
-                $logbookStats['pending'] = $magang->logbooks()->pendingApproval()->count();
-
-                // Recent logbooks
-                $recentLogbooks = $magang->logbooks()
-                    ->orderBy('tanggal_waktu', 'desc')
-                    ->take(5)
-                    ->get()
-                    ->map(fn (Logbook $l) => [
-                        'id' => $l->id,
-                        'tanggal_waktu' => $l->tanggal_waktu->format('d M Y'),
-                        'kegiatan' => $l->kegiatan,
-                        'status_presensi' => $l->status_presensi->label(),
-                        'is_approved' => $l->is_approved_industri,
-                    ]);
-            }
-        }
+        $data = $this->mahasiswaService->getDashboardData($mahasiswa);
 
         return Inertia::render('Mahasiswa/Dashboard', [
-            'statusMagang' => $statusMagang,
-            'statusDescription' => $statusDescription,
-            'logbookStats' => $logbookStats,
-            'pendaftaranCount' => $pendaftaranCount,
-            'recentLogbooks' => $recentLogbooks,
-            'hasMagang' => $magang !== null,
-            'magang' => $magang ? [
-                'id' => $magang->id,
-                'has_completion_letter' => $magang->sertifikat?->posisi_magang !== null,
+            'statusMagang' => $data['statusMagang'],
+            'statusDescription' => $data['statusDescription'],
+            'logbookStats' => $data['logbookStats'],
+            'pendaftaranCount' => $data['pendaftaranCount'],
+            'recentLogbooks' => $data['recentLogbooks'],
+            'hasMagang' => $data['magang'] !== null,
+            'magang' => $data['magang'] ? [
+                'id' => $data['magang']->id,
+                'has_completion_letter' => $data['magang']->sertifikat?->posisi_magang !== null,
             ] : null,
         ]);
     }
@@ -289,7 +221,9 @@ class MahasiswaController extends Controller
 
         if ($magang) {
             $magangId = $magang->id;
-            $statusTahapan = $magang->status_tahapan->value;
+            $statusTahapan = $magang->status_tahapan->allowsDailyLogs();
+
+            // $canSubmit = $magang->status_tahapan->allowsDailyLogs() && $magang->status_agreement->allowsDailyLogs();
             $canSubmit = $magang->status_tahapan->allowsDailyLogs();
 
             $logbooks = $magang->logbooks()
@@ -334,19 +268,12 @@ class MahasiswaController extends Controller
             ],
         ]);
 
-        // Cek duplikat: satu logbook per hari
-        $alreadyExists = $magang->logbooks()
-            ->whereDate('tanggal_waktu', Carbon::parse($validated['tanggal_waktu'])->toDateString())
-            ->exists();
-
-        if ($alreadyExists) {
-            return back()->withErrors(['tanggal_waktu' => 'Anda sudah mengisi logbook pada tanggal tersebut.']);
-        }
-
         try {
             $this->dailyLogService->submit($magang, $validated);
 
             return back()->with('success', 'Logbook berhasil disubmit.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors());
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -364,10 +291,22 @@ class MahasiswaController extends Controller
         $laporan = null;
         $canUpload = false;
         $magangId = null;
+        $bimbingans = [];
+        $approvedBimbinganCount = 0;
 
         if ($magang) {
             $magangId = $magang->id;
-            $canUpload = $magang->status_tahapan->allowsReportUpload();
+            
+            $bimbinganQuery = $magang->bimbingans()->orderBy('tanggal', 'desc')->get();
+            $bimbingans = $bimbinganQuery->map(fn($b) => [
+                'id' => $b->id,
+                'tanggal' => $b->tanggal->format('Y-m-d'),
+                'catatan' => $b->catatan,
+                'is_approved' => $b->is_approved,
+            ]);
+            $approvedBimbinganCount = $magang->bimbingans()->where('is_approved', true)->count();
+
+            $canUpload = $magang->status_tahapan->allowsReportUpload() && $approvedBimbinganCount >= 8;
             $laporan = $magang->laporanAkhir;
 
             if ($laporan) {
@@ -386,6 +325,8 @@ class MahasiswaController extends Controller
             'laporan' => $laporan,
             'canUpload' => $canUpload,
             'magangId' => $magangId,
+            'bimbingans' => $bimbingans,
+            'approvedBimbinganCount' => $approvedBimbinganCount,
         ]);
     }
 
@@ -401,6 +342,11 @@ class MahasiswaController extends Controller
         if (! $magang) {
             return back()->with('error', 'Anda belum memiliki magang aktif.');
         }
+        
+        $approvedBimbinganCount = $magang->bimbingans()->where('is_approved', true)->count();
+        if ($approvedBimbinganCount < 8) {
+            return back()->with('error', 'Anda belum memenuhi syarat 8 kali bimbingan yang disetujui.');
+        }
 
         try {
             $path = $request->file('file')->store('documents/laporan', 'private');
@@ -412,6 +358,72 @@ class MahasiswaController extends Controller
         }
     }
 
+    public function storeBimbingan(Request $request)
+    {
+        $request->validate([
+            'tanggal' => 'required|date',
+            'catatan' => 'required|string|max:1000',
+        ]);
+
+        $user = $request->user();
+        $magang = $this->getActiveMagang($user->mahasiswa);
+
+        if (! $magang) {
+            return back()->with('error', 'Anda belum memiliki magang aktif.');
+        }
+
+        $magang->bimbingans()->create([
+            'tanggal' => $request->tanggal,
+            'catatan' => $request->catatan,
+            'is_approved' => false,
+        ]);
+
+        return back()->with('success', 'Catatan bimbingan berhasil ditambahkan.');
+    }
+
+    public function generatePdf(Request $request)
+    {
+        $request->validate([
+            'summary' => 'required|string',
+            'duties' => 'required|array',
+            'knowledge' => 'required|array',
+            'skills' => 'required|array',
+            'attitude' => 'required|array',
+        ]);
+
+        $user = $request->user();
+        $magang = $this->getActiveMagang($user->mahasiswa);
+
+        if (! $magang) {
+            return back()->with('error', 'Anda belum memiliki magang aktif.');
+        }
+        
+        $approvedBimbinganCount = $magang->bimbingans()->where('is_approved', true)->count();
+        if ($approvedBimbinganCount < 8) {
+            return back()->with('error', 'Anda harus memiliki minimal 8 bimbingan yang disetujui.');
+        }
+
+        $data = [
+            'studentName' => $user->name,
+            'institution' => $magang->industri->nama_perusahaan ?? '-',
+            'department' => $user->mahasiswa->programStudi->nama ?? '-',
+            'supervisorName' => $magang->supervisorIndustri->name ?? '-',
+            'supervisorPosition' => 'Supervisor', 
+            'workingHours' => '-', 
+            'duration' => ($magang->tanggal_mulai?->format('d M Y') ?? '-') . ' - ' . ($magang->tanggal_selesai?->format('d M Y') ?? '-'),
+            'summary' => $request->summary,
+            'duties' => $request->duties,
+            'knowledge' => $request->knowledge,
+            'skills' => $request->skills,
+            'attitude' => $request->attitude,
+        ];
+
+        $pdf = Pdf::loadView('pdf.laporan_akhir', $data);
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->stream();
+        }, 'Laporan_Akhir_' . str_replace(' ', '_', $user->name) . '.pdf');
+    }
+
     // ──────────────────────────────────────
     // Sertifikat / Kelulusan
     // ──────────────────────────────────────
@@ -421,38 +433,12 @@ class MahasiswaController extends Controller
         $user = $request->user();
         $magang = $this->getActiveMagang($user->mahasiswa);
 
-        $sertifikat = null;
-        $penilaian = null;
-        $isLulus = false;
-
-        if ($magang) {
-            $isLulus = $magang->status_tahapan === StatusTahapan::LULUS;
-
-            // Load penilaian for grade info
-            if ($magang->penilaian) {
-                $penilaian = [
-                    'nilai_industri' => $magang->penilaian->nilai_industri,
-                    'nilai_kampus' => $magang->penilaian->nilai_kampus,
-                    'nilai_akhir' => $magang->penilaian->nilai_akhir,
-                    'is_verified' => $magang->penilaian->isVerified(),
-                ];
-            }
-
-            // Load sertifikat if exists
-            if ($magang->sertifikat) {
-                $sertifikat = [
-                    'id' => $magang->sertifikat->id,
-                    'nomor_sertifikat' => $magang->sertifikat->nomor_sertifikat,
-                    'tanggal_terbit' => $magang->sertifikat->tanggal_terbit?->format('d M Y'),
-                    'has_file' => $magang->sertifikat->file_sertifikat_path !== null,
-                ];
-            }
-        }
+        $data = $this->mahasiswaService->getSertifikatData($magang);
 
         return Inertia::render('Mahasiswa/Sertifikat', [
-            'sertifikat' => $sertifikat,
-            'penilaian' => $penilaian,
-            'isLulus' => $isLulus,
+            'sertifikat' => $data['sertifikat'],
+            'penilaian' => $data['penilaian'],
+            'isLulus' => $data['isLulus'],
             'hasMagang' => $magang !== null,
         ]);
     }
@@ -462,19 +448,19 @@ class MahasiswaController extends Controller
         $user = $request->user();
         $magang = $this->getActiveMagang($user->mahasiswa);
 
-        if (! $magang || $magang->status_tahapan !== StatusTahapan::LULUS) {
+        if (!$magang || $magang->status_tahapan !== StatusTahapan::LULUS) {
             return back()->with('error', 'Anda belum berhak mendownload sertifikat.');
         }
 
         $sertifikat = $magang->sertifikat;
 
-        if (! $sertifikat || ! $sertifikat->file_sertifikat_path) {
+        if (!$sertifikat || !$sertifikat->file_sertifikat_path) {
             return back()->with('error', 'Sertifikat belum tersedia.');
         }
 
         $path = storage_path('app/private/'.$sertifikat->file_sertifikat_path);
 
-        if (! file_exists($path)) {
+        if (!file_exists($path)) {
             return back()->with('error', 'File sertifikat tidak ditemukan.');
         }
 
@@ -487,16 +473,6 @@ class MahasiswaController extends Controller
 
     private function getActiveMagang($mahasiswa): ?MagangAktif
     {
-        if (! $mahasiswa) {
-            return null;
-        }
-
-        $pendaftaran = $mahasiswa->pendaftarans()
-            ->where('status_seleksi', 'diterima')
-            ->with('magangAktif')
-            ->latest()
-            ->first();
-
-        return $pendaftaran?->magangAktif;
+        return $mahasiswa?->active_magang;
     }
 }

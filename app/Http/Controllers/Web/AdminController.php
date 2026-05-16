@@ -84,7 +84,7 @@ class AdminController extends Controller
         return Inertia::render('Admin/VerifikasiKelulusan', $this->adminService->getVerifikasiKelulusanData());
     }
 
-    public function terbitkanSertifikat(Request $request, MagangAktif $magangAktif)
+    public function terbitkanSertifikat(MagangAktif $magangAktif)
     {
         try {
             $this->adminService->terbitkanSertifikat($magangAktif);

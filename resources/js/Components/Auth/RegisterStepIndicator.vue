@@ -8,7 +8,7 @@
                     @click="$emit('goToStep', idx)"
                     :disabled="!canGoToStep(idx)"
                     :class="[
-                        'relative flex items-center justify-center w-9 h-9 rounded-sm text-xs font-bold transition-all duration-300',
+                        'relative flex items-center justify-center w-9 h-9 rounded-sm text-xs font-jakartaSemiBold transition-all duration-300',
                         idx === currentStep
                             ? 'animated-light-effect bg-primary text-white shadow-lg shadow-primary/30 scale-125'
                             : idx < currentStep
@@ -43,7 +43,7 @@
         </div>
         <div class="mt-3 text-center">
             <p
-                class="text-xs font-medium text-text-secondary uppercase tracking-wider"
+                class="text-xs font-jakartaSemiBold text-text-secondary uppercase tracking-wider"
             >
                 {{ steps[currentStep] }}
             </p>

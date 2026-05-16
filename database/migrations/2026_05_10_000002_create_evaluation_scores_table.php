@@ -8,14 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('evaluation_scores', function (Blueprint $table) {
+        Schema::create('internship_evaluation_scores', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('evaluation_id')->constrained('internship_evaluations')->cascadeOnDelete();
-            $table->string('komponen');
-            $table->decimal('nilai', 5, 2);
+            $table->foreignId('internship_evaluation_id')->constrained('internship_evaluations')->cascadeOnDelete();
+            $table->string('category');
+            $table->string('selected_rating');
+            $table->decimal('numeric_score', 5, 2)->default(0.00);
             $table->timestamps();
 
-            $table->unique(['evaluation_id', 'komponen']);
+            $table->unique(['internship_evaluation_id', 'category'], 'internship_eval_scores_unique');
         });
     }
 

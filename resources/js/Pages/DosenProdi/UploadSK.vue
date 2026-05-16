@@ -53,7 +53,7 @@
                                     v-else
                                     :href="`/dosen-prodi/surat-keputusan/${assignment.surat_keputusan.id}/download`" 
                                     target="_blank"
-                                    class="text-xs font-jakartaSemiBold text-primary bg-primary/10 hover:bg-primary/20 px-6 py-2 rounded-sm transition-colors">
+                                    class="text-xs font-jakartaSemiBold text-primary bg-primary/10 hover:bg-primary/20 px-4 py-2 rounded-sm transition-colors">
                                     Lihat SK
                                 </a>
                             </td>

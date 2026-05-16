@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\StatusAgreement;
 use App\Enums\StatusSeleksi;
 use App\Models\Industri;
 use App\Models\MagangAktif;
@@ -20,6 +21,7 @@ class CompletionLetterService
             $q->where('industri_id', $industri->id)
                 ->where('status_seleksi', StatusSeleksi::DITERIMA);
         })
+            ->where('status_agreement', StatusAgreement::ACCEPTED)
             ->with(['pendaftaran.mahasiswa', 'sertifikat'])
             ->get()
             ->map(fn (MagangAktif $m) => [

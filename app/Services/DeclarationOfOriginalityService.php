@@ -12,6 +12,98 @@ use Illuminate\Validation\ValidationException;
 
 class DeclarationOfOriginalityService
 {
+    // ──────────────────────────────────────
+    // Data Providers (Queries & Mapping)
+    // ──────────────────────────────────────
+
+    public function getStudentDeclarationData(\App\Models\Mahasiswa $mahasiswa): array
+    {
+        $declaration = null;
+        $pdfBase64 = null;
+        $magang = MagangAktif::whereHas('pendaftaran', function ($q) use ($mahasiswa) {
+                $q->where('mahasiswa_id', $mahasiswa->id);
+            })
+            ->whereNotNull('supervisor_kampus_id')
+            ->with('declarationOfOriginality.reviewer')
+            ->latest()
+            ->first();
+
+        if ($magang && $magang->declarationOfOriginality) {
+            $decl = $magang->declarationOfOriginality;
+
+            $declaration = [
+                'id' => $decl->id,
+                'original_filename' => $decl->original_filename,
+                'status' => $decl->status->value,
+                'status_label' => $decl->status->label(),
+                'status_color' => $decl->status->badgeColor(),
+                'rejection_note' => $decl->rejection_note,
+                'uploaded_at' => $decl->uploaded_at->format('d M Y H:i'),
+                'reviewer_name' => $decl->reviewer?->dosen?->nama_dosen ?? $decl->reviewer?->username,
+                'reviewed_at' => $decl->reviewed_at?->format('d M Y H:i'),
+                'can_update' => $decl->canBeUpdated(),
+            ];
+
+            // Generate base64 PDF for preview
+            $path = storage_path('app/private/' . $decl->file_path);
+            if (file_exists($path)) {
+                $pdfBase64 = 'data:application/pdf;base64,' . base64_encode(file_get_contents($path));
+            }
+        }
+
+        return [
+            'declaration' => $declaration,
+            'pdfBase64' => $pdfBase64,
+            'hasMagang' => $magang !== null,
+        ];
+    }
+
+    public function getReviewDeclarationsData(User $user)
+    {
+        $query = DeclarationOfOriginality::with([
+            'magangAktif.pendaftaran.mahasiswa',
+            'magangAktif.pendaftaran.industri',
+            'reviewer',
+        ]);
+
+        if ($user->role === \App\Enums\UserRole::SUPERVISOR_1) {
+            $dosen = $user->dosen;
+            if (!$dosen) {
+                return [];
+            }
+            $query->whereHas('magangAktif', function ($q) use ($dosen, $user) {
+                $q->where('supervisor_kampus_id', $dosen->id)
+                  ->orWhere('supervisor_kampus_id', $user->id)
+                  ->orWhereHas('pembimbingAssignment', function ($q2) use ($dosen) {
+                      $q2->where('dosen_id', $dosen->id);
+                  });
+            });
+        }
+
+        return $query->latest('uploaded_at')
+            ->get()
+            ->map(fn (DeclarationOfOriginality $d) => [
+                'id' => $d->id,
+                'mahasiswa' => [
+                    'nama_lengkap' => $d->magangAktif->pendaftaran->mahasiswa->nama_lengkap,
+                    'nim' => $d->magangAktif->pendaftaran->mahasiswa->nim,
+                ],
+                'industri' => $d->magangAktif->pendaftaran->industri->nama_perusahaan ?? '-',
+                'original_filename' => $d->original_filename,
+                'status' => $d->status->value,
+                'status_label' => $d->status->label(),
+                'status_color' => $d->status->badgeColor(),
+                'rejection_note' => $d->rejection_note,
+                'uploaded_at' => $d->uploaded_at->format('d M Y H:i'),
+                'reviewer_name' => $d->reviewer?->dosen?->nama_dosen ?? $d->reviewer?->username,
+                'reviewed_at' => $d->reviewed_at?->format('d M Y H:i'),
+            ]);
+    }
+
+    // ──────────────────────────────────────
+    // Actions
+    // ──────────────────────────────────────
+
     /**
      * Upload a new Declaration of Originality file.
      */

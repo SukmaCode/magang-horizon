@@ -22,7 +22,7 @@
                     alt="logo"
                     class="w-24 h-24"
                 />
-                <h1 class="text-2xl font-sans font-bold text-text-primary">
+                <h1 class="text-2xl font-jakartaSemiBold text-text-primary">
                     Buat Akun Baru
                 </h1>
                 <p class="mt-1.5 text-sm text-text-secondary">
@@ -140,17 +140,17 @@
                     <span class="bg-card font-jakarta text-text-secondary text-sm"
                         >Sudah punya akun?</span
                     >
-                    <Link href="/login" class="text-red-800 font-jakarta font-bold text-sm">
+                    <Link href="/login" class="text-red-800 font-jakartaSemiBold text-sm">
                         Masuk ke Akun
                     </Link>
                 </div>
             </CardContainer>
 
             <!-- Footer -->
-            <p class="text-center text-xs text-text-secondary/60 mt-6">
-                &copy; {{ new Date().getFullYear() }} Magang Horizon. All rights
-                reserved.
+            <p class="text-center font-jakartaSemiBold text-xs text-text-secondary/60 mt-6">
+                &copy; {{ new Date().getFullYear() }} Internship Horizon University Indonesia.
             </p>
+            <p class="text-center font-jakartaSemiBold text-xs text-text-secondary/60">Faculty of Informatics and Computer Technology.</p>
         </div>
     </div>
 </template>

@@ -39,11 +39,9 @@ class DosenPembimbingController extends Controller
             $magangs = $dosen->magangAktifs()->with('pendaftaran.mahasiswa', 'laporanAkhir', 'penilaian')->get();
             $activeStudents = $magangs->count();
 
-            // ✅ Filter di PHP collection (data sudah di-load dengan eager load)
             $pendingLaporan = $magangs->filter(fn ($m) => $m->laporanAkhir?->status_approval_kampus === StatusApproval::PENDING)->count();
             $studentsToGrade = $magangs->filter(fn ($m) => $m->penilaian === null || $m->penilaian->nilai_kampus === null)->count();
 
-            // ✅ Ambil recent laporan dari magang yang sudah di-load, tidak perlu query terpisah
             $magangIds = $magangs->pluck('id');
             $recentLaporan = LaporanAkhir::whereIn('magang_id', $magangIds)
                 ->with('magangAktif.pendaftaran.mahasiswa')
@@ -149,6 +147,7 @@ class DosenPembimbingController extends Controller
         $dosen = $user->dosen;
 
         $laporans = [];
+        $bimbingans = [];
 
         if ($dosen) {
             $magangIds = $dosen->magangAktifs()->pluck('id');
@@ -169,10 +168,25 @@ class DosenPembimbingController extends Controller
                     'approval_letter_file' => $l->approval_letter_file,
                     'updated_at' => $l->updated_at->format('d M Y H:i'),
                 ]);
+                
+            $bimbingans = \App\Models\Bimbingan::whereIn('magang_id', $magangIds)
+                ->with('magangAktif.pendaftaran.mahasiswa')
+                ->orderBy('tanggal', 'desc')
+                ->get()
+                ->groupBy('magang_id')
+                ->map(fn($group) => $group->map(fn($b) => [
+                    'id' => $b->id,
+                    'tanggal' => $b->tanggal->format('Y-m-d'),
+                    'tanggal_display' => $b->tanggal->format('d M Y'),
+                    'catatan' => $b->catatan,
+                    'is_approved' => $b->is_approved,
+                    'mahasiswa_nama' => $b->magangAktif->pendaftaran->mahasiswa->nama_lengkap,
+                ]))->toArray();
         }
 
         return Inertia::render('DosenPembimbing/ReviewLaporan', [
             'laporans' => $laporans,
+            'bimbingans' => $bimbingans,
         ]);
     }
 
@@ -184,48 +198,44 @@ class DosenPembimbingController extends Controller
         ]);
 
         try {
+            $user = $request->user();
+            $dosen = $user->dosen;
+            
+            $this->authorizeLaporanAccess($dosen, $laporan);
+
             $statusEnum = $request->status === 'disetujui' ? StatusApproval::DISETUJUI : StatusApproval::REVISI;
             
-            if ($request->status === 'disetujui') {
-                $user = $request->user();
-                $dosen = $user->dosen;
-                
-                // Cek apakah laporan milik mahasiswa bimbingan dosen ini
-                $magangIds = $dosen->magangAktifs()->pluck('id');
-                if (! $magangIds->contains($laporan->magang_id)) {
-                    abort(403, 'Anda tidak memiliki akses ke laporan ini.');
-                }
-
-                $mahasiswa = $laporan->magangAktif->pendaftaran->mahasiswa;
-                $signature = $user->signatures()->latest()->first();
-                $signatureBase64 = null;
-                
-                if ($signature && $signature->file_path && Storage::disk('private')->exists($signature->file_path)) {
-                    $mime = mime_content_type(storage_path('app/private/' . $signature->file_path));
-                    $data = base64_encode(Storage::disk('private')->get($signature->file_path));
-                    $signatureBase64 = 'data:' . $mime . ';base64,' . $data;
-                }
-
-                $pdf = Pdf::loadView('pdf.approval-letter', [
-                    'mahasiswa_name' => $mahasiswa->nama_lengkap,
-                    'study_program' => $mahasiswa->prodi ?? 'Program Studi',
-                    'mentor_name' => $dosen->nama_lengkap ?? $user->name,
-                    'mentor_signature' => $signatureBase64,
-                ]);
-
-                // Format: approval_letter_studentNIM_timestamp.pdf
-                $fileName = 'approval_letters/approval_letter_' . $mahasiswa->nim . '_' . time() . '.pdf';
-                Storage::disk('private')->put($fileName, $pdf->output());
-                
-                $laporan->update(['approval_letter_file' => $fileName]);
-            }
-            
-            $this->gradingService->reviewLaporan($laporan, $statusEnum, $request->input('catatan'));
+            $this->gradingService->reviewLaporan($laporan, $statusEnum, $request->input('catatan'), $user);
 
             return back()->with('success', 'Review laporan berhasil disimpan.');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
+    }
+
+    public function approveBimbingan(Request $request, \App\Models\Bimbingan $bimbingan)
+    {
+        $user = $request->user();
+        $dosen = $user->dosen;
+        if (! $dosen || $bimbingan->magangAktif->supervisor_kampus_id !== $dosen->id) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        $bimbingan->update(['is_approved' => true]);
+        return back()->with('success', 'Bimbingan disetujui.');
+    }
+
+    public function rejectBimbingan(Request $request, \App\Models\Bimbingan $bimbingan)
+    {
+        $user = $request->user();
+        $dosen = $user->dosen;
+        if (! $dosen || $bimbingan->magangAktif->supervisor_kampus_id !== $dosen->id) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        $bimbingan->delete(); // Or add a reason/status, but for now reject = delete or we could keep it with is_approved=false.
+        // Usually rejected bimbingan can just be deleted so student can re-enter. Let's delete.
+        return back()->with('success', 'Bimbingan ditolak dan dihapus.');
     }
 
     public function downloadLaporan(Request $request, LaporanAkhir $laporan)
@@ -272,29 +282,9 @@ class DosenPembimbingController extends Controller
             abort(403, 'Unauthorized access.');
         }
 
-        // Verify this laporan belongs to a student supervised by this dosen
-        $magangIds = $dosen->magangAktifs()->pluck('id');
-        if (! $magangIds->contains($laporan->magang_id)) {
-            abort(403, 'Anda tidak memiliki akses ke laporan ini.');
-        }
+        $this->authorizeLaporanAccess($dosen, $laporan);
         
-        $mahasiswa = $laporan->magangAktif->pendaftaran->mahasiswa;
-        $signature = $user->signatures()->latest()->first();
-        $signatureBase64 = null;
-        if ($signature && $signature->file_path && Storage::disk('private')->exists($signature->file_path)) {
-            $mime = mime_content_type(storage_path('app/private/' . $signature->file_path));
-            $data = base64_encode(Storage::disk('private')->get($signature->file_path));
-            $signatureBase64 = 'data:' . $mime . ';base64,' . $data;
-        }
-
-        $pdf = Pdf::loadView('pdf.approval-letter', [
-            'mahasiswa_name' => $mahasiswa->nama_lengkap,
-            'study_program' => $mahasiswa->prodi ?? 'Program Studi',
-            'mentor_name' => $dosen->nama_lengkap ?? $user->name,
-            'mentor_signature' => $signatureBase64,
-        ]);
-
-        return $pdf->stream('Approval_Letter_' . $mahasiswa->nim . '.pdf');
+        return app(\App\Services\PdfService::class)->streamApprovalLetter($laporan, $user, $dosen);
     }
 
     public function downloadApprovalLetter(Request $request, LaporanAkhir $laporan)
@@ -327,49 +317,18 @@ class DosenPembimbingController extends Controller
     }
 
     // ──────────────────────────────────────
-    // Input Nilai
+    // Authorization Helpers
     // ──────────────────────────────────────
 
-    public function inputNilai(Request $request)
+    private function authorizeLaporanAccess(?\App\Models\Dosen $dosen, LaporanAkhir $laporan): void
     {
-        $user = $request->user();
-        $dosen = $user->dosen;
-
-        $magangs = [];
-        if ($dosen) {
-            $magangs = $dosen->magangAktifs()
-                ->with('pendaftaran.mahasiswa', 'penilaian', 'laporanAkhir')
-                ->get()
-                ->map(fn (MagangAktif $m) => [
-                    'id' => $m->id,
-                    'mahasiswa' => [
-                        'nama_lengkap' => $m->pendaftaran->mahasiswa->nama_lengkap,
-                        'nim' => $m->pendaftaran->mahasiswa->nim,
-                        'prodi' => $m->pendaftaran->mahasiswa->prodi,
-                    ],
-                    'status_laporan' => $m->laporanAkhir?->status_approval_kampus->label() ?? 'Belum Upload',
-                    'nilai_kampus' => $m->penilaian?->nilai_kampus,
-                    'has_graded' => $m->penilaian?->nilai_kampus !== null,
-                ]);
+        if (!$dosen) {
+            abort(403, 'Unauthorized access.');
         }
 
-        return Inertia::render('DosenPembimbing/InputNilai', [
-            'magangs' => $magangs,
-        ]);
-    }
-
-    public function storeNilai(Request $request, MagangAktif $magangAktif)
-    {
-        $request->validate([
-            'nilai' => 'required|numeric|min:0|max:100',
-        ]);
-
-        try {
-            $this->gradingService->gradeByCampus($magangAktif, (float) $request->input('nilai'));
-
-            return back()->with('success', 'Nilai akademis berhasil disimpan.');
-        } catch (\Exception $e) {
-            return back()->with('error', $e->getMessage());
+        $magangIds = $dosen->magangAktifs()->pluck('id');
+        if (!$magangIds->contains($laporan->magang_id)) {
+            abort(403, 'Anda tidak memiliki akses ke laporan ini.');
         }
     }
 }

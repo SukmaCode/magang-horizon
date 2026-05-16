@@ -42,7 +42,7 @@ class MahasiswaService
                     'status' => $p->status_seleksi->value,
                     'status_label' => $p->status_seleksi->label(),
                     'keterangan' => $p->keterangan_industri,
-                    'created_at' => $p->created_at->format('d M Y H:i'),
+                    'created_at' => $p->created_at?->format('d M Y H:i') ?? '-',
                     'agreement_rejected' => $agreementRejected,
                     'alasan_tolak_agreement' => $alasanTolakAgreement,
                 ];
@@ -109,5 +109,97 @@ class MahasiswaService
             StatusTahapan::PENUTUPAN => 'Masa penutupan & laporan akhir',
             StatusTahapan::LULUS => 'Selamat, Anda telah lulus!',
         };
+    }
+
+    // ──────────────────────────────────────
+    // Dashboard Data
+    // ──────────────────────────────────────
+
+    public function getDashboardData(?Mahasiswa $mahasiswa): array
+    {
+        $magang = null;
+        $logbookStats = [
+            'total' => 0,
+            'approved' => 0,
+            'pending' => 0,
+            'target' => 60,
+        ];
+        $pendaftaranCount = 0;
+        $recentLogbooks = [];
+        $statusMagang = 'Belum Dimulai';
+        $statusDescription = 'Menunggu penempatan industri';
+
+        if ($mahasiswa) {
+            $pendaftaranCount = $mahasiswa->pendaftarans()->count();
+            $magang = $mahasiswa->active_magang;
+
+            if ($magang) {
+                $statusMagang = $magang->status_tahapan->label();
+                $statusDescription = $this->getStatusDescription($magang->status_tahapan);
+
+                $logbookStats['total'] = $magang->logbooks()->count();
+                $logbookStats['approved'] = $magang->logbooks()->approved()->count();
+                $logbookStats['pending'] = $magang->logbooks()->pendingApproval()->count();
+
+                $recentLogbooks = $magang->logbooks()
+                    ->orderBy('tanggal_waktu', 'desc')
+                    ->take(5)
+                    ->get()
+                    ->map(fn (\App\Models\Logbook $l) => [
+                        'id' => $l->id,
+                        'tanggal_waktu' => $l->tanggal_waktu?->format('d M Y') ?? '-',
+                        'kegiatan' => $l->kegiatan,
+                        'status_presensi' => $l->status_presensi->label(),
+                        'is_approved' => $l->is_approved_industri,
+                    ]);
+            }
+        }
+
+        return compact(
+            'statusMagang',
+            'statusDescription',
+            'logbookStats',
+            'pendaftaranCount',
+            'recentLogbooks',
+            'magang'
+        );
+    }
+
+    // ──────────────────────────────────────
+    // Sertifikat Page Data
+    // ──────────────────────────────────────
+
+    public function getSertifikatData(?MagangAktif $magang): array
+    {
+        $sertifikat = null;
+        $penilaian = null;
+        $isLulus = false;
+
+        if ($magang) {
+            $isLulus = $magang->status_tahapan === StatusTahapan::LULUS;
+
+            // Load evaluation relationships through penilaian FK
+            $magang->load(['penilaian.performanceEvaluation', 'penilaian.internshipEvaluation']);
+
+            if ($magang->penilaian) {
+                $penilaian = [
+                    'nilai_industri' => $magang->penilaian->performanceEvaluation?->nilai_akhir,
+                    'nilai_kampus' => $magang->penilaian->internshipEvaluation?->overall_score,
+                    'nilai_akhir' => $magang->penilaian->nilai_akhir,
+                    'is_verified' => $magang->penilaian->isVerified(),
+                ];
+            }
+
+            if ($magang->sertifikat) {
+                $sertifikat = [
+                    'id' => $magang->sertifikat->id,
+                    'nomor_sertifikat' => $magang->sertifikat->nomor_sertifikat,
+                    'tanggal_terbit' => $magang->sertifikat->tanggal_terbit?->format('d M Y'),
+                    'has_file' => $magang->sertifikat->file_sertifikat_path !== null,
+                ];
+            }
+        }
+
+        return compact('sertifikat', 'penilaian', 'isLulus');
     }
 }

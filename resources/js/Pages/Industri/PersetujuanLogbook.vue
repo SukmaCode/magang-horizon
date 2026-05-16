@@ -16,7 +16,7 @@
                     </div>
                     <div class="max-h-[500px] overflow-y-auto divide-y divide-gray-50">
                         <div v-if="magangs.length === 0" class="text-center">
-                            <p class="text-xs text-text-secondary">Tidak ada peserta aktif.</p>
+                            <p class="text-xs font-jakarta text-text-secondary">Tidak ada peserta aktif.</p>
                         </div>
                         <template v-else>
                             <Link
@@ -31,7 +31,7 @@
                                         <p class="text-sm font-jakarta text-text-primary truncate">{{ m.nama_lengkap }}</p>
                                         <p class="text-xs font-jakartaSemiBold text-text-secondary">{{ m.nim }}</p>
                                     </div>
-                                    <span v-if="m.pending_count > 0" class="absolute right-0 w-4 h-4 flex items-center justify-center rounded-full bg-accent text-white text-[10px] font-bold shrink-0">
+                                    <span v-if="m.pending_count > 0" class="absolute right-0 w-4 h-4 flex items-center justify-center rounded-full bg-accent text-white text-[10px] font-jakartaSemiBold shrink-0">
                                         {{ m.pending_count }}
                                     </span>
                                 </div>
@@ -88,14 +88,14 @@
                     </div>
                     <div v-else class="p-12 text-center">
                         <svg class="w-16 h-16 text-gray-200 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                        <h3 class="text-base font-bold text-text-primary mb-1">Belum Ada Kegiatan</h3>
+                        <h3 class="text-base font-jakartaSemiBold text-text-primary mb-1">Belum Ada Kegiatan</h3>
                         <p class="text-sm text-text-secondary">Mahasiswa belum mengisi logbook.</p>
                     </div>
 
                     <!-- Pagination -->
                     <div v-if="logbooks.links && logbooks.links.length > 3" class="px-6 py-4 border-t border-gray-100 flex justify-center gap-1">
                         <template v-for="link in logbooks.links" :key="link.label">
-                            <Link v-if="link.url" :href="link.url" class="px-3.5 py-2 text-sm rounded-lg transition-colors duration-200" :class="[link.active ? 'bg-primary text-white font-semibold' : 'text-text-secondary hover:bg-gray-100']" v-html="link.label" preserve-scroll />
+                            <Link v-if="link.url" :href="link.url" class="px-3.5 py-2 text-sm rounded-lg transition-colors duration-200" :class="[link.active ? 'bg-primary text-white font-jakartaSemiBold' : 'text-text-secondary hover:bg-gray-100']" v-html="link.label" preserve-scroll />
                             <span v-else class="px-3.5 py-2 text-sm text-gray-300" v-html="link.label" />
                         </template>
                     </div>
@@ -113,19 +113,19 @@
             <div v-if="showApproveModal" class="fixed inset-0 bg-gray-900/60 z-50 flex items-center justify-center p-4" @click.self="closeModal">
                 <div class="bg-card rounded-2xl shadow-2xl w-full max-w-md">
                     <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
-                        <h3 class="text-lg font-bold text-text-primary font-jakarta">Setujui Logbook</h3>
+                        <h3 class="text-lg font-jakartaSemiBold text-text-primary">Setujui Logbook</h3>
                         <button @click="closeModal" class="text-gray-400 hover:text-gray-600">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                         </button>
                     </div>
                     <form @submit.prevent="submitApprove" class="p-6">
                         <div class="mb-5">
-                            <label class="block text-sm font-semibold text-text-primary mb-2">Komentar/Saran (Opsional)</label>
+                            <label class="block text-sm font-jakartaSemiBold text-text-primary mb-2">Komentar/Saran (Opsional)</label>
                             <textarea v-model="approveForm.komentar" rows="4" class="w-full px-4 py-3 border border-gray-200 rounded-md text-sm focus:ring-primary/20 focus:border-primary" placeholder="Beri masukan untuk kegiatan hari ini..."></textarea>
                         </div>
                         <div class="flex gap-3">
-                            <button type="button" @click="closeModal" class="flex-1 px-4 py-2.5 text-sm font-medium border border-gray-200 rounded-md hover:bg-gray-50">Batal</button>
-                            <button type="submit" :disabled="approveForm.processing" class="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-md hover:bg-primary-hover flex justify-center items-center gap-2">
+                            <button type="button" @click="closeModal" class="flex-1 px-4 py-2.5 text-sm font-jakartaSemiBold border border-gray-200 rounded-md hover:bg-gray-50">Batal</button>
+                            <button type="submit" :disabled="approveForm.processing" class="flex-1 px-4 py-2.5 text-sm font-jakartaSemiBold text-white bg-primary rounded-md hover:bg-primary-hover flex justify-center items-center gap-2">
                                 <span v-if="approveForm.processing" class="animate-spin w-4 h-4 border-2 border-white/20 border-t-white rounded-full"></span>
                                 Setujui
                             </button>
@@ -137,7 +137,7 @@
 
         <!-- Flash -->
         <Transition enter-active-class="transition ease-out duration-300" enter-from-class="translate-y-4 opacity-0" enter-to-class="translate-y-0 opacity-100" leave-active-class="transition ease-in duration-200" leave-from-class="translate-y-0 opacity-100" leave-to-class="translate-y-4 opacity-0">
-            <div v-if="flashMsg" :class="['fixed bottom-6 right-6 px-5 py-3 rounded-md shadow-lg text-sm font-medium z-50', flashType === 'success' ? 'bg-success text-white' : 'bg-danger text-white']">
+            <div v-if="flashMsg" :class="['fixed bottom-6 right-6 px-5 py-3 rounded-md shadow-lg text-sm font-jakartaSemiBold z-50', flashType === 'success' ? 'bg-success text-white' : 'bg-danger text-white']">
                 {{ flashMsg }}
             </div>
         </Transition>

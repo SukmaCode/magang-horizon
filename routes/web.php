@@ -7,10 +7,12 @@ use App\Http\Controllers\Web\CvController;
 use App\Http\Controllers\Web\DeclarationOfOriginalityController;
 use App\Http\Controllers\Web\DosenPembimbingController;
 use App\Http\Controllers\Web\DosenProdiController;
-use App\Http\Controllers\Web\EvaluationReportController;
 use App\Http\Controllers\Web\IndustriController;
 use App\Http\Controllers\Web\InternshipClearanceController;
 use App\Http\Controllers\Web\InternshipEvaluationController;
+use App\Http\Controllers\Web\PerformanceEvaluationController;
+use App\Http\Controllers\Web\PerformanceEvaluationReportController;
+use App\Http\Controllers\Web\PortfolioEvaluationController;
 use App\Http\Controllers\Web\LogbookReportController;
 use App\Http\Controllers\Web\MahasiswaController;
 use App\Http\Controllers\Web\SignatureController;
@@ -43,10 +45,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/logbook/report/{magangAktif}', [LogbookReportController::class, 'download'])
         ->name('logbook.report.download');
 
-    Route::get('/completion-letter/{magangAktif}/download', [CompletionLetterController::class, 'download'])
-        ->name('completion-letter.download');
-
-    Route::get('/evaluation-report/{magangAktif}/download', [EvaluationReportController::class, 'download'])
+    Route::get('/evaluation-report/{magangAktif}/download', [PerformanceEvaluationReportController::class, 'download'])
         ->name('evaluation-report.download');
 
     Route::post('/signature', [SignatureController::class, 'store'])
@@ -90,9 +89,11 @@ Route::middleware('auth')->group(function () {
         // Laporan Akhir
         Route::get('/laporan-akhir', [MahasiswaController::class, 'laporanAkhir'])->name('mahasiswa.laporan-akhir');
         Route::post('/laporan-akhir', [MahasiswaController::class, 'storeLaporan'])->name('mahasiswa.laporan-akhir.store');
+        Route::post('/laporan-akhir/bimbingan', [MahasiswaController::class, 'storeBimbingan'])->name('mahasiswa.bimbingan.store');
+        Route::post('/laporan-akhir/generate-pdf', [MahasiswaController::class, 'generatePdf'])->name('mahasiswa.laporan-akhir.generate-pdf');
 
         // Evaluasi Magang
-        Route::get('/evaluasi', [InternshipEvaluationController::class, 'show'])->name('mahasiswa.evaluasi');
+        Route::get('/evaluasi', [PerformanceEvaluationController::class, 'show'])->name('mahasiswa.evaluasi');
 
         // Declaration of Originality
         Route::get('/declaration', [DeclarationOfOriginalityController::class, 'show'])->name('mahasiswa.declaration');
@@ -104,6 +105,18 @@ Route::middleware('auth')->group(function () {
         Route::get('/clearance', [InternshipClearanceController::class, 'studentShow'])->name('mahasiswa.clearance');
         Route::post('/clearance/{clearance}/submit', [InternshipClearanceController::class, 'submit'])->name('mahasiswa.clearance.submit');
         Route::get('/clearance/{clearance}/preview', [InternshipClearanceController::class, 'preview'])->name('mahasiswa.clearance.preview');
+
+        // Completion Letter
+        Route::get('/completion-letter/{magangAktif}/download', [CompletionLetterController::class, 'download'])
+            ->name('completion-letter.download');
+
+        // Portfolio Evaluation
+        Route::get('/portfolio-evaluation', [PortfolioEvaluationController::class, 'studentShow'])->name('mahasiswa.portfolio-evaluation');
+        Route::get('/portfolio-evaluation/{magangAktif}/pdf', [PortfolioEvaluationController::class, 'downloadPdf'])->name('mahasiswa.portfolio-evaluation.pdf');
+
+        // Internship Evaluation (by Dosen Pembimbing)
+        Route::get('/internship-evaluation', [InternshipEvaluationController::class, 'studentShow'])->name('mahasiswa.internship-evaluation');
+        Route::get('/internship-evaluation/{magangAktif}/pdf', [InternshipEvaluationController::class, 'downloadPdf'])->name('mahasiswa.internship-evaluation.pdf');
 
         // Sertifikat / Kelulusan
         Route::get('/sertifikat', [MahasiswaController::class, 'sertifikat'])->name('mahasiswa.sertifikat');
@@ -132,15 +145,12 @@ Route::middleware('auth')->group(function () {
         Route::post('/persetujuan-logbook/{logbook}/approve', [IndustriController::class, 'approveLogbook'])->name('industri.logbook.approve');
 
         // Evaluasi Mahasiswa
-        Route::get('/evaluasi', [InternshipEvaluationController::class, 'index'])->name('industri.evaluasi');
-        Route::get('/evaluasi/{magangAktif}', [InternshipEvaluationController::class, 'create'])->name('industri.evaluasi.create');
-        Route::post('/evaluasi/{magangAktif}', [InternshipEvaluationController::class, 'store'])->name('industri.evaluasi.store');
-        Route::post('/evaluasi/{evaluation}/submit', [InternshipEvaluationController::class, 'submit'])->name('industri.evaluasi.submit');
-        Route::post('/evaluasi/{evaluation}/finalize', [InternshipEvaluationController::class, 'finalize'])->name('industri.evaluasi.finalize');
+        Route::get('/evaluasi', [PerformanceEvaluationController::class, 'index'])->name('industri.evaluasi');
+        Route::get('/evaluasi/{magangAktif}', [PerformanceEvaluationController::class, 'create'])->name('industri.evaluasi.create');
+        Route::post('/evaluasi/{magangAktif}', [PerformanceEvaluationController::class, 'store'])->name('industri.evaluasi.store');
+        Route::post('/evaluasi/{evaluation}/submit', [PerformanceEvaluationController::class, 'submit'])->name('industri.evaluasi.submit');
+        Route::post('/evaluasi/{evaluation}/finalize', [PerformanceEvaluationController::class, 'finalize'])->name('industri.evaluasi.finalize');
 
-        // Input Nilai (Legacy — redirect to evaluasi)
-        Route::get('/input-nilai', [IndustriController::class, 'inputNilai'])->name('industri.input-nilai');
-        Route::post('/input-nilai/{magangAktif}', [IndustriController::class, 'storeNilai'])->name('industri.input-nilai.store');
 
         // Internship Completion Letter
         Route::get('/completion-letter', [IndustriController::class, 'completionLetter'])->name('industri.completion-letter');
@@ -150,6 +160,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/clearance', [InternshipClearanceController::class, 'industryIndex'])->name('industri.clearance');
         Route::post('/clearance/{magangAktif}', [InternshipClearanceController::class, 'upload'])->name('industri.clearance.upload');
         Route::post('/clearance/{clearance}/update', [InternshipClearanceController::class, 'update'])->name('industri.clearance.update');
+
+        // Portfolio Evaluation
+        Route::get('/portfolio-evaluation', [PortfolioEvaluationController::class, 'industryIndex'])->name('industri.portfolio-evaluation');
+        Route::get('/portfolio-evaluation/{magangAktif}/create', [PortfolioEvaluationController::class, 'create'])->name('industri.portfolio-evaluation.create');
+        Route::post('/portfolio-evaluation/{magangAktif}', [PortfolioEvaluationController::class, 'store'])->name('industri.portfolio-evaluation.store');
+        Route::post('/portfolio-evaluation/{evaluation}/submit', [PortfolioEvaluationController::class, 'submit'])->name('industri.portfolio-evaluation.submit');
+        Route::post('/portfolio-evaluation/{evaluation}/finalize', [PortfolioEvaluationController::class, 'finalize'])->name('industri.portfolio-evaluation.finalize');
     });
 
     // ──────────────────────────────────
@@ -187,9 +204,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/review-laporan/{laporan}/download', [DosenPembimbingController::class, 'downloadLaporan'])->name('dosen-pembimbing.laporan.download');
         Route::get('/review-laporan/{laporan}/generate-approval', [DosenPembimbingController::class, 'generateApprovalLetter'])->name('dosen-pembimbing.laporan.generate-approval');
         Route::get('/review-laporan/{laporan}/download-approval', [DosenPembimbingController::class, 'downloadApprovalLetter'])->name('dosen-pembimbing.laporan.download-approval');
+        Route::post('/review-laporan/bimbingan/{bimbingan}/approve', [DosenPembimbingController::class, 'approveBimbingan'])->name('dosen-pembimbing.bimbingan.approve');
+        Route::post('/review-laporan/bimbingan/{bimbingan}/reject', [DosenPembimbingController::class, 'rejectBimbingan'])->name('dosen-pembimbing.bimbingan.reject');
 
-        Route::get('/input-nilai', [DosenPembimbingController::class, 'inputNilai'])->name('dosen-pembimbing.input-nilai');
-        Route::post('/input-nilai/{magangAktif}', [DosenPembimbingController::class, 'storeNilai'])->name('dosen-pembimbing.input-nilai.store');
 
         // Declaration of Originality
         Route::get('/declaration', [DeclarationOfOriginalityController::class, 'reviewIndex'])->name('dosen-pembimbing.declaration');
@@ -204,6 +221,20 @@ Route::middleware('auth')->group(function () {
         Route::get('/clearance/{clearance}/preview', [InternshipClearanceController::class, 'preview'])->name('dosen-pembimbing.clearance.preview');
         Route::post('/clearance/{clearance}/approve', [InternshipClearanceController::class, 'approve'])->name('dosen-pembimbing.clearance.approve');
         Route::post('/clearance/{clearance}/reject', [InternshipClearanceController::class, 'reject'])->name('dosen-pembimbing.clearance.reject');
+
+        // Portfolio Evaluation
+        Route::get('/portfolio-evaluation', [PortfolioEvaluationController::class, 'dosenIndex'])->name('dosen-pembimbing.portfolio-evaluation');
+        Route::get('/portfolio-evaluation/{magangAktif}/create', [PortfolioEvaluationController::class, 'create'])->name('dosen-pembimbing.portfolio-evaluation.create');
+        Route::post('/portfolio-evaluation/{magangAktif}', [PortfolioEvaluationController::class, 'store'])->name('dosen-pembimbing.portfolio-evaluation.store');
+        Route::post('/portfolio-evaluation/{evaluation}/submit', [PortfolioEvaluationController::class, 'submit'])->name('dosen-pembimbing.portfolio-evaluation.submit');
+        Route::post('/portfolio-evaluation/{evaluation}/finalize', [PortfolioEvaluationController::class, 'finalize'])->name('dosen-pembimbing.portfolio-evaluation.finalize');
+
+        // Internship Evaluation (Dosen Pembimbing → Mahasiswa)
+        Route::get('/internship-evaluation', [InternshipEvaluationController::class, 'dosenIndex'])->name('dosen-pembimbing.internship-evaluation');
+        Route::get('/internship-evaluation/{magangAktif}/create', [InternshipEvaluationController::class, 'create'])->name('dosen-pembimbing.internship-evaluation.create');
+        Route::post('/internship-evaluation/{magangAktif}', [InternshipEvaluationController::class, 'store'])->name('dosen-pembimbing.internship-evaluation.store');
+        Route::post('/internship-evaluation/{evaluation}/submit', [InternshipEvaluationController::class, 'submit'])->name('dosen-pembimbing.internship-evaluation.submit');
+        Route::post('/internship-evaluation/{evaluation}/finalize', [InternshipEvaluationController::class, 'finalize'])->name('dosen-pembimbing.internship-evaluation.finalize');
     });
 
     // ──────────────────────────────────
@@ -219,12 +250,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/verifikasi-kelulusan', [DosenProdiController::class, 'verifikasiKelulusan'])->name('dosen-prodi.verifikasi');
         Route::post('/verifikasi-kelulusan/{penilaian}/verify', [DosenProdiController::class, 'submitVerifikasi'])->name('dosen-prodi.verifikasi.submit');
 
-        // Declaration of Originality
-        Route::get('/declaration', [DeclarationOfOriginalityController::class, 'reviewIndex'])->name('dosen-prodi.declaration');
-        Route::get('/declaration/{declaration}/download', [DeclarationOfOriginalityController::class, 'download'])->name('dosen-prodi.declaration.download');
-        Route::get('/declaration/{declaration}/preview', [DeclarationOfOriginalityController::class, 'preview'])->name('dosen-prodi.declaration.preview');
-        Route::post('/declaration/{declaration}/approve', [DeclarationOfOriginalityController::class, 'approve'])->name('dosen-prodi.declaration.approve');
-        Route::post('/declaration/{declaration}/reject', [DeclarationOfOriginalityController::class, 'reject'])->name('dosen-prodi.declaration.reject');
+
 
         // Clearance Issued By Company
         Route::get('/clearance', [InternshipClearanceController::class, 'reviewIndex'])->name('dosen-prodi.clearance');

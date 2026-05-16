@@ -52,7 +52,7 @@
                             <span
                                 class="text-sm font-jakartaSemiBold text-text-primary"
                             >
-                                {{ user.nama_lengkap || user.nama_perusahaan }}
+                                {{ user.nama_lengkap || user.nama_perusahaan || user.nama_dosen}}
                                 <span v-if="user.prodi || user.kontak_person"
                                     >|</span
                                 >
@@ -66,26 +66,28 @@
                         <div v-if="user.profile_photo_url"
                             class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 shadow-sm"
                         >
-                            <a href="/mahasiswa/profile">
+                            <a :href="`/mahasiswa/profil`">
                                 <img :src="user.profile_photo_url" alt="Foto Profil" class="w-full h-full object-cover" />
                             </a>
                         </div>
                         <div v-else
-                            class="w-10 h-10 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center text-primary font-bold"
+                            class="w-10 h-10 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center text-primary font-jakartaSemiBold"
                         >
-                            <svg
-                                class="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                                />
-                            </svg>
+                            <a :href="`/mahasiswa/profil`">
+                                <svg
+                                    class="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                    />
+                                </svg>
+                            </a>
                         </div>
                     </div>
                 </div>

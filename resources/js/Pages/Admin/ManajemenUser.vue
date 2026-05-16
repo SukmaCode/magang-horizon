@@ -4,10 +4,10 @@
 
         <div class="mb-8 flex justify-between items-center gap-4">
             <div>
-                <h1 class="text-lg font-bold text-text-primary font-jakarta">Manajemen User</h1>
+                <h1 class="text-lg font-jakartaSemiBold text-text-primary">Manajemen User</h1>
                 <p class="text-xs text-text-secondary mt-1">Kelola akun pengguna, peran, dan hak akses dalam sistem.</p>
             </div>
-            <button class="px-3 py-1.5 md:py-2.5 text-xs md:text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary-hover shadow-sm flex items-center gap-2">
+            <button class="px-3 py-1.5 md:py-2.5 text-xs md:text-sm font-jakartaSemiBold text-white bg-primary rounded-lg hover:bg-primary-hover shadow-sm flex items-center gap-2">
                 Tambah User
             </button>
         </div>
@@ -22,7 +22,7 @@
             
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm">
-                    <thead class="bg-gray-50/50 text-text-secondary font-semibold border-b border-gray-100">
+                    <thead class="bg-gray-50/50 text-text-secondary font-jakartaSemiBold border-b border-gray-100">
                         <tr>
                             <th class="px-6 py-4">Username</th>
                             <th class="px-6 py-4">Email</th>
@@ -32,16 +32,16 @@
                     </thead>
                     <tbody class="divide-y divide-gray-50" v-if="users.data && users.data.length > 0">
                         <tr v-for="user in users.data" :key="user.id" class="hover:bg-gray-50/30 transition-colors">
-                            <td class="px-6 py-4 font-bold text-text-primary">{{ user.username }}</td>
+                            <td class="px-6 py-4 font-jakartaSemiBold text-text-primary">{{ user.username }}</td>
                             <td class="px-6 py-4 text-text-secondary">{{ user.email }}</td>
                             <td class="px-6 py-4">
-                                <span class="px-3 py-1 text-xs font-semibold rounded-full capitalize" :class="roleBadge(user.role)">
+                                <span class="px-3 py-1 text-xs font-jakartaSemiBold rounded-full capitalize" :class="roleBadge(user.role)">
                                     {{ user.role_label }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-right space-x-3">
-                                <button class="text-sm font-semibold text-text-secondary hover:text-primary transition-colors">Edit</button>
-                                <button class="text-sm font-semibold text-text-secondary hover:text-danger transition-colors">Hapus</button>
+                                <button class="text-sm font-jakartaSemiBold text-text-secondary hover:text-primary transition-colors">Edit</button>
+                                <button class="text-sm font-jakartaSemiBold text-text-secondary hover:text-danger transition-colors">Hapus</button>
                             </td>
                         </tr>
                     </tbody>
@@ -58,7 +58,7 @@
             <!-- Pagination -->
             <div v-if="users.links && users.links.length > 3" class="px-6 py-4 border-t border-gray-100 flex justify-center gap-1 bg-gray-50/30">
                 <template v-for="link in users.links" :key="link.label">
-                    <Link v-if="link.url" :href="link.url" class="px-3.5 py-2 text-sm rounded-lg transition-colors duration-200" :class="[link.active ? 'bg-primary text-white font-semibold shadow-sm' : 'text-text-secondary hover:bg-gray-200']" v-html="link.label" preserve-scroll />
+                    <Link v-if="link.url" :href="link.url" class="px-3.5 py-2 text-sm rounded-lg transition-colors duration-200" :class="[link.active ? 'bg-primary text-white font-jakartaSemiBold shadow-sm' : 'text-text-secondary hover:bg-gray-200']" v-html="link.label" preserve-scroll />
                     <span v-else class="px-3.5 py-2 text-sm text-gray-300" v-html="link.label" />
                 </template>
             </div>

@@ -3,7 +3,7 @@
         <Head title="Dashboard Admin" />
 
         <div class="mb-4">
-            <h1 class="text-lg font-bold text-text-primary font-jakarta">
+            <h1 class="text-lg font-jakartaSemiBold text-text-primary">
                 Dashboard Admin
             </h1>
             <p class="text-sm text-text-secondary mt-1">
@@ -33,12 +33,12 @@
                     </div>
                     <div>
                         <h3
-                            class="text-xs font-semibold text-text-secondary uppercase tracking-wider"
+                            class="text-xs font-jakartaSemiBold text-text-secondary uppercase tracking-wider"
                         >
                             Total Pengguna
                         </h3>
                         <p
-                            class="text-xl font-bold text-text-primary font-jakarta"
+                            class="text-xl font-jakartaSemiBold text-text-primary"
                         >
                             {{ totalUsers }}
                         </p>
@@ -67,12 +67,12 @@
                     </div>
                     <div>
                         <h3
-                            class="text-xs font-semibold text-text-secondary uppercase tracking-wider"
+                            class="text-xs font-jakartaSemiBold text-text-secondary uppercase tracking-wider"
                         >
                             Total Magang
                         </h3>
                         <p
-                            class="text-xl font-bold text-text-primary font-jakarta"
+                            class="text-xl font-jakartaSemiBold text-text-primary"
                         >
                             {{ totalMagang }}
                         </p>
@@ -101,12 +101,12 @@
                     </div>
                     <div>
                         <h3
-                            class="text-xs font-semibold text-text-secondary uppercase tracking-wider"
+                            class="text-xs font-jakartaSemiBold text-text-secondary uppercase tracking-wider"
                         >
                             Mahasiswa Lulus
                         </h3>
                         <p
-                            class="text-xl font-bold text-text-primary font-jakarta"
+                            class="text-xl font-jakartaSemiBold text-text-primary"
                         >
                             {{ totalLulus }}
                         </p>
@@ -119,11 +119,11 @@
             <div
                 class="px-6 py-5 border-b border-gray-100 flex items-center justify-between"
             >
-                <h2 class="text-base font-bold text-text-primary font-jakarta">
+                <h2 class="text-base font-jakartaSemiBold text-text-primary">
                     Pengguna Terdaftar Terbaru
                 </h2>
                 <button
-                    class="text-sm font-semibold text-primary hover:text-primary-hover"
+                    class="text-sm font-jakartaSemiBold text-primary hover:text-primary-hover"
                 >
                     Kelola Pengguna
                 </button>
@@ -132,7 +132,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm">
                     <thead
-                        class="bg-gray-50/50 text-text-secondary font-semibold border-b border-gray-100"
+                        class="bg-gray-50/50 text-text-secondary font-jakartaSemiBold border-b border-gray-100"
                     >
                         <tr>
                             <th class="px-6 py-3">Nama Lengkap</th>
@@ -150,7 +150,7 @@
                             :key="user.id"
                             class="hover:bg-gray-50/30 transition-colors"
                         >
-                            <td class="px-6 py-4 font-medium text-text-primary">
+                            <td class="px-6 py-4 font-jakartaSemiBold text-text-primary">
                                 {{ user.name }}
                             </td>
                             <td class="px-6 py-4 text-text-secondary">
@@ -158,7 +158,7 @@
                             </td>
                             <td class="px-6 py-4">
                                 <span
-                                    class="px-2.5 py-1 text-xs font-semibold rounded-full capitalize"
+                                    class="px-2.5 py-1 text-xs font-jakartaSemiBold rounded-full capitalize"
                                     :class="roleBadge(user.role)"
                                 >
                                     {{ user.role.replace("_", " ") }}

@@ -26,7 +26,7 @@
                 <div class="border-b border-gray-100">
                     <h2 class="text-base font-jakartaSemiBold text-text-primary">Formulir Lamaran</h2>
                     <p class="text-xs font-jakarta text-text-secondary mt-1">
-                        Kuota: <span class="font-semibold" :class="pendingCount >= maxApplications ? 'text-danger' : 'text-primary'">{{ pendingCount }} / {{ maxApplications }}</span> lamaran aktif
+                        Kuota: <span class="font-jakartaSemiBold" :class="pendingCount >= maxApplications ? 'text-danger' : 'text-primary'">{{ pendingCount }} / {{ maxApplications }}</span> lamaran aktif
                         </p>
                     </div>
 
@@ -73,7 +73,7 @@
                                     <div class="flex-1 min-w-0">
                                         <p class="text-sm font-jakartaSemiBold text-text-primary">{{ ind.nama_perusahaan }}</p>
                                         <p v-if="ind.alamat" class="text-xs font-jakarta text-text-secondary mt-0.5 truncate">{{ ind.alamat }}</p>
-                                        <span v-if="getIndustriDisplayStatus(ind.id)" :class="['text-xs px-2 py-0.5 rounded-full font-medium mt-1 inline-block', statusBadge(getIndustriDisplayStatus(ind.id))]">
+                                        <span v-if="getIndustriDisplayStatus(ind.id)" :class="['text-xs px-2 py-0.5 rounded-full font-jakartaSemiBold mt-1 inline-block', statusBadge(getIndustriDisplayStatus(ind.id))]">
                                             {{ getIndustriDisplayLabel(ind.id) }}
                                         </span>
                                     </div>
@@ -165,7 +165,7 @@
             <!-- Right: Application History -->
             <CardContainer class="lg:col-span-2 h-fit">
                     <div class="border-b border-gray-100">
-                        <h2 class="text-base font-bold text-text-primary font-jakarta">Riwayat Lamaran</h2>
+                        <h2 class="text-base font-jakartaSemiBold text-text-primary">Riwayat Lamaran</h2>
                     </div>
 
                     <div v-if="pendaftarans.length > 0" class="divide-y divide-gray-50">
@@ -233,7 +233,7 @@
             leave-from-class="translate-y-0 opacity-100"
             leave-to-class="translate-y-4 opacity-0"
         >
-            <div v-if="flashMsg" :class="['fixed bottom-6 right-6 px-5 py-3 rounded-xl shadow-lg text-sm font-medium z-50', flashType === 'success' ? 'bg-success text-white' : 'bg-danger text-white']">
+            <div v-if="flashMsg" :class="['fixed bottom-6 right-6 px-5 py-3 rounded-xl shadow-lg text-sm font-jakartaSemiBold z-50', flashType === 'success' ? 'bg-success text-white' : 'bg-danger text-white']">
                 {{ flashMsg }}
             </div>
         </Transition>

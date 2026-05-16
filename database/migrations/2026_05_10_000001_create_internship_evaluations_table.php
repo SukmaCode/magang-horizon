@@ -10,16 +10,19 @@ return new class extends Migration
     {
         Schema::create('internship_evaluations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('magang_id')->unique()->constrained('magang_aktifs')->cascadeOnDelete();
-            $table->foreignId('supervisor_id')->constrained('users');
+            $table->foreignId('magang_aktif_id')->unique()->constrained('magang_aktifs')->cascadeOnDelete();
+            $table->foreignId('evaluator_id')->constrained('users')->cascadeOnDelete();
+            $table->string('company_name');
+            $table->string('department')->nullable();
+            $table->string('position')->nullable();
+            $table->date('evaluation_date');
+            $table->decimal('overall_score', 5, 2)->default(0.00);
+            $table->string('pass_status')->default('fail');
             $table->string('status')->default('draft'); // draft, submitted, finalized
-            $table->decimal('nilai_akhir', 5, 2)->nullable();
-            $table->text('catatan_supervisor')->nullable();
-            $table->date('tanggal_evaluasi')->nullable();
             $table->timestamp('finalized_at')->nullable();
             $table->timestamps();
 
-            $table->index('supervisor_id');
+            $table->index('evaluator_id');
             $table->index('status');
         });
     }

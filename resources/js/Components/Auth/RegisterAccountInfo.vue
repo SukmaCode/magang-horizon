@@ -7,7 +7,7 @@
             id="reg-username"
             v-model="form.username"
             label="Username"
-            placeholder="contoh: ahmad_fauzi"
+            placeholder="galang sukmagama"
             :error="form.errors.username"
             required
         />

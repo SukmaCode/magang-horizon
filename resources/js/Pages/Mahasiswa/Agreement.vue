@@ -146,7 +146,7 @@
                 <div class="bg-card rounded-2xl shadow-2xl w-full max-w-md">
                     <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
                         <div>
-                            <h3 class="text-lg font-jakartaSemiBold text-text-primary font-jakarta">Terima &amp; Unggah TTD</h3>
+                            <h3 class="text-lg font-jakartaSemiBold text-text-primary">Terima &amp; Unggah TTD</h3>
                             <p class="text-xs text-text-secondary mt-0.5">{{ selectedAgreement?.industri }}</p>
                         </div>
                         <button @click="closeModals" class="text-gray-400 hover:text-gray-600">
@@ -209,7 +209,7 @@
                 <div class="bg-card rounded-2xl shadow-2xl w-full max-w-md">
                     <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
                         <div>
-                            <h3 class="text-lg font-jakartaSemiBold text-danger font-jakarta">Tolak Agreement</h3>
+                            <h3 class="text-lg font-jakartaSemiBold text-danger">Tolak Agreement</h3>
                             <p class="text-xs text-text-secondary mt-0.5">{{ selectedAgreement?.industri }}</p>
                         </div>
                         <button @click="closeModals" class="text-gray-400 hover:text-gray-600">

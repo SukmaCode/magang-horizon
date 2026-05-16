@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Web;
 
-use App\Enums\StatusSeleksi;
 use App\Http\Controllers\Controller;
-use App\Models\EvaluationScore;
 use App\Models\InternshipEvaluation;
 use App\Models\MagangAktif;
+use App\Services\InternshipEvaluationPdfService;
 use App\Services\InternshipEvaluationService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -15,62 +14,61 @@ class InternshipEvaluationController extends Controller
 {
     public function __construct(
         private readonly InternshipEvaluationService $evaluationService,
+        private readonly InternshipEvaluationPdfService $pdfService,
     ) {}
 
     // ──────────────────────────────────────
-    // Supervisor Industri: List Evaluations
+    // Dosen Pembimbing: List
     // ──────────────────────────────────────
 
-    public function index(Request $request)
+    public function dosenIndex(Request $request)
     {
-        $user = $request->user();
-        $magangs = $this->evaluationService->getEvaluableMagangs($user);
+        $magangs = $this->evaluationService->getEvaluableMagangs($request->user());
 
-        return Inertia::render('Industri/EvaluasiMahasiswa', [
+        return Inertia::render('DosenPembimbing/InternshipEvaluation', [
             'magangs' => $magangs,
-            'components' => EvaluationScore::COMPONENTS,
         ]);
     }
 
     // ──────────────────────────────────────
-    // Supervisor Industri: Create/Edit Form
+    // Create/Edit Form
     // ──────────────────────────────────────
 
     public function create(Request $request, MagangAktif $magangAktif)
     {
-        $this->authorizeSupervisor($request, $magangAktif);
+        if ($request->user()->cannot('create', [InternshipEvaluation::class, $magangAktif])) {
+            abort(403, 'Anda tidak memiliki akses untuk mengevaluasi mahasiswa ini.');
+        }
 
-        $data = $this->evaluationService->getEvaluationFormData($magangAktif);
+        $data = $this->evaluationService->getFormData($magangAktif, $request->user());
 
-        return Inertia::render('Industri/FormEvaluasi', array_merge($data, [
-            'components' => EvaluationScore::COMPONENTS,
-        ]));
+        return Inertia::render('DosenPembimbing/FormInternshipEvaluation', $data);
     }
 
     // ──────────────────────────────────────
-    // Supervisor Industri: Store/Update
+    // Store/Update
     // ──────────────────────────────────────
 
     public function store(Request $request, MagangAktif $magangAktif)
     {
-        $this->authorizeSupervisor($request, $magangAktif);
-
-        $componentKeys = array_keys(EvaluationScore::COMPONENTS);
-
-        $rules = [
-            'catatan_supervisor' => 'nullable|string|max:5000',
-            'tanggal_evaluasi' => 'nullable|date',
-        ];
-
-        // Dynamic validation for each component score
-        foreach ($componentKeys as $key) {
-            $rules["scores.{$key}"] = 'required|numeric|min:0|max:100';
+        if ($request->user()->cannot('create', [InternshipEvaluation::class, $magangAktif])) {
+            abort(403, 'Anda tidak memiliki akses untuk mengevaluasi mahasiswa ini.');
         }
 
-        $validated = $request->validate($rules, [
-            'scores.*.required' => 'Semua komponen penilaian wajib diisi.',
-            'scores.*.min' => 'Nilai minimal 0.',
-            'scores.*.max' => 'Nilai maksimal 100.',
+        $validated = $request->validate([
+            'company_name' => 'required|string|max:255',
+            'department' => 'nullable|string|max:255',
+            'position' => 'nullable|string|max:255',
+            'evaluation_date' => 'nullable|date',
+            'comments' => 'nullable|string|max:5000',
+            'feedback' => 'nullable|string|max:5000',
+            'scores' => 'required|array',
+            'scores.*.rating' => 'required|string|in:exceptional,exceeds,meets,nears,below',
+            'scores.*.score' => 'nullable|numeric|min:0|max:100',
+        ], [
+            'company_name.required' => 'Nama perusahaan wajib diisi.',
+            'scores.*.rating.required' => 'Semua kriteria penilaian wajib diisi.',
+            'scores.*.rating.in' => 'Rating tidak valid.',
         ]);
 
         try {
@@ -80,53 +78,56 @@ class InternshipEvaluationController extends Controller
                 $validated
             );
 
-            return redirect()
-                ->route('industri.evaluasi')
-                ->with('success', 'Evaluasi berhasil disimpan.');
+            return redirect('/dosen-pembimbing/internship-evaluation')
+                ->with('success', 'Internship evaluation berhasil disimpan.');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
     }
 
     // ──────────────────────────────────────
-    // Supervisor Industri: Submit
+    // Submit (draft → submitted)
     // ──────────────────────────────────────
 
     public function submit(Request $request, InternshipEvaluation $evaluation)
     {
-        $this->authorizeEvaluation($request, $evaluation);
+        if ($request->user()->cannot('update', $evaluation)) {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
 
         try {
             $this->evaluationService->submitEvaluation($evaluation);
 
-            return back()->with('success', 'Evaluasi berhasil disubmit.');
+            return back()->with('success', 'Internship evaluation berhasil disubmit.');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
     }
 
     // ──────────────────────────────────────
-    // Supervisor Industri: Finalize
+    // Finalize (submitted → finalized)
     // ──────────────────────────────────────
 
     public function finalize(Request $request, InternshipEvaluation $evaluation)
     {
-        $this->authorizeEvaluation($request, $evaluation);
+        if ($request->user()->cannot('update', $evaluation)) {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
 
         try {
             $this->evaluationService->finalizeEvaluation($evaluation);
 
-            return back()->with('success', 'Evaluasi berhasil difinalisasi. Mahasiswa sekarang dapat melihat dan mendownload hasil evaluasi.');
+            return back()->with('success', 'Internship evaluation berhasil difinalisasi. Mahasiswa sekarang dapat melihat dan mendownload hasil evaluasi.');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
     }
 
     // ──────────────────────────────────────
-    // Mahasiswa: View Evaluation
+    // Mahasiswa: View Results
     // ──────────────────────────────────────
 
-    public function show(Request $request)
+    public function studentShow(Request $request)
     {
         $user = $request->user();
         $mahasiswa = $user->mahasiswa;
@@ -135,40 +136,34 @@ class InternshipEvaluationController extends Controller
             ? $this->evaluationService->getStudentEvaluation($mahasiswa)
             : null;
 
-        return Inertia::render('Mahasiswa/HasilEvaluasi', [
+        return Inertia::render('Mahasiswa/HasilInternshipEvaluation', [
             'evaluationData' => $data,
         ]);
     }
 
     // ──────────────────────────────────────
-    // Authorization Helpers
+    // Download PDF
     // ──────────────────────────────────────
 
-    /**
-     * Ensure the current supervisor owns the magang's industri.
-     */
-    private function authorizeSupervisor(Request $request, MagangAktif $magangAktif): void
+    public function downloadPdf(Request $request, MagangAktif $magangAktif)
     {
-        $industri = $request->user()->industri;
+        $evaluation = $magangAktif->internshipEvaluation;
 
-        if (! $industri) {
-            abort(403, 'Unauthorized — no industri profile.');
+        if (! $evaluation) {
+            return back()->with('error', 'Internship evaluation belum tersedia.');
         }
 
-        $pendaftaran = $magangAktif->pendaftaran;
-
-        if (! $pendaftaran || $pendaftaran->industri_id !== $industri->id) {
-            abort(403, 'Unauthorized — magang bukan milik industri Anda.');
+        if ($request->user()->cannot('download', $evaluation)) {
+            abort(403, 'Anda tidak memiliki akses untuk mendownload PDF ini.');
         }
-    }
 
-    /**
-     * Ensure the current supervisor owns the evaluation.
-     */
-    private function authorizeEvaluation(Request $request, InternshipEvaluation $evaluation): void
-    {
-        if ($evaluation->supervisor_id !== $request->user()->id) {
-            abort(403, 'Unauthorized — evaluasi bukan milik Anda.');
+        try {
+            $pdf = $this->pdfService->generatePdf($magangAktif->id);
+            $filename = 'Internship-Evaluation-' . str_replace(' ', '-', $magangAktif->pendaftaran->mahasiswa->nama_lengkap) . '.pdf';
+
+            return $pdf->download($filename);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal generate PDF: ' . $e->getMessage());
         }
     }
 }

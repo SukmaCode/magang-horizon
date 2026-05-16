@@ -3,9 +3,12 @@
 namespace App\Services;
 
 use App\Enums\EvaluationStatus;
-use App\Enums\StatusSeleksi;
-use App\Models\EvaluationScore;
+use App\Enums\InternshipEvalCategory;
+use App\Enums\InternshipEvalRating;
+use App\Enums\UserRole;
 use App\Models\InternshipEvaluation;
+use App\Models\InternshipEvaluationComment;
+use App\Models\InternshipEvaluationScore;
 use App\Models\MagangAktif;
 use App\Models\Mahasiswa;
 use App\Models\User;
@@ -16,27 +19,22 @@ class InternshipEvaluationService
     public function __construct(
         private readonly GradingService $gradingService,
     ) {}
-
     /**
-     * Get all magangs that a supervisor can evaluate.
+     * Get all magangs that a dosen pembimbing can evaluate.
      */
-    public function getEvaluableMagangs(User $supervisor): array
+    public function getEvaluableMagangs(User $evaluator): array
     {
-        $industri = $supervisor->industri;
+        $dosen = $evaluator->dosen;
 
-        if (! $industri) {
+        if (! $dosen) {
             return [];
         }
 
-        return MagangAktif::whereHas('pendaftaran', function ($q) use ($industri) {
-            $q->where('industri_id', $industri->id)
-                ->where('status_seleksi', StatusSeleksi::DITERIMA);
-        })
+        return MagangAktif::where('supervisor_kampus_id', $dosen->id)
             ->with([
                 'pendaftaran.mahasiswa',
-                'internshipEvaluation.scores',
-                'logbooks',
-                'penilaian',
+                'pendaftaran.industri',
+                'internshipEvaluation',
             ])
             ->get()
             ->map(fn (MagangAktif $m) => [
@@ -46,16 +44,18 @@ class InternshipEvaluationService
                     'nim' => $m->pendaftaran->mahasiswa->nim,
                     'prodi' => $m->pendaftaran->mahasiswa->prodi,
                 ],
+                'industri' => [
+                    'nama_perusahaan' => $m->pendaftaran->industri->nama_perusahaan,
+                ],
                 'status_tahapan' => $m->status_tahapan->value,
                 'status_tahapan_label' => $m->status_tahapan->label(),
-                'total_logbook' => $m->logbooks->count(),
-                'approved_logbook' => $m->logbooks->where('is_approved_industri', true)->count(),
                 'evaluation' => $m->internshipEvaluation ? [
                     'id' => $m->internshipEvaluation->id,
                     'status' => $m->internshipEvaluation->status->value,
                     'status_label' => $m->internshipEvaluation->status->label(),
-                    'nilai_akhir' => $m->internshipEvaluation->nilai_akhir,
-                    'updated_at' => $m->internshipEvaluation->updated_at->format('d M Y H:i'),
+                    'overall_score' => $m->internshipEvaluation->overall_score,
+                    'pass_status' => $m->internshipEvaluation->pass_status,
+                    'updated_at' => $m->internshipEvaluation->updated_at?->format('d M Y H:i') ?? '-',
                 ] : null,
             ])
             ->values()
@@ -63,23 +63,27 @@ class InternshipEvaluationService
     }
 
     /**
-     * Get evaluation data for a specific magang (used in create/edit form).
+     * Get form data for create/edit.
      */
-    public function getEvaluationFormData(MagangAktif $magang): array
+    public function getFormData(MagangAktif $magang, User $evaluator): array
     {
         $magang->load([
             'pendaftaran.mahasiswa',
             'pendaftaran.industri',
             'internshipEvaluation.scores',
+            'internshipEvaluation.comment',
         ]);
 
         $evaluation = $magang->internshipEvaluation;
 
-        // Build scores map: komponen => nilai
+        // Build scores map: category => { rating, score }
         $scoresMap = [];
         if ($evaluation) {
             foreach ($evaluation->scores as $score) {
-                $scoresMap[$score->komponen] = $score->nilai;
+                $scoresMap[$score->category->value] = [
+                    'rating' => $score->selected_rating->value,
+                    'score' => (float) $score->numeric_score,
+                ];
             }
         }
 
@@ -101,64 +105,71 @@ class InternshipEvaluationService
                 'id' => $evaluation->id,
                 'status' => $evaluation->status->value,
                 'status_label' => $evaluation->status->label(),
-                'catatan_supervisor' => $evaluation->catatan_supervisor,
-                'tanggal_evaluasi' => $evaluation->tanggal_evaluasi?->format('Y-m-d'),
-                'nilai_akhir' => $evaluation->nilai_akhir,
+                'company_name' => $evaluation->company_name,
+                'department' => $evaluation->department,
+                'position' => $evaluation->position,
+                'evaluation_date' => $evaluation->evaluation_date?->format('Y-m-d'),
+                'overall_score' => $evaluation->overall_score,
+                'pass_status' => $evaluation->pass_status,
+                'comments' => $evaluation->comment?->comments,
+                'feedback' => $evaluation->comment?->feedback,
                 'can_edit' => $evaluation->canBeEdited(),
             ] : null,
             'scores' => $scoresMap,
-            'components' => EvaluationScore::COMPONENTS,
+            'rubric_config' => InternshipEvalCategory::rubricConfig(),
+            'performance_options' => InternshipEvalRating::performanceOptions(),
+            'fixed_options' => InternshipEvalRating::fixedOptions(),
+            'portfolio_options' => InternshipEvalRating::portfolioOptions(),
         ];
     }
 
     /**
-     * Save or update evaluation with scores (keeps status as draft).
+     * Save or update evaluation with scores.
      */
-    public function saveEvaluation(MagangAktif $magang, User $supervisor, array $data): InternshipEvaluation
+    public function saveEvaluation(MagangAktif $magang, User $evaluator, array $data): InternshipEvaluation
     {
-        return DB::transaction(function () use ($magang, $supervisor, $data) {
+        return DB::transaction(function () use ($magang, $evaluator, $data) {
             $evaluation = InternshipEvaluation::updateOrCreate(
-                ['magang_id' => $magang->id],
+                ['magang_aktif_id' => $magang->id],
                 [
-                    'supervisor_id' => $supervisor->id,
-                    'catatan_supervisor' => $data['catatan_supervisor'] ?? null,
-                    'tanggal_evaluasi' => $data['tanggal_evaluasi'] ?? now()->toDateString(),
+                    'evaluator_id' => $evaluator->id,
+                    'company_name' => $data['company_name'],
+                    'department' => $data['department'] ?? null,
+                    'position' => $data['position'] ?? null,
+                    'evaluation_date' => $data['evaluation_date'] ?? now()->toDateString(),
                 ]
             );
 
-            // Prevent editing finalized evaluations
             if ($evaluation->isFinalized()) {
                 throw new \Exception('Evaluasi yang sudah difinalisasi tidak dapat diubah.');
             }
 
             // Upsert scores
-            foreach ($data['scores'] as $komponen => $nilai) {
-                if (! EvaluationScore::isValidComponent($komponen)) {
-                    continue;
-                }
+            $this->upsertScores($evaluation, $data['scores'] ?? []);
 
-                EvaluationScore::updateOrCreate(
-                    [
-                        'evaluation_id' => $evaluation->id,
-                        'komponen' => $komponen,
-                    ],
-                    ['nilai' => $nilai]
-                );
-            }
+            // Upsert comments
+            InternshipEvaluationComment::updateOrCreate(
+                ['internship_evaluation_id' => $evaluation->id],
+                [
+                    'comments' => $data['comments'] ?? null,
+                    'feedback' => $data['feedback'] ?? null,
+                ]
+            );
 
-            // Recalculate average
+            // Recalculate
             $evaluation->refresh();
             $evaluation->update([
-                'nilai_akhir' => $evaluation->calculateNilaiAkhir(),
+                'overall_score' => $evaluation->calculateOverallScore(),
+                'pass_status' => $evaluation->determinePassStatus(),
             ]);
 
-            activity('evaluation')
+            activity('internship-evaluation')
                 ->performedOn($evaluation)
-                ->causedBy($supervisor)
+                ->causedBy($evaluator)
                 ->withProperties(['status' => $evaluation->status->value])
-                ->log('Evaluation saved as draft');
+                ->log('Internship evaluation saved as draft');
 
-            return $evaluation->fresh(['scores']);
+            return $evaluation->fresh(['scores', 'comment']);
         });
     }
 
@@ -172,24 +183,24 @@ class InternshipEvaluationService
         }
 
         if (! $evaluation->isComplete()) {
-            throw new \Exception('Semua komponen penilaian harus diisi sebelum submit.');
+            throw new \Exception('Semua kriteria penilaian harus diisi sebelum submit.');
         }
 
         $evaluation->update([
             'status' => EvaluationStatus::SUBMITTED,
-            'nilai_akhir' => $evaluation->calculateNilaiAkhir(),
+            'overall_score' => $evaluation->calculateOverallScore(),
+            'pass_status' => $evaluation->determinePassStatus(),
         ]);
 
-        activity('evaluation')
+        activity('internship-evaluation')
             ->performedOn($evaluation)
-            ->log('Evaluation submitted');
+            ->log('Internship evaluation submitted');
 
         return $evaluation->fresh();
     }
 
     /**
      * Finalize evaluation (submitted → finalized).
-     * Also syncs the average score to the legacy penilaians table.
      */
     public function finalizeEvaluation(InternshipEvaluation $evaluation): InternshipEvaluation
     {
@@ -198,77 +209,120 @@ class InternshipEvaluationService
         }
 
         if (! $evaluation->isComplete()) {
-            throw new \Exception('Semua komponen penilaian harus diisi sebelum finalisasi.');
+            throw new \Exception('Semua kriteria penilaian harus diisi sebelum finalisasi.');
         }
 
         return DB::transaction(function () use ($evaluation) {
-            $nilaiAkhir = $evaluation->calculateNilaiAkhir();
+            $overallScore = $evaluation->calculateOverallScore();
 
             $evaluation->update([
                 'status' => EvaluationStatus::FINALIZED,
-                'nilai_akhir' => $nilaiAkhir,
+                'overall_score' => $overallScore,
+                'pass_status' => $evaluation->determinePassStatus(),
                 'finalized_at' => now(),
             ]);
 
-            // ✅ Sync to legacy penilaians table for backward compatibility
-            $magang = $evaluation->magangAktif;
-            $this->gradingService->gradeByIndustry($magang, $nilaiAkhir);
+            // ✅ Sync to legacy penilaians table for graduation requirement
+            $this->gradingService->gradeByCampus($evaluation->magangAktif, $evaluation->id);
 
-            activity('evaluation')
+            activity('internship-evaluation')
                 ->performedOn($evaluation)
-                ->withProperties(['nilai_akhir' => $nilaiAkhir])
-                ->log('Evaluation finalized — score synced to penilaians');
+                ->withProperties([
+                    'overall_score' => $evaluation->overall_score,
+                    'pass_status' => $evaluation->pass_status,
+                ])
+                ->log('Internship evaluation finalized — score synced to penilaians');
 
-            return $evaluation->fresh(['scores']);
+            return $evaluation->fresh(['scores', 'comment']);
         });
     }
 
     /**
-     * Get evaluation for a student's active internship.
+     * Get evaluation data for student view.
      */
     public function getStudentEvaluation(Mahasiswa $mahasiswa): ?array
     {
-        $pendaftaran = $mahasiswa->pendaftarans()
-            ->where('status_seleksi', 'diterima')
-            ->with('magangAktif.internshipEvaluation.scores')
-            ->latest()
-            ->first();
-
-        $magang = $pendaftaran?->magangAktif;
+        $magang = $mahasiswa->active_magang;
+        $magang?->load(['internshipEvaluation.scores', 'internshipEvaluation.comment', 'internshipEvaluation.evaluator']);
         $evaluation = $magang?->internshipEvaluation;
 
         if (! $evaluation) {
             return null;
         }
 
-        // Build scores array with labels
-        $scores = [];
-        foreach (EvaluationScore::COMPONENTS as $key => $label) {
-            $score = $evaluation->scores->firstWhere('komponen', $key);
-            $scores[] = [
-                'komponen' => $key,
-                'label' => $label,
-                'nilai' => $score?->nilai,
+        // Build structured scores
+        $structuredScores = [];
+        foreach (InternshipEvalCategory::cases() as $category) {
+            $score = $evaluation->scores->firstWhere('category', $category);
+            $structuredScores[] = [
+                'category' => $category->value,
+                'category_label' => $category->label(),
+                'weight' => $category->weight(),
+                'is_range' => $category->isRange(),
+                'rating' => $score?->selected_rating->value,
+                'rating_label' => $score?->selected_rating->label(),
+                'score' => $score ? (float) $score->numeric_score : 0,
             ];
         }
+
+        // Evaluator name
+        $evaluatorUser = $evaluation->evaluator;
+        $evaluatorName = $evaluatorUser?->dosen?->nama_dosen
+            ?? $evaluatorUser?->username ?? '-';
 
         return [
             'evaluation' => [
                 'id' => $evaluation->id,
                 'status' => $evaluation->status->value,
                 'status_label' => $evaluation->status->label(),
-                'nilai_akhir' => $evaluation->nilai_akhir,
-                'catatan_supervisor' => $evaluation->catatan_supervisor,
-                'tanggal_evaluasi' => $evaluation->tanggal_evaluasi?->format('d M Y'),
+                'evaluator_name' => $evaluatorName,
+                'company_name' => $evaluation->company_name,
+                'department' => $evaluation->department,
+                'position' => $evaluation->position,
+                'evaluation_date' => $evaluation->evaluation_date?->format('d M Y'),
+                'overall_score' => $evaluation->overall_score,
+                'pass_status' => $evaluation->pass_status,
+                'comments' => $evaluation->comment?->comments,
+                'feedback' => $evaluation->comment?->feedback,
                 'finalized_at' => $evaluation->finalized_at?->format('d M Y H:i'),
                 'can_download' => $evaluation->status->canDownload(),
             ],
-            'scores' => $scores,
+            'scores' => $structuredScores,
             'magang' => [
                 'id' => $magang->id,
                 'tanggal_mulai' => $magang->tanggal_mulai?->format('d M Y'),
                 'tanggal_selesai' => $magang->tanggal_selesai?->format('d M Y'),
             ],
         ];
+    }
+
+    /**
+     * Upsert scores from form data.
+     */
+    private function upsertScores(InternshipEvaluation $evaluation, array $scores): void
+    {
+        foreach (InternshipEvalCategory::cases() as $category) {
+            $key = $category->value;
+            if (! isset($scores[$key])) {
+                continue;
+            }
+
+            $scoreData = $scores[$key];
+            $rating = InternshipEvalRating::from($scoreData['rating']);
+            $explicitScore = isset($scoreData['score']) ? (float) $scoreData['score'] : null;
+
+            $numericScore = InternshipEvaluationScore::computeScore($category, $rating, $explicitScore);
+
+            InternshipEvaluationScore::updateOrCreate(
+                [
+                    'internship_evaluation_id' => $evaluation->id,
+                    'category' => $category->value,
+                ],
+                [
+                    'selected_rating' => $rating->value,
+                    'numeric_score' => $numericScore,
+                ]
+            );
+        }
     }
 }

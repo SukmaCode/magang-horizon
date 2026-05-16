@@ -28,6 +28,7 @@ class DosenProdiController extends Controller
 
         // ✅ Query terpisah untuk recent list — hanya ambil 5 record
         $recentMagangs = MagangAktif::with('pendaftaran.mahasiswa', 'pendaftaran.industri')
+            ->where('status_tahapan', StatusTahapan::PELAKSANAAN)
             ->latest()
             ->take(5)
             ->get()
@@ -52,11 +53,11 @@ class DosenProdiController extends Controller
 
     public function verifikasiKelulusan(Request $request)
     {
-        $magangs = MagangAktif::with('pendaftaran.mahasiswa', 'penilaian', 'laporanAkhir')
+        $magangs = MagangAktif::with('pendaftaran.mahasiswa', 'penilaian.performanceEvaluation', 'penilaian.internshipEvaluation', 'laporanAkhir')
             ->whereHas('penilaian', function ($q) {
-                $q->whereNotNull('nilai_industri')
-                    ->whereNotNull('nilai_kampus')
-                    ->where('status_verifikasi_admin', false);
+                $q->whereNotNull('performance_evaluation_id')
+                    ->whereNotNull('internship_evaluation_id')
+                    ->where('status_verifikasi_dosen_prodi', false);
             })
             ->get()
             ->map(fn ($m) => [
@@ -65,10 +66,10 @@ class DosenProdiController extends Controller
                     'nama_lengkap' => $m->pendaftaran->mahasiswa->nama_lengkap,
                     'nim' => $m->pendaftaran->mahasiswa->nim,
                 ],
-                'nilai_industri' => $m->penilaian->nilai_industri,
-                'nilai_kampus' => $m->penilaian->nilai_kampus,
-                'nilai_akhir' => $m->penilaian->nilai_akhir,
-                'penilaian_id' => $m->penilaian->id,
+                'nilai_industri' => $m->penilaian?->nilai_industri_score,
+                'nilai_kampus' => $m->penilaian?->nilai_kampus_score,
+                'nilai_akhir' => $m->penilaian?->nilai_akhir,
+                'penilaian_id' => $m->penilaian?->id,
             ]);
 
         return Inertia::render('DosenProdi/VerifikasiKelulusan', [

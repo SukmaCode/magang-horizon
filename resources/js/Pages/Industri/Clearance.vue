@@ -10,13 +10,13 @@
 
         <!-- Student List -->
         <CardContainer class="overflow-hidden">
-            <div class="px-6 py-5 border-b border-gray-100">
+            <div class="border-b border-gray-100">
                 <h2 class="text-base font-jakartaBold text-text-primary">Daftar Mahasiswa Magang</h2>
-                <p class="text-sm font-jakarta text-text-secondary mt-0.5">{{ magangs.length }} mahasiswa</p>
+                <p class="text-sm font-jakarta text-text-secondary mt-0.5">{{ filteredMagangs.length }} mahasiswa</p>
             </div>
 
-            <div v-if="magangs.length > 0" class="divide-y divide-gray-50">
-                <div v-for="magang in magangs" :key="magang.id" class="p-6">
+            <div v-if="filteredMagangs.length > 0" class="divide-y divide-gray-50">
+                <div v-for="magang in filteredMagangs" :key="magang.id" class="p-6">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <!-- Student Info -->
                         <div class="flex-1">
@@ -226,8 +226,13 @@ const flash = computed(() => page.props.flash || {});
 const flashMsg = computed(() => flash.value.success || flash.value.error || null);
 const flashType = computed(() => flash.value.success ? 'success' : 'error');
 
-defineProps({
+const props = defineProps({
     magangs: { type: Array, default: () => [] },
+    statusTahapan: { type: String, default: '' },
+});
+
+const filteredMagangs = computed(() => {
+    return props.magangs.filter(m => m.status_tahapan === props.statusTahapan);
 });
 
 const showUploadModal = ref(false);

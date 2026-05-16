@@ -54,8 +54,7 @@ class DeclarationOfOriginalityPolicy
     public function view(User $user, DeclarationOfOriginality $declaration): bool
     {
         return $this->isOwner($user, $declaration)
-            || $this->isSupervisingDosen($user, $declaration)
-            || $user->role === UserRole::SUPERVISOR_2; // Dosen Prodi can view all
+            || $this->isSupervisingDosen($user, $declaration);
     }
 
     /**
@@ -73,10 +72,6 @@ class DeclarationOfOriginalityPolicy
      */
     public function review(User $user, DeclarationOfOriginality $declaration): bool
     {
-        if ($user->role === UserRole::SUPERVISOR_2) {
-            return true; // Dosen Prodi can review all
-        }
-
         if ($user->role === UserRole::SUPERVISOR_1) {
             return $this->isSupervisingDosen($user, $declaration);
         }
@@ -121,8 +116,10 @@ class DeclarationOfOriginalityPolicy
             return false;
         }
 
-        $declaration->loadMissing('magangAktif');
+        $declaration->loadMissing('magangAktif.pembimbingAssignment');
 
-        return $declaration->magangAktif->supervisor_kampus_id === $dosen->id;
+        return $declaration->magangAktif->supervisor_kampus_id === $dosen->id
+            || $declaration->magangAktif->supervisor_kampus_id === $user->id
+            || ($declaration->magangAktif->pembimbingAssignment && $declaration->magangAktif->pembimbingAssignment->dosen_id === $dosen->id);
     }
 }

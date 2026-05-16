@@ -76,7 +76,7 @@
 
     <div class="header">
         <h2>Laporan Logbook Magang</h2>
-        <p>Periode: {{ $magangAktif->tanggal_mulai ? $magangAktif->tanggal_mulai->format('d M Y') : '-' }} s.d {{ $magangAktif->tanggal_selesai ? $magangAktif->tanggal_selesai->format('d M Y') : '-' }}</p>
+        <p>Periode: {{ $periode->tanggal_buka ?? '-' }} s.d {{ $periode->tanggal_tutup ?? '-' }}</p>
     </div>
 
     <table class="info-table">
@@ -100,7 +100,7 @@
         </tr>
         <tr>
             <td class="label">Internship Period</td>
-            <td>: {{ $periode->tanggal_buka ?? '-' }} s.d {{ $periode->tanggal_tutup ?? '-' }}</td>
+            <td>: {{ $magangAktif->tanggal_mulai ?? '-' }} s.d {{ $magangAktif->tanggal_selesai ?? '-' }}</td>
             <td class="label">Academic Supervisor</td>
             <td>: {{ $dosen->nama_dosen ?? '-' }}</td>
         </tr>

@@ -73,12 +73,73 @@ class PdfService
     private function generateCertificateNumber(): string
     {
         $year = now()->year;
-        $lastCert = Sertifikat::whereYear('tanggal_terbit', $year)
+        $lastCert = Sertifikat::whereNotNull('nomor_sertifikat')
+            ->whereYear('tanggal_terbit', $year)
             ->orderByDesc('id')
             ->first();
 
-        $sequence = $lastCert ? ((int) explode('-', $lastCert->nomor_sertifikat)[2] ?? 0) + 1 : 1;
+        $sequence = 1;
+        if ($lastCert && $lastCert->nomor_sertifikat) {
+            $parts = explode('-', $lastCert->nomor_sertifikat);
+            if (isset($parts[2])) {
+                $sequence = ((int) $parts[2]) + 1;
+            }
+        }
 
         return sprintf('CERT-%d-%04d', $year, $sequence);
     }
+
+    /**
+     * Generate and save approval letter PDF for a final report.
+     */
+    public function generateApprovalLetter(\App\Models\LaporanAkhir $laporan, \App\Models\User $user, \App\Models\Dosen $dosen): void
+    {
+        $mahasiswa = $laporan->magangAktif->pendaftaran->mahasiswa;
+        $signatureBase64 = $this->getSignatureBase64($user);
+
+        $pdf = Pdf::loadView('pdf.approval-letter', [
+            'mahasiswa_name' => $mahasiswa->nama_lengkap,
+            'study_program' => $mahasiswa->prodi ?? 'Program Studi',
+            'mentor_name' => $dosen->nama_lengkap ?? $user->name,
+            'mentor_signature' => $signatureBase64,
+        ]);
+
+        $fileName = 'approval_letters/approval_letter_' . $mahasiswa->nim . '_' . time() . '.pdf';
+        Storage::disk('private')->put($fileName, $pdf->output());
+
+        $laporan->update(['approval_letter_file' => $fileName]);
+    }
+
+    /**
+     * Stream approval letter PDF.
+     */
+    public function streamApprovalLetter(\App\Models\LaporanAkhir $laporan, \App\Models\User $user, \App\Models\Dosen $dosen)
+    {
+        $mahasiswa = $laporan->magangAktif->pendaftaran->mahasiswa;
+        $signatureBase64 = $this->getSignatureBase64($user);
+
+        $pdf = Pdf::loadView('pdf.approval-letter', [
+            'mahasiswa_name' => $mahasiswa->nama_lengkap,
+            'study_program' => $mahasiswa->prodi ?? 'Program Studi',
+            'mentor_name' => $dosen->nama_lengkap ?? $user->name,
+            'mentor_signature' => $signatureBase64,
+        ]);
+
+        return $pdf->stream('Approval_Letter_' . $mahasiswa->nim . '.pdf');
+    }
+
+    /**
+     * Get signature base64 string.
+     */
+    private function getSignatureBase64(\App\Models\User $user): ?string
+    {
+        $signature = $user->signatures()->latest()->first();
+        if ($signature && $signature->file_path && Storage::disk('private')->exists($signature->file_path)) {
+            $mime = mime_content_type(storage_path('app/private/' . $signature->file_path));
+            $data = base64_encode(Storage::disk('private')->get($signature->file_path));
+            return 'data:' . $mime . ';base64,' . $data;
+        }
+        return null;
+    }
 }
+

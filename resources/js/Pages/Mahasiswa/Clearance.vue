@@ -40,7 +40,7 @@
                 </svg>
             </div>
             <h3 class="text-sm font-jakartaSemiBold text-text-primary mb-1">Belum Ada Clearance</h3>
-            <p class="text-xs font-jakarta text-text-secondary">Perusahaan <strong>{{ industriName }}</strong> belum mengupload dokumen Clearance Issued By Company untuk Anda.</p>
+            <p class="text-xs font-jakarta text-text-secondary"><strong>{{ industriName }}</strong> belum mengupload dokumen Clearance Issued By Company untuk Anda.</p>
         </div>
 
         <!-- Main Content -->

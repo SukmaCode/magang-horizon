@@ -3,10 +3,13 @@
 namespace App\Models;
 
 use App\Enums\EvaluationStatus;
+use App\Enums\InternshipEvalCategory;
+use App\Enums\InternshipEvalRating;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -15,12 +18,15 @@ class InternshipEvaluation extends Model
     use HasFactory, LogsActivity;
 
     protected $fillable = [
-        'magang_id',
-        'supervisor_id',
+        'magang_aktif_id',
+        'evaluator_id',
+        'company_name',
+        'department',
+        'position',
+        'evaluation_date',
+        'overall_score',
+        'pass_status',
         'status',
-        'nilai_akhir',
-        'catatan_supervisor',
-        'tanggal_evaluasi',
         'finalized_at',
     ];
 
@@ -28,8 +34,8 @@ class InternshipEvaluation extends Model
     {
         return [
             'status' => EvaluationStatus::class,
-            'nilai_akhir' => 'decimal:2',
-            'tanggal_evaluasi' => 'date',
+            'overall_score' => 'decimal:2',
+            'evaluation_date' => 'date',
             'finalized_at' => 'datetime',
         ];
     }
@@ -37,9 +43,9 @@ class InternshipEvaluation extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['status', 'nilai_akhir', 'catatan_supervisor', 'tanggal_evaluasi'])
+            ->logOnly(['status', 'overall_score', 'pass_status', 'evaluation_date'])
             ->logOnlyDirty()
-            ->setDescriptionForEvent(fn (string $eventName) => "Evaluation #{$this->id} was {$eventName}");
+            ->setDescriptionForEvent(fn (string $eventName) => "Internship Evaluation #{$this->id} was {$eventName}");
     }
 
     // ──────────────────────────────────────
@@ -48,17 +54,22 @@ class InternshipEvaluation extends Model
 
     public function magangAktif(): BelongsTo
     {
-        return $this->belongsTo(MagangAktif::class, 'magang_id');
+        return $this->belongsTo(MagangAktif::class);
     }
 
-    public function supervisor(): BelongsTo
+    public function evaluator(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'supervisor_id');
+        return $this->belongsTo(User::class, 'evaluator_id');
     }
 
     public function scores(): HasMany
     {
-        return $this->hasMany(EvaluationScore::class, 'evaluation_id');
+        return $this->hasMany(InternshipEvaluationScore::class);
+    }
+
+    public function comment(): HasOne
+    {
+        return $this->hasOne(InternshipEvaluationComment::class);
     }
 
     // ──────────────────────────────────────
@@ -66,25 +77,44 @@ class InternshipEvaluation extends Model
     // ──────────────────────────────────────
 
     /**
-     * Calculate the average score from all component scores.
+     * Calculate the overall score by summing all category numeric scores.
      */
-    public function calculateNilaiAkhir(): float
+    public function calculateOverallScore(): float
     {
-        $scores = $this->scores;
-
-        if ($scores->isEmpty()) {
-            return 0;
-        }
-
-        return round($scores->avg('nilai'), 2);
+        return round($this->scores->sum('numeric_score'), 2);
     }
 
     /**
-     * Check if all 10 components have been scored.
+     * Determine pass/fail status.
+     *
+     * PASS conditions (both must be true):
+     *   1. Overall score >= 50
+     *   2. No category has a rating below NEARS EXPECTATIONS
+     */
+    public function determinePassStatus(): string
+    {
+        $overallScore = $this->calculateOverallScore();
+
+        if ($overallScore < 50) {
+            return 'fail';
+        }
+
+        // Check that no rating is below NEARS
+        foreach ($this->scores as $score) {
+            if ($score->selected_rating === InternshipEvalRating::BELOW) {
+                return 'fail';
+            }
+        }
+
+        return 'pass';
+    }
+
+    /**
+     * Check if all 4 category scores have been filled.
      */
     public function isComplete(): bool
     {
-        return $this->scores()->count() === count(EvaluationScore::COMPONENTS);
+        return $this->scores()->count() === count(InternshipEvalCategory::cases());
     }
 
     public function isFinalized(): bool

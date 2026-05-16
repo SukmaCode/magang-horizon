@@ -1,70 +1,13 @@
 <?php
 
+// ⚠️ DEPRECATED: This file has been renamed to PerformanceEvaluationScore.php
+// The EvaluationScore class no longer exists as a standalone model.
+// Use App\Models\PerformanceEvaluationScore for industry evaluations.
+// Use App\Models\InternshipEvaluationScore for dosen pembimbing evaluations.
+
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
-class EvaluationScore extends Model
+class EvaluationScore extends PerformanceEvaluationScore
 {
-    use HasFactory;
-
-    /**
-     * The 10 evaluation component definitions.
-     */
-    public const COMPONENTS = [
-        'pengetahuan_kemahiran'      => 'Pengetahuan dan Kemahiran',
-        'produktivitas'              => 'Produktivitas',
-        'kualitas_kerja'             => 'Kualitas Kerja',
-        'komunikasi_presentasi'      => 'Komunikasi dan Keterampilan Presentasi',
-        'kehadiran_ketepatan_waktu'  => 'Kehadiran dan Ketepatan Waktu',
-        'inisiatif_kreativitas'      => 'Inisiatif dan Kreativitas',
-        'kemampuan_dibimbing'        => 'Kemampuan untuk Dibimbing dan Respons terhadap Pengawasan',
-        'kemampuan_beradaptasi'      => 'Kemampuan Beradaptasi',
-        'keterampilan_interpersonal' => 'Keterampilan Interpersonal',
-        'penampilan'                 => 'Penampilan',
-    ];
-
-    protected $fillable = [
-        'evaluation_id',
-        'komponen',
-        'nilai',
-    ];
-
-    protected function casts(): array
-    {
-        return [
-            'nilai' => 'decimal:2',
-        ];
-    }
-
-    // ──────────────────────────────────────
-    // Relationships
-    // ──────────────────────────────────────
-
-    public function evaluation(): BelongsTo
-    {
-        return $this->belongsTo(InternshipEvaluation::class, 'evaluation_id');
-    }
-
-    // ──────────────────────────────────────
-    // Helpers
-    // ──────────────────────────────────────
-
-    /**
-     * Get the human-readable label for this score's component.
-     */
-    public function getLabelAttribute(): string
-    {
-        return self::COMPONENTS[$this->komponen] ?? $this->komponen;
-    }
-
-    /**
-     * Check if a given key is a valid component.
-     */
-    public static function isValidComponent(string $key): bool
-    {
-        return array_key_exists($key, self::COMPONENTS);
-    }
+    // Backward-compatibility alias
 }

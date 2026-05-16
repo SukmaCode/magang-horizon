@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\PembimbingAssignment;
 use App\Models\MagangAktif;
 use App\Enums\StatusTahapan;
+use App\Enums\StatusAgreement;
 use Illuminate\Support\Facades\DB;
 
 class PembimbingAssignmentService
@@ -34,6 +35,6 @@ class PembimbingAssignmentService
             );
 
             return $assignment;
-        });
+        }); 
     }
 }

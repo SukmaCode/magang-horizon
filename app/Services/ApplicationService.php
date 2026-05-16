@@ -20,7 +20,6 @@ class ApplicationService
      */
     public function apply(int $mahasiswaId, int $industriId): Pendaftaran
     {
-        // Validate profile completeness (LinkedIn + CV required)
         $mahasiswa = \App\Models\Mahasiswa::findOrFail($mahasiswaId);
 
         if (! $mahasiswa->hasLinkedIn()) {
@@ -66,6 +65,39 @@ class ApplicationService
             'industri_id' => $industriId,
             'status_seleksi' => StatusSeleksi::PENDING,
         ]);
+    }
+
+    /**
+     * Submit application (handles CV upload and application creation)
+     *
+     * @throws ValidationException|\Exception
+     */
+    public function submitApplication(\App\Models\Mahasiswa $mahasiswa, int $industriId, $cvFile = null): Pendaftaran
+    {
+        return DB::transaction(function () use ($mahasiswa, $industriId, $cvFile) {
+            // Upload CV if provided
+            if ($cvFile) {
+                $cvPath = $cvFile->store('documents/cv/'.$mahasiswa->id, 'private');
+
+                // Update mahasiswa cv_file_path
+                $mahasiswa->update(['cv_file_path' => $cvPath]);
+
+                // Also store in documents table for tracking
+                app(\App\Services\DocumentService::class)->upload(
+                    $cvFile,
+                    \App\Enums\DocumentType::CV,
+                    $mahasiswa,
+                    $mahasiswa->user_id
+                );
+            }
+
+            // Check if CV already exists (either just uploaded or already in DB)
+            if (! $mahasiswa->cv_file_path) {
+                throw new \Exception('Anda wajib mengunggah CV terlebih dahulu melalui menu Manajemen CV.');
+            }
+
+            return $this->apply($mahasiswa->id, $industriId);
+        });
     }
 
     /**

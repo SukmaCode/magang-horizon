@@ -12,6 +12,132 @@ use Illuminate\Validation\ValidationException;
 
 class InternshipClearanceService
 {
+    // ──────────────────────────────────────
+    // Data Providers (Queries & Mapping)
+    // ──────────────────────────────────────
+
+    public function getIndustryClearanceData(\App\Models\Industri $industri): array
+    {
+        return MagangAktif::whereHas('pendaftaran', function ($q) use ($industri) {
+            $q->where('industri_id', $industri->id)
+              ->where('status_seleksi', \App\Enums\StatusSeleksi::DITERIMA);
+        })
+            ->where('status_agreement', \App\Enums\StatusAgreement::ACCEPTED)
+            ->with('pendaftaran.mahasiswa', 'internshipClearance')
+            ->get()
+            ->map(function (MagangAktif $m) {
+                $clearance = $m->internshipClearance;
+
+                return [
+                    'id' => $m->id,
+                    'mahasiswa' => [
+                        'nama_lengkap' => $m->pendaftaran->mahasiswa->nama_lengkap,
+                        'nim' => $m->pendaftaran->mahasiswa->nim,
+                        'prodi' => $m->pendaftaran->mahasiswa->prodi,
+                    ],
+                    'status_tahapan' => $m->status_tahapan->value,
+                    'status_tahapan_label' => $m->status_tahapan->label(),
+                    'clearance' => $clearance ? [
+                        'id' => $clearance->id,
+                        'original_filename' => $clearance->original_filename,
+                        'status' => $clearance->status->value,
+                        'status_label' => $clearance->status->label(),
+                        'status_color' => $clearance->status->badgeColor(),
+                        'uploaded_at' => $clearance->uploaded_at?->format('d M Y H:i') ?? '-',
+                        'can_update' => $clearance->canBeUpdatedByIndustri(),
+                        'rejection_note' => $clearance->rejection_note,
+                    ] : null,
+                ];
+            })
+            ->values()
+            ->toArray();
+    }
+
+    public function getStudentClearanceData(\App\Models\Mahasiswa $mahasiswa): array
+    {
+        $clearance = null;
+        $pdfBase64 = null;
+        $magang = MagangAktif::whereHas('pendaftaran', function ($q) use ($mahasiswa) {
+            $q->where('mahasiswa_id', $mahasiswa->id)
+              ->where('status_seleksi', 'diterima');
+        })
+        ->where('status_agreement', \App\Enums\StatusAgreement::ACCEPTED)
+        ->with('internshipClearance.reviewer', 'pendaftaran.industri')->latest()->first();
+
+        if ($magang && $magang->internshipClearance) {
+            $cl = $magang->internshipClearance;
+
+            $clearance = [
+                'id' => $cl->id,
+                'original_filename' => $cl->original_filename,
+                'status' => $cl->status->value,
+                'status_label' => $cl->status->label(),
+                'status_color' => $cl->status->badgeColor(),
+                'rejection_note' => $cl->rejection_note,
+                'uploaded_at' => $cl->uploaded_at?->format('d M Y H:i') ?? '-',
+                'submitted_at' => $cl->submitted_at?->format('d M Y H:i'),
+                'reviewer_name' => $cl->reviewer?->dosen?->nama_dosen ?? $cl->reviewer?->username,
+                'reviewed_at' => $cl->reviewed_at?->format('d M Y H:i'),
+                'can_submit' => $cl->canBeSubmitted(),
+            ];
+
+            // Generate base64 PDF for preview
+            $path = storage_path('app/private/' . $cl->file_path);
+            if (file_exists($path)) {
+                $pdfBase64 = 'data:application/pdf;base64,' . base64_encode(file_get_contents($path));
+            }
+        }
+
+        return [
+            'clearance' => $clearance,
+            'pdfBase64' => $pdfBase64,
+            'hasMagang' => $magang !== null,
+            'industriName' => $magang?->pendaftaran?->industri?->nama_perusahaan ?? '-',
+        ];
+    }
+
+    public function getReviewClearancesData(User $user)
+    {
+        $query = InternshipClearance::with([
+            'magangAktif.pendaftaran.mahasiswa',
+            'magangAktif.pendaftaran.industri',
+            'reviewer',
+        ])->where('status', '!=', ClearanceStatus::UPLOADED);
+
+        if ($user->role === \App\Enums\UserRole::SUPERVISOR_1) {
+            $dosen = $user->dosen;
+            if (! $dosen) {
+                return [];
+            }
+            $magangIds = $dosen->magangAktifs()->pluck('id');
+            $query->whereIn('magang_aktif_id', $magangIds);
+        }
+
+        return $query->latest('submitted_at')
+            ->get()
+            ->map(fn (InternshipClearance $c) => [
+                'id' => $c->id,
+                'mahasiswa' => [
+                    'nama_lengkap' => $c->magangAktif->pendaftaran->mahasiswa->nama_lengkap,
+                    'nim' => $c->magangAktif->pendaftaran->mahasiswa->nim,
+                ],
+                'industri' => $c->magangAktif->pendaftaran->industri->nama_perusahaan ?? '-',
+                'original_filename' => $c->original_filename,
+                'status' => $c->status->value,
+                'status_label' => $c->status->label(),
+                'status_color' => $c->status->badgeColor(),
+                'rejection_note' => $c->rejection_note,
+                'submitted_at' => $c->submitted_at?->format('d M Y H:i'),
+                'uploaded_at' => $c->uploaded_at?->format('d M Y H:i') ?? '-',
+                'reviewer_name' => $c->reviewer?->dosen?->nama_dosen ?? $c->reviewer?->username,
+                'reviewed_at' => $c->reviewed_at?->format('d M Y H:i'),
+            ]);
+    }
+
+    // ──────────────────────────────────────
+    // Actions
+    // ──────────────────────────────────────
+
     /**
      * Upload a new Clearance file (by Industri).
      */

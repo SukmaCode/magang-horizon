@@ -12,41 +12,37 @@ use Illuminate\Support\Facades\Storage;
 class GradingService
 {
     /**
-     * Submit industry grade.
+     * Link industry evaluation to penilaian record.
      */
-    public function gradeByIndustry(MagangAktif $magang, float $nilai): Penilaian
+    public function gradeByIndustry(MagangAktif $magang, int $evaluationId): Penilaian
     {
-        $this->validateGrade($nilai);
-
         $penilaian = Penilaian::updateOrCreate(
             ['magang_id' => $magang->id],
-            ['nilai_industri' => $nilai]
+            ['nilai_industri' => $evaluationId]
         );
 
         activity('grading')
             ->performedOn($penilaian)
-            ->withProperties(['nilai_industri' => $nilai])
-            ->log('Industry grade submitted');
+            ->withProperties(['performance_evaluation_id' => $evaluationId])
+            ->log('Industry evaluation linked');
 
         return $penilaian;
     }
 
     /**
-     * Submit campus grade.
+     * Link campus evaluation to penilaian record.
      */
-    public function gradeByCampus(MagangAktif $magang, float $nilai): Penilaian
+    public function gradeByCampus(MagangAktif $magang, int $evaluationId): Penilaian
     {
-        $this->validateGrade($nilai);
-
         $penilaian = Penilaian::updateOrCreate(
             ['magang_id' => $magang->id],
-            ['nilai_kampus' => $nilai]
+            ['nilai_kampus' => $evaluationId]
         );
 
         activity('grading')
             ->performedOn($penilaian)
-            ->withProperties(['nilai_kampus' => $nilai])
-            ->log('Campus grade submitted');
+            ->withProperties(['internship_evaluation_id' => $evaluationId])
+            ->log('Campus evaluation linked');
 
         return $penilaian;
     }
@@ -56,11 +52,11 @@ class GradingService
      */
     public function verify(Penilaian $penilaian): Penilaian
     {
-        if (! $penilaian->isComplete()) {
+        if (!$penilaian->isComplete()) {
             throw new \Exception('Both industry and campus grades must be submitted before verification.');
         }
 
-        $penilaian->update(['status_verifikasi_admin' => true]);
+        $penilaian->update(['status_verifikasi_dosen_prodi' => true]);
 
         // ✅ Business rule: setelah verifikasi admin, status magang otomatis jadi LULUS
         // Dipindahkan dari DosenProdiController ke sini agar encapsulated di Service
@@ -76,10 +72,14 @@ class GradingService
     /**
      * Review final report (by campus supervisor).
      */
-    public function reviewLaporan(LaporanAkhir $laporan, StatusApproval $status, ?string $catatan = null): LaporanAkhir
+    public function reviewLaporan(LaporanAkhir $laporan, StatusApproval $status, ?string $catatan = null, ?\App\Models\User $user = null): LaporanAkhir
     {
         if (! $laporan->status_approval_kampus->canTransitionTo($status)) {
             throw new \Exception("Cannot transition report from {$laporan->status_approval_kampus->value} to {$status->value}");
+        }
+
+        if ($status === StatusApproval::DISETUJUI && $user && $user->dosen) {
+            app(\App\Services\PdfService::class)->generateApprovalLetter($laporan, $user, $user->dosen);
         }
 
         $laporan->update([
@@ -125,10 +125,5 @@ class GradingService
         return $laporan;
     }
 
-    private function validateGrade(float $nilai): void
-    {
-        if ($nilai < 0 || $nilai > 100) {
-            throw new \InvalidArgumentException('Grade must be between 0 and 100.');
-        }
-    }
+
 }

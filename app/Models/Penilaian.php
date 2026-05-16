@@ -14,15 +14,13 @@ class Penilaian extends Model
         'magang_id',
         'nilai_industri',
         'nilai_kampus',
-        'status_verifikasi_admin',
+        'status_verifikasi_dosen_prodi',
     ];
 
     protected function casts(): array
     {
         return [
-            'nilai_industri' => 'decimal:2',
-            'nilai_kampus' => 'decimal:2',
-            'status_verifikasi_admin' => 'boolean',
+            'status_verifikasi_dosen_prodi' => 'boolean',
         ];
     }
 
@@ -31,15 +29,35 @@ class Penilaian extends Model
     // ──────────────────────────────────────
 
     /**
-     * Computed average grade (replaces MySQL GENERATED column).
+     * Computed average grade from both evaluations.
+     * Resolves the actual scores via the FK relationships.
      */
     public function getNilaiAkhirAttribute(): ?float
     {
-        if ($this->nilai_industri === null || $this->nilai_kampus === null) {
+        $nilaiIndustri = $this->performanceEvaluation?->nilai_akhir;
+        $nilaiKampus = $this->internshipEvaluation?->overall_score;
+
+        if ($nilaiIndustri === null || $nilaiKampus === null) {
             return null;
         }
 
-        return round(($this->nilai_industri + $this->nilai_kampus) / 2, 2);
+        return round(($nilaiIndustri + $nilaiKampus) / 2, 2);
+    }
+
+    /**
+     * Resolve nilai_industri score from the related PerformanceEvaluation.
+     */
+    public function getNilaiIndustriScoreAttribute(): ?float
+    {
+        return $this->performanceEvaluation?->nilai_akhir;
+    }
+
+    /**
+     * Resolve nilai_kampus score from the related InternshipEvaluation.
+     */
+    public function getNilaiKampusScoreAttribute(): ?float
+    {
+        return $this->internshipEvaluation?->overall_score;
     }
 
     // ──────────────────────────────────────
@@ -51,17 +69,33 @@ class Penilaian extends Model
         return $this->belongsTo(MagangAktif::class, 'magang_id');
     }
 
+    /**
+     * nilai_industri FK → performance_evaluations.id
+     */
+    public function performanceEvaluation(): BelongsTo
+    {
+        return $this->belongsTo(PerformanceEvaluation::class, 'performance_evaluation_id');
+    }
+
+    /**
+     * nilai_kampus FK → internship_evaluations.id
+     */
+    public function internshipEvaluation(): BelongsTo
+    {
+        return $this->belongsTo(InternshipEvaluation::class, 'internship_evaluation_id');
+    }
+
     // ──────────────────────────────────────
     // Helpers
     // ──────────────────────────────────────
 
     public function isComplete(): bool
     {
-        return $this->nilai_industri !== null && $this->nilai_kampus !== null;
+        return $this->performanceEvaluation !== null && $this->internshipEvaluation !== null;
     }
 
     public function isVerified(): bool
     {
-        return $this->status_verifikasi_admin === true;
+        return $this->status_verifikasi_dosen_prodi === true;
     }
 }

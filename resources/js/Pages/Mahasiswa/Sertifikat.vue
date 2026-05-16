@@ -98,26 +98,26 @@
 
             <!-- Graduation Requirements Checklist -->
             <div v-if="!isLulus" class="bg-card rounded-xl border border-gray-100 p-6 mb-8">
-                <h3 class="text-base font-bold text-text-primary font-jakarta mb-4">Syarat Kelulusan</h3>
+                <h3 class="text-base font-jakartaSemiBold text-text-primary mb-4">Syarat Kelulusan</h3>
                 <div class="space-y-3">
                     <div class="flex items-center gap-3 p-3 rounded-lg" :class="penilaian?.nilai_industri != null ? 'bg-success/5' : 'bg-gray-50'">
                         <div :class="['w-6 h-6 rounded-full flex items-center justify-center shrink-0', penilaian?.nilai_industri != null ? 'bg-success/20 text-success' : 'bg-gray-200 text-gray-400']">
                             <svg v-if="penilaian?.nilai_industri != null" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                            <span v-else class="text-xs font-bold">1</span>
+                            <span v-else class="text-xs font-jakartaSemiBold">1</span>
                         </div>
                         <span class="text-sm font-jakartaSemiBold" :class="penilaian?.nilai_industri != null ? 'text-success' : 'text-text-secondary'">Nilai dari Industri</span>
                     </div>
                     <div class="flex items-center gap-3 p-3 rounded-lg" :class="penilaian?.nilai_kampus != null ? 'bg-success/5' : 'bg-gray-50'">
                         <div :class="['w-6 h-6 rounded-full flex items-center justify-center shrink-0', penilaian?.nilai_kampus != null ? 'bg-success/20 text-success' : 'bg-gray-200 text-gray-400']">
                             <svg v-if="penilaian?.nilai_kampus != null" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                            <span v-else class="text-xs font-bold">2</span>
+                            <span v-else class="text-xs font-jakartaSemiBold">2</span>
                         </div>
                         <span class="text-sm font-jakartaSemiBold" :class="penilaian?.nilai_kampus != null ? 'text-success' : 'text-text-secondary'">Nilai dari Kampus</span>
                     </div>
                     <div class="flex items-center gap-3 p-3 rounded-lg" :class="penilaian?.is_verified ? 'bg-success/5' : 'bg-gray-50'">
                         <div :class="['w-6 h-6 rounded-full flex items-center justify-center shrink-0', penilaian?.is_verified ? 'bg-success/20 text-success' : 'bg-gray-200 text-gray-400']">
                             <svg v-if="penilaian?.is_verified" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                            <span v-else class="text-xs font-bold">3</span>
+                            <span v-else class="text-xs font-jakartaSemiBold">3</span>
                         </div>
                         <span class="text-sm font-jakartaSemiBold" :class="penilaian?.is_verified ? 'text-success' : 'text-text-secondary'">Verifikasi Admin</span>
                     </div>
@@ -128,7 +128,7 @@
             <div v-if="sertifikat" class="bg-card rounded-xl border border-primary/20 p-6">
                 <div class="flex items-center justify-between gap-4">
                     <div>
-                        <h3 class="text-base font-bold text-text-primary font-jakarta">Sertifikat Magang</h3>
+                        <h3 class="text-base font-jakartaSemiBold text-text-primary">Sertifikat Magang</h3>
                         <p class="text-xs text-text-secondary mt-1">No: {{ sertifikat.nomor_sertifikat }}</p>
                         <p class="text-xs text-text-secondary">Tanggal Terbit: {{ sertifikat.tanggal_terbit }}</p>
                     </div>
@@ -158,7 +158,7 @@
             leave-from-class="translate-y-0 opacity-100"
             leave-to-class="translate-y-4 opacity-0"
         >
-            <div v-if="flash.error" class="fixed bottom-6 right-6 bg-danger text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium z-50">
+            <div v-if="flash.error" class="fixed bottom-6 right-6 bg-danger text-white px-5 py-3 rounded-xl shadow-lg text-sm font-jakartaSemiBold z-50">
                 {{ flash.error }}
             </div>
         </Transition>

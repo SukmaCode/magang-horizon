@@ -52,7 +52,7 @@
     </div>
 
     <div class="signature-section">
-        <div style="margin-bottom: 10px;">Approved by:</div>
+        <div style="margin-bottom: 10px;">Approved by: {{ $mentor_name }}</div>
         
         @if($mentor_signature)
             <img src="{{ $mentor_signature }}" class="signature-image" alt="Signature">

@@ -16,4 +16,9 @@ enum StatusAgreement: string
             self::REJECTED => 'Ditolak',
         };
     }
+
+    public function allowsDailyLogs(): bool
+    {
+        return $this === self::ACCEPTED;
+    }
 }

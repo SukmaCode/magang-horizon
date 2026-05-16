@@ -274,21 +274,16 @@ const rejectForm = useForm({
 });
 
 // Route prefix based on role
-const routePrefix = computed(() => {
-    const role = page.props.auth?.user?.role;
-    if (role === 'dosen_pembimbing') return '/dosen-pembimbing';
-    if (role === 'dosen_prodi') return '/dosen-prodi';
-    return '';
-});
+const routePrefix = '/dosen-pembimbing';
 
 const downloadUrl = computed(() => {
     if (!selected.value) return '#';
-    return `${routePrefix.value}/declaration/${selected.value.id}/download`;
+    return `${routePrefix}/declaration/${selected.value.id}/download`;
 });
 
 const previewUrl = computed(() => {
     if (!selected.value) return '';
-    return `${routePrefix.value}/declaration/${selected.value.id}/preview`;
+    return `${routePrefix}/declaration/${selected.value.id}/preview`;
 });
 
 function selectDeclaration(decl) {
@@ -315,7 +310,7 @@ function approveDeclaration() {
     if (!selected.value) return;
     if (!confirm('Apakah Anda yakin ingin menyetujui dokumen ini?')) return;
 
-    approveForm.post(`${routePrefix.value}/declaration/${selected.value.id}/approve`, {
+    approveForm.post(`${routePrefix}/declaration/${selected.value.id}/approve`, {
         preserveScroll: true,
         onSuccess: () => {
             // Update local state
@@ -329,7 +324,7 @@ function approveDeclaration() {
 function rejectDeclaration() {
     if (!selected.value) return;
 
-    rejectForm.post(`${routePrefix.value}/declaration/${selected.value.id}/reject`, {
+    rejectForm.post(`${routePrefix}/declaration/${selected.value.id}/reject`, {
         preserveScroll: true,
         onSuccess: () => {
             showRejectModal.value = false;

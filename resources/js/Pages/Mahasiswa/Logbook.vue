@@ -91,7 +91,7 @@
                     <div v-if="showForm" class="bg-card rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
                         <!-- Modal Header -->
                         <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
-                            <h3 class="text-lg font-bold text-text-primary font-jakarta">Tambah Logbook</h3>
+                            <h3 class="text-lg font-jakartaSemiBold text-text-primary">Tambah Logbook</h3>
                             <button @click="showForm = false" class="p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
                                 <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -103,7 +103,7 @@
                         <form @submit.prevent="submitLogbook" class="p-6 space-y-5">
                             <!-- Tanggal -->
                             <!-- <div>
-                                <label class="block text-sm font-semibold text-text-primary mb-2">Tanggal <span class="text-danger">*</span></label>
+                                <label class="block text-sm font-jakartaSemiBold text-text-primary mb-2">Tanggal <span class="text-danger">*</span></label>
                                 <input
                                     type="date"
                                     v-model="form.tanggal"
@@ -148,7 +148,7 @@
                                         v-for="status in presensiOptions"
                                         :key="status.value"
                                         :class="[
-                                            'flex-1 flex items-center font-jakarta justify-center gap-2 px-4 py-2.5 rounded-md border text-sm font-medium cursor-pointer transition-all duration-200',
+                                            'flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md border text-sm font-jakartaSemiBold cursor-pointer transition-all duration-200',
                                             form.status_presensi === status.value
                                                 ? 'border-primary bg-primary/5 text-primary'
                                                 : 'border-gray-200 text-text-secondary hover:border-gray-300'
@@ -282,7 +282,7 @@
                                 </span>
                                 <span
                                     v-if="log.is_checked_kampus"
-                                    class="inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full font-medium bg-primary/10 text-primary whitespace-nowrap"
+                                    class="inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full font-jakartaSemiBold bg-primary/10 text-primary whitespace-nowrap"
                                 >
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -315,7 +315,7 @@
                         class="px-3.5 py-2 text-sm rounded-lg transition-colors duration-200"
                         :class="[
                             link.active
-                                ? 'bg-primary text-white font-semibold'
+                                ? 'bg-primary text-white font-jakartaSemiBold'
                                 : 'text-text-secondary hover:bg-gray-100'
                         ]"
                         v-html="link.label"
@@ -336,7 +336,7 @@
                 <svg class="w-16 h-16 text-gray-200 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
-                <h3 class="text-sm font-bold text-text-primary mb-1">Belum Ada Logbook</h3>
+                <h3 class="text-sm font-jakartaSemiBold text-text-primary mb-1">Belum Ada Logbook</h3>
                 <p class="text-xs text-text-secondary">
                     {{ canSubmit ? 'Mulai catat aktivitas magang Anda dengan menekan tombol "Tambah Logbook".' : 'Logbook akan tersedia saat magang memasuki tahap Pelaksanaan.' }}
                 </p>
@@ -352,7 +352,7 @@
             leave-from-class="translate-y-0 opacity-100"
             leave-to-class="translate-y-4 opacity-0"
         >
-            <div v-if="flash.success" class="fixed bottom-6 right-6 bg-success text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium z-50">
+            <div v-if="flash.success" class="fixed bottom-6 right-6 bg-success text-white px-5 py-3 rounded-xl shadow-lg text-sm font-jakartaSemiBold z-50">
                 {{ flash.success }}
             </div>
         </Transition>
@@ -364,7 +364,7 @@
             leave-from-class="translate-y-0 opacity-100"
             leave-to-class="translate-y-4 opacity-0"
         >
-            <div v-if="flash.error" class="fixed bottom-6 right-6 bg-danger text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium z-50">
+            <div v-if="flash.error" class="fixed bottom-6 right-6 bg-danger text-white px-5 py-3 rounded-xl shadow-lg text-sm font-jakartaSemiBold z-50">
                 {{ flash.error }}
             </div>
         </Transition>

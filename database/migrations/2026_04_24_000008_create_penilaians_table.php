@@ -11,9 +11,9 @@ return new class extends Migration
         Schema::create('penilaians', function (Blueprint $table) {
             $table->id();
             $table->foreignId('magang_id')->unique()->constrained('magang_aktifs');
-            $table->decimal('nilai_industri', 5, 2)->nullable();
-            $table->decimal('nilai_kampus', 5, 2)->nullable();
-            $table->boolean('status_verifikasi_admin')->default(false);
+            $table->foreignId('nilai_industri')->nullable()->constrained('performance_evaluations')->nullOnDelete();
+            $table->foreignId('nilai_kampus')->nullable()->constrained('internship_evaluations')->nullOnDelete();
+            $table->boolean('status_verifikasi_dosen_prodi')->default(false);
             $table->timestamps();
         });
     }

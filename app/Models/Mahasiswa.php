@@ -87,11 +87,17 @@ class Mahasiswa extends Model
     }
 
     /**
-     * Get the active (accepted) pendaftaran.
+     * Get the truly active internship by prioritizing execution/completion stages.
      */
-    public function activePendaftaran(): HasMany
+    public function getActiveMagangAttribute(): ?MagangAktif
     {
-        return $this->pendaftarans()->where('status_seleksi', 'diterima');
+        return MagangAktif::whereHas('pendaftaran', function ($query) {
+                $query->where('mahasiswa_id', $this->id);
+            })
+            ->where('status_agreement', '!=', \App\Enums\StatusAgreement::REJECTED)
+            ->orderByRaw("FIELD(status_tahapan, 'pelaksanaan', 'penutupan', 'lulus', 'persiapan')")
+            ->latest()
+            ->first();
     }
 
     public function documents(): MorphMany

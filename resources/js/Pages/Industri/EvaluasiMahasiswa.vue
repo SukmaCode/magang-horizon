@@ -12,8 +12,8 @@
                 <h2 class="text-base font-jakartaSemiBold text-text-primary">Daftar Mahasiswa</h2>
             </div>
 
-            <div v-if="magangs.length > 0" class="divide-y divide-gray-50">
-                <div v-for="magang in magangs" :key="magang.id" class="p-6 hover:bg-gray-50/50 transition-colors">
+            <div v-if="filteredMagangs.length > 0" class="divide-y divide-gray-50">
+                <div v-for="magang in filteredMagangs" :key="magang.id" class="p-6 hover:bg-gray-50/50 transition-colors">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <!-- Student Info -->
                         <div class="flex-1">
@@ -94,9 +94,14 @@ const flash = computed(() => page.props.flash || {});
 const flashMsg = computed(() => flash.value.success || flash.value.error || null);
 const flashType = computed(() => flash.value.success ? 'success' : 'error');
 
-defineProps({
+const props = defineProps({
     magangs: { type: Array, default: () => [] },
     components: { type: Object, default: () => ({}) },
+    statusTahapan: { type: String, default: '' },
+});
+
+const filteredMagangs = computed(() => {
+    return props.magangs.filter(m => m.status_tahapan === props.statusTahapan);
 });
 
 function statusBadgeClass(status) {

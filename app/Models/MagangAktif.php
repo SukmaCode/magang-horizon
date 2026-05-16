@@ -73,6 +73,11 @@ class MagangAktif extends Model
         return $this->hasMany(Logbook::class, 'magang_id');
     }
 
+    public function bimbingans(): HasMany
+    {
+        return $this->hasMany(Bimbingan::class, 'magang_id');
+    }
+
     public function laporanAkhir(): HasOne
     {
         return $this->hasOne(LaporanAkhir::class, 'magang_id');
@@ -83,9 +88,9 @@ class MagangAktif extends Model
         return $this->hasOne(Penilaian::class, 'magang_id');
     }
 
-    public function internshipEvaluation(): HasOne
+    public function performanceEvaluation(): HasOne
     {
-        return $this->hasOne(InternshipEvaluation::class, 'magang_id');
+        return $this->hasOne(PerformanceEvaluation::class, 'magang_id');
     }
 
     public function sertifikat(): HasOne
@@ -170,5 +175,15 @@ class MagangAktif extends Model
     public function internshipClearance(): HasOne
     {
         return $this->hasOne(InternshipClearance::class);
+    }
+
+    public function portfolioEvaluation(): HasOne
+    {
+        return $this->hasOne(PortfolioEvaluation::class);
+    }
+
+    public function internshipEvaluation(): HasOne
+    {
+        return $this->hasOne(InternshipEvaluation::class);
     }
 }

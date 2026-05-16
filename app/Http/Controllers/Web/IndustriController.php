@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Enums\StatusAgreement;
 use App\Enums\StatusSeleksi;
 use App\Enums\StatusTahapan;
 use App\Http\Controllers\Controller;
@@ -48,10 +49,11 @@ class IndustriController extends Controller
 
             // Active internship students (via accepted pendaftarans -> magangAktif)
             $activeMagangs = $this->getActiveMagangs($industri);
-            $activeStudents = $activeMagangs->count();
+            $acceptedMagangs = $activeMagangs->filter(fn ($m) => $m->status_agreement === StatusAgreement::ACCEPTED);
+            $activeStudents = $acceptedMagangs->count();
 
             // Pending logbook approvals across all active magangs
-            $activeMagangIds = $activeMagangs->pluck('id');
+            $activeMagangIds = $acceptedMagangs->pluck('id');
             $pendingLogbooks = Logbook::whereIn('magang_id', $activeMagangIds)
                 ->where('is_approved_industri', false)
                 ->count();
@@ -226,7 +228,9 @@ class IndustriController extends Controller
         $selectedMagangId = $request->query('magang_id');
 
         if ($industri) {
-            $activeMagangs = $this->getActiveMagangs($industri);
+            $activeMagangs = $this->getActiveMagangs($industri)
+                ->filter(fn ($m) => $m->status_agreement === StatusAgreement::ACCEPTED);
+                
             $magangs = $activeMagangs->map(fn (MagangAktif $m) => [
                 'id' => $m->id,
                 'nama_lengkap' => $m->pendaftaran->mahasiswa->nama_lengkap,
@@ -279,60 +283,6 @@ class IndustriController extends Controller
     }
 
     // ──────────────────────────────────────
-    // Input Nilai (Grading)
-    // ──────────────────────────────────────
-
-    public function inputNilai(Request $request)
-    {
-        $user = $request->user();
-        $industri = $user->industri;
-
-        $magangs = [];
-        if ($industri) {
-            $magangs = $this->getActiveMagangs($industri)
-                ->map(fn (MagangAktif $m) => [
-                    'id' => $m->id,
-                    'mahasiswa' => [
-                        'nama_lengkap' => $m->pendaftaran->mahasiswa->nama_lengkap,
-                        'nim' => $m->pendaftaran->mahasiswa->nim,
-                        'prodi' => $m->pendaftaran->mahasiswa->prodi,
-                    ],
-                    'status' => $m->status_tahapan->value,
-                    'status_label' => $m->status_tahapan->label(),
-                    'nilai_industri' => $m->penilaian?->nilai_industri,
-                    'has_graded' => $m->penilaian?->nilai_industri !== null,
-                    // ✅ ->logbooks (property) — pakai eager load, bukan query baru per iterasi
-                    'total_logbook' => $m->logbooks->count(),
-                    'approved_logbook' => $m->logbooks->where('is_approved_industri', true)->count(),
-                ])
-                ->values();
-        }
-
-        return Inertia::render('Industri/InputNilai', [
-            'magangs' => $magangs,
-        ]);
-    }
-
-    public function storeNilai(Request $request, MagangAktif $magangAktif)
-    {
-        $request->validate([
-            'nilai' => 'required|numeric|min:0|max:100',
-        ], [
-            'nilai.required' => 'Masukkan nilai.',
-            'nilai.min' => 'Nilai minimal 0.',
-            'nilai.max' => 'Nilai maksimal 100.',
-        ]);
-
-        try {
-            $this->gradingService->gradeByIndustry($magangAktif, (float) $request->input('nilai'));
-
-            return back()->with('success', 'Nilai berhasil disimpan.');
-        } catch (\Exception $e) {
-            return back()->with('error', $e->getMessage());
-        }
-    }
-
-    // ──────────────────────────────────────
     // Internship Completion Letter
     // ──────────────────────────────────────
 
@@ -340,6 +290,7 @@ class IndustriController extends Controller
     {
         $user = $request->user();
         $industri = $user->industri;
+        $statusTahapan = StatusTahapan::PELAKSANAAN->value;
 
         $magangs = $industri
             ? $this->completionLetterService->getMagangsForIndustri($industri)
@@ -347,6 +298,7 @@ class IndustriController extends Controller
 
         return Inertia::render('Industri/InternshipCompletionLetter', [
             'magangs' => $magangs,
+            'statusTahapan' => $statusTahapan,
         ]);
     }
 

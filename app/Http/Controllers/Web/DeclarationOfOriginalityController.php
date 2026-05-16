@@ -26,46 +26,13 @@ class DeclarationOfOriginalityController extends Controller
         $user = $request->user();
         $mahasiswa = $user->mahasiswa;
 
-        $declaration = null;
-        $pdfBase64 = null;
-        $magang = null;
+        $data = $mahasiswa ? $this->declarationService->getStudentDeclarationData($mahasiswa) : [
+            'declaration' => null,
+            'pdfBase64' => null,
+            'hasMagang' => false,
+        ];
 
-        if ($mahasiswa) {
-            // Get the active magang for this student
-            $magang = MagangAktif::whereHas('pendaftaran', function ($q) use ($mahasiswa) {
-                $q->where('mahasiswa_id', $mahasiswa->id)
-                  ->where('status_seleksi', 'diterima');
-            })->with('declarationOfOriginality.reviewer')->latest()->first();
-
-            if ($magang && $magang->declarationOfOriginality) {
-                $decl = $magang->declarationOfOriginality;
-
-                $declaration = [
-                    'id' => $decl->id,
-                    'original_filename' => $decl->original_filename,
-                    'status' => $decl->status->value,
-                    'status_label' => $decl->status->label(),
-                    'status_color' => $decl->status->badgeColor(),
-                    'rejection_note' => $decl->rejection_note,
-                    'uploaded_at' => $decl->uploaded_at->format('d M Y H:i'),
-                    'reviewer_name' => $decl->reviewer?->dosen?->nama_dosen ?? $decl->reviewer?->username,
-                    'reviewed_at' => $decl->reviewed_at?->format('d M Y H:i'),
-                    'can_update' => $decl->canBeUpdated(),
-                ];
-
-                // Generate base64 PDF for preview
-                $path = storage_path('app/private/' . $decl->file_path);
-                if (file_exists($path)) {
-                    $pdfBase64 = 'data:application/pdf;base64,' . base64_encode(file_get_contents($path));
-                }
-            }
-        }
-
-        return Inertia::render('Mahasiswa/Declaration', [
-            'declaration' => $declaration,
-            'pdfBase64' => $pdfBase64,
-            'hasMagang' => $magang !== null,
-        ]);
+        return Inertia::render('Mahasiswa/Declaration', $data);
     }
 
     // ──────────────────────────────────────
@@ -90,11 +57,13 @@ class DeclarationOfOriginalityController extends Controller
         }
 
         $magang = MagangAktif::whereHas('pendaftaran', function ($q) use ($mahasiswa) {
-            $q->where('mahasiswa_id', $mahasiswa->id)
-              ->where('status_seleksi', 'diterima');
-        })->latest()->first();
+                $q->where('mahasiswa_id', $mahasiswa->id);
+            })
+            ->whereNotNull('supervisor_kampus_id')
+            ->latest()
+            ->first();
 
-        if (! $magang) {
+        if (!$magang) {
             return back()->with('error', 'Anda belum memiliki magang aktif.');
         }
 
@@ -196,43 +165,7 @@ class DeclarationOfOriginalityController extends Controller
     {
         $user = $request->user();
 
-        $query = DeclarationOfOriginality::with([
-            'magangAktif.pendaftaran.mahasiswa',
-            'magangAktif.pendaftaran.industri',
-            'reviewer',
-        ]);
-
-        // Dosen Pembimbing: only their supervised students
-        if ($user->role === UserRole::SUPERVISOR_1) {
-            $dosen = $user->dosen;
-            if (! $dosen) {
-                return $this->renderReviewPage($user, []);
-            }
-
-            $magangIds = $dosen->magangAktifs()->pluck('id');
-            $query->whereIn('magang_aktif_id', $magangIds);
-        }
-
-        // Dosen Prodi: can see all — no additional filter needed
-
-        $declarations = $query->latest('uploaded_at')
-            ->get()
-            ->map(fn (DeclarationOfOriginality $d) => [
-                'id' => $d->id,
-                'mahasiswa' => [
-                    'nama_lengkap' => $d->magangAktif->pendaftaran->mahasiswa->nama_lengkap,
-                    'nim' => $d->magangAktif->pendaftaran->mahasiswa->nim,
-                ],
-                'industri' => $d->magangAktif->pendaftaran->industri->nama_perusahaan ?? '-',
-                'original_filename' => $d->original_filename,
-                'status' => $d->status->value,
-                'status_label' => $d->status->label(),
-                'status_color' => $d->status->badgeColor(),
-                'rejection_note' => $d->rejection_note,
-                'uploaded_at' => $d->uploaded_at->format('d M Y H:i'),
-                'reviewer_name' => $d->reviewer?->dosen?->nama_dosen ?? $d->reviewer?->username,
-                'reviewed_at' => $d->reviewed_at?->format('d M Y H:i'),
-            ]);
+        $declarations = $this->declarationService->getReviewDeclarationsData($user);
 
         return $this->renderReviewPage($user, $declarations);
     }
@@ -294,12 +227,12 @@ class DeclarationOfOriginalityController extends Controller
     {
         $page = match ($user->role) {
             UserRole::SUPERVISOR_1 => 'DosenPembimbing/VerifikasiDeclaration',
-            UserRole::SUPERVISOR_2 => 'DosenProdi/VerifikasiDeclaration',
             default => abort(403),
         };
 
         return Inertia::render($page, [
             'declarations' => $declarations,
         ]);
+        
     }
 }

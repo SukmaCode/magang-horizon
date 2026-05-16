@@ -6,11 +6,11 @@
             </div>
             <div>
                 <h3
-                    class="text-sm font-semibold text-text-secondary uppercase tracking-wider"
+                    class="text-sm font-jakartaSemiBold text-text-secondary uppercase tracking-wider"
                 >
                     {{ title }}
                 </h3>
-                <p class="text-2xl font-bold text-text-primary font-jakarta">
+                <p class="text-2xl font-jakartaSemiBold text-text-primary">
                     {{ value }}
                 </p>
             </div>
