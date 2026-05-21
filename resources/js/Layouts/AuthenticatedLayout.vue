@@ -94,7 +94,7 @@
             </header>
 
             <!-- Page Content (scrollable independently) -->
-            <main class="flex-1 overflow-y-auto bg-gradient-to-b from-surface via-gray-200 to-surface p-4 lg:p-6">
+            <main class="flex-1 overflow-y-auto bg-linear-to-b from-surface via-gray-200 to-surface p-4 lg:p-6">
                 <div class="max-w-7xl mx-auto">
                     <slot />
                 </div>
