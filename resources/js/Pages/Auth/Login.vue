@@ -149,7 +149,7 @@ const form = useForm({
 
 const handleLogin = () => {
     loginError.value = "";
-    form.post("/login", {
+    form.post("/internship/login", {
         onError: () => {
             form.reset("password");
         },
