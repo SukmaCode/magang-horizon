@@ -4,7 +4,7 @@
 
         <div class="mb-8">
             <h1 class="text-xl font-jakartaSemiBold text-text-primary">Assign Dosen Pembimbing</h1>
-            <p class="text-sm text-text-secondary mt-1">Tetapkan dosen pembimbing kampus untuk mahasiswa yang telah memasuki tahap persiapan magang.</p>
+            <p class="text-sm font-jakarta text-text-secondary mt-1">Tetapkan dosen pembimbing kampus untuk mahasiswa yang telah memasuki tahap persiapan magang.</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -17,8 +17,8 @@
                     <form @submit.prevent="submitAssign" class="p-4">
                         <div class="mb-6">
                             <label class="block text-sm font-jakartaSemiBold text-text-primary mb-2">1. Pilih Dosen Pembimbing <span class="text-danger">*</span></label>
-                            <select v-model="form.dosen_id" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" required>
-                                <option value="" disabled>-- Pilih Dosen --</option>
+                            <select v-model="form.dosen_id" class="w-full px-4 py-3 border border-gray-200 rounded-sm focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm font-jakarta" required>
+                                <option value="" disabled>---Pilih Dosen---</option>
                                 <option v-for="dosen in dosens" :key="dosen.id" :value="dosen.id">
                                     {{ dosen.nama }} ({{ dosen.nip }})
                                 </option>
@@ -32,7 +32,7 @@
                             </div>
                             
                             <div class="max-h-80 overflow-y-auto border border-gray-200 rounded-xl divide-y divide-gray-100">
-                                <div v-if="magangs.length === 0" class="p-8 text-center text-text-secondary text-sm bg-gray-50">
+                                <div v-if="magangs.length === 0" class="p-8 text-center text-text-secondary font-jakartaSemiBold text-sm bg-gray-50">
                                     Semua mahasiswa magang aktif telah memiliki dosen pembimbing.
                                 </div>
                                 <label v-for="m in magangs" :key="m.id" class="flex items-center gap-3 p-4 hover:bg-gray-50 cursor-pointer transition-colors">
@@ -46,8 +46,8 @@
                         </div>
 
                         <div class="w-full flex justify-center">
-                            <button type="submit" :disabled="form.processing || form.magang_ids.length === 0 || !form.dosen_id" class="w-full py-3 text-sm font-jakartaSemiBold text-white bg-primary rounded-xl hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2 shadow-sm">
-                                <span v-if="form.processing" class="animate-spin w-4 h-4 border-2 border-white/20 border-t-white rounded-full"></span>
+                            <button type="submit" :disabled="form.processing || form.magang_ids.length === 0 || !form.dosen_id" class="w-full py-3 text-sm font-jakartaSemiBold text-white bg-primary rounded-sm hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2 shadow-sm">
+                                <span v-if="form.processing" class="animate-spin w-4 h-4 border-2 border-white/20 border-t-white"></span>
                                 Tetapkan Pembimbing
                             </button>
                         </div>

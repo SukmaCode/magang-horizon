@@ -5,7 +5,7 @@
         <div class="mb-8 flex justify-between items-center">
             <div>
                 <h1 class="text-lg font-jakartaSemiBold text-text-primary">Kelola Periode Magang</h1>
-                <p class="text-xs text-text-secondary mt-1">Atur jadwal buka dan tutup pendaftaran magang untuk mahasiswa.</p>
+                <p class="text-sm font-jakarta text-text-secondary mt-1">Atur jadwal buka dan tutup pendaftaran magang untuk mahasiswa.</p>
             </div>
             <button @click="showAddModal = true" class="px-3 py-1.5 md:py-2.5 text-xs font-jakartaSemiBold text-white bg-primary rounded-md hover:bg-primary-hover shadow-sm flex items-center gap-2">
                 Tambah Periode
@@ -13,7 +13,7 @@
         </div>
 
         <CardContainer class="overflow-hidden">
-            <div class="py-1 border-b border-gray-100">
+            <div class="pb-2 border-b border-gray-100">
                 <h2 class="text-base font-jakartaSemiBold text-text-primary">Daftar Periode</h2>
             </div>
             
@@ -21,21 +21,21 @@
                 <table class="w-full text-left text-sm">
                     <thead class="bg-gray-50/50 text-text-secondary font-jakartaSemiBold border-b border-gray-100">
                         <tr>
-                            <th class="px-6 py-3">Tahun Akademik</th>
-                            <th class="px-6 py-3">Semester</th>
-                            <th class="px-6 py-3">Tanggal Buka</th>
-                            <th class="px-6 py-3">Tanggal Tutup</th>
-                            <th class="px-6 py-3">Status</th>
-                            <th class="px-6 py-3 text-right">Aksi</th>
+                            <th class="py-3">Tahun Akademik</th>
+                            <th class="py-3">Semester</th>
+                            <th class="py-3">Tanggal Buka</th>
+                            <th class="py-3">Tanggal Tutup</th>
+                            <th class="py-3">Status</th>
+                            <th class="py-3 text-right">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-50" v-if="periodes.length > 0">
                         <tr v-for="periode in periodes" :key="periode.id" class="hover:bg-gray-50/30 transition-colors">
-                            <td class="px-6 py-4 font-jakartaSemiBold text-text-primary">{{ periode.tahun_akademik }}</td>
-                            <td class="px-6 py-4 capitalize text-text-secondary">{{ periode.semester }}</td>
-                            <td class="px-6 py-4 text-text-secondary">{{ periode.tanggal_buka }}</td>
-                            <td class="px-6 py-4 text-text-secondary">{{ periode.tanggal_tutup }}</td>
-                            <td class="px-6 py-4">
+                            <td class="py-4 font-jakartaSemiBold text-text-primary">{{ periode.tahun_akademik }}</td>
+                            <td class="py-4 font-jakartaSemiBold text-text-secondary capitalize">{{ periode.semester }}</td>
+                            <td class="py-4 font-jakartaSemiBold text-text-secondary">{{ periode.tanggal_buka }}</td>
+                            <td class="py-4 font-jakartaSemiBold text-text-secondary">{{ periode.tanggal_tutup }}</td>
+                            <td class="py-4">
                                 <span v-if="periode.is_active" class="px-2.5 py-1 text-xs font-jakartaSemiBold rounded-full bg-success/10 text-success">
                                     Aktif
                                 </span>

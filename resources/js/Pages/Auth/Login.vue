@@ -18,9 +18,9 @@
             <!-- Logo / Brand -->
             <div class="flex flex-col items-center justify-center gap-2 mb-8">
                 <img
-                    src="../../../assets/images/logo-horizon.png"
+                    :src="$page.props.appSettings?.app_logo || defaultLogo"
                     alt="logo"
-                    class="w-24 h-24"
+                    class="w-24 h-24 object-contain"
                 />
 
                 <h1 class="text-2xl font-jakartaBold text-center text-text-primary">
@@ -138,6 +138,7 @@ import InputField from "@/Components/InputField.vue";
 import ButtonPrimary from "@/Components/ButtonPrimary.vue";
 import CardContainer from "@/Components/CardContainer.vue";
 import { ref } from "vue";
+import defaultLogo from "../../../assets/images/logo-horizon.png";
 
 const loginError = ref("");
 
@@ -149,7 +150,7 @@ const form = useForm({
 
 const handleLogin = () => {
     loginError.value = "";
-    form.post("/internship/login", {
+    form.post("/login", {
         onError: () => {
             form.reset("password");
         },

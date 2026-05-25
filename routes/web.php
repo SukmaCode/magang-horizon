@@ -19,6 +19,7 @@ use App\Http\Controllers\Web\SignatureController;
 use App\Http\Controllers\Web\StudentProfileController;
 use App\Http\Controllers\PembimbingAssignmentController;
 use App\Http\Controllers\SuratKeputusanController;
+use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -186,6 +187,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/verifikasi-kelulusan/{magangAktif}/terbitkan', [AdminController::class, 'terbitkanSertifikat'])->name('admin.sertifikat.terbitkan');
 
         Route::get('/manajemen-user', [AdminController::class, 'manajemenUser'])->name('admin.users');
+
+        Route::get('/pengaturan', [SettingController::class, 'index'])->name('admin.settings.index');
+        Route::post('/pengaturan/update', [SettingController::class, 'update'])->name('admin.settings.update');
     });
 
     // ──────────────────────────────────

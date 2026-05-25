@@ -19,22 +19,22 @@
     <aside
         :class="[
             isOpen ? 'translate-x-0' : '-translate-x-full',
-            'fixed inset-y-0 left-0 z-50 w-64 bg-primary flex flex-col transition-transform duration-300 ease-in-out md:translate-x-0',
+            'fixed inset-y-0 left-0 z-50 w-56 bg-primary flex flex-col transition-transform duration-300 ease-in-out md:translate-x-0',
         ]"
     >
         <!-- Logo -->
         <div
-            class="px-6 py-3 flex items-center justify-between gap-3 border-b border-white/20 shrink-0"
+            class="px-6 py-3 flex items-center justify-between border-b border-white/20 shrink-0"
         >
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
                 <img
-                    src="../../assets/images/logo-horizon.png"
+                    :src="$page.props.appSettings?.app_logo || defaultLogo"
                     alt="logo"
-                    class="w-10 h-10"
+                    class="w-10 h-10 object-contain"
                 />
-                <span class="font-jakartaSemiBold text-lg text-card"
-                    >Magang<span class="text-card">Horizon</span></span
-                >
+                <span class="font-jakartaSemiBold text-md text-card">
+                    {{ $page.props.appSettings?.app_name || 'MagangHorizon' }}
+                </span>
             </div>
         </div>
 
@@ -48,7 +48,7 @@
                         item.current
                             ? 'bg-surface text-primary font-jakartaSemiBold'
                             : 'text-white font-jakarta hover:bg-surface hover:text-primary',
-                        'group flex items-center px-6 py-2 mx-2 rounded-sm text-sm font-jakartaSemiBold transition-all duration-200',
+                        'group flex items-center px-6 py-2 mx-2 rounded-xs text-sm font-jakartaSemiBold transition-all duration-200',
                     ]"
                 >
                     <component
@@ -97,6 +97,7 @@
 <script setup>
 import { computed, h } from "vue";
 import { usePage, Link } from "@inertiajs/vue3";
+import defaultLogo from "../../assets/images/logo-horizon.png";
 
 // ─── Props & Emits ──────────────────────────────────────────────────────
 defineProps({
@@ -112,7 +113,7 @@ defineEmits(["close"]);
 const page = usePage();
 const user = computed(() => page.props.auth?.user || {});
 const role = computed(() => user.value?.role);
-
+    
 // ─── Icons ──────────────────────────────────────────────────────────────
 const HomeIcon = {
     render: () =>
@@ -155,6 +156,27 @@ const CheckIcon = {
                     "stroke-linejoin": "round",
                     "stroke-width": "2",
                     d: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
+                }),
+            ],
+        ),
+};
+const SettingIcon = {
+    render: () =>
+        h(
+            "svg",
+            { fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
+            [
+                h("path", {
+                    "stroke-linecap": "round",
+                    "stroke-linejoin": "round",
+                    "stroke-width": "2",
+                    d: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z",
+                }),
+                h("path", {
+                    "stroke-linecap": "round",
+                    "stroke-linejoin": "round",
+                    "stroke-width": "2",
+                    d: "M15 12a3 3 0 11-6 0 3 3 0 016 0z",
                 }),
             ],
         ),
@@ -427,31 +449,36 @@ const navigation = computed(() => {
             current: currentPath.includes("dashboard"),
         });
         menu.push({
-            name: "Kelola Periode",
+            name: "Periode",
             href: "/admin/periode",
             icon: ClipboardIcon,
             current: currentPath.includes("periode"),
         });
         menu.push({
-            name: "Assign Pembimbing",
+            name: "Pembimbing",
             href: "/admin/assign-pembimbing",
             icon: DocumentIcon,
             current: currentPath.includes("assign-pembimbing"),
         });
         menu.push({
-            name: "Verifikasi Kelulusan",
+            name: "Kelulusan",
             href: "/admin/verifikasi-kelulusan",
             icon: CertificateIcon,
             current: currentPath.includes("verifikasi-kelulusan"),
         });
         menu.push({
-            name: "Manajemen User",
+            name: "User",
             href: "/admin/manajemen-user",
-            icon: CheckIcon,
+            icon: UserIcon,
             current: currentPath.includes("manajemen-user"),
         });
+        menu.push({
+            name: "Pengaturan",
+            href: "/admin/pengaturan",
+            icon: SettingIcon,
+            current: currentPath.includes("pengaturan"),
+        });
     }
-
     return menu;
 });
 </script>

@@ -99,10 +99,15 @@ class AdminController extends Controller
     // Manajemen User
     // ──────────────────────────────────────
 
-    public function manajemenUser()
+    public function manajemenUser(Request $request)
     {
+        $search = $request->input('search');
+
         return Inertia::render('Admin/ManajemenUser', [
-            'users' => $this->adminService->getManajemenUserData(),
+            'users' => $this->adminService->getManajemenUserData($search),
+            'filters' => [
+                'search' => $search
+            ],
         ]);
     }
 }

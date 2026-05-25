@@ -6,7 +6,7 @@
             <h1 class="text-lg font-jakartaSemiBold text-text-primary">
                 Dashboard Admin
             </h1>
-            <p class="text-sm text-text-secondary mt-1">
+            <p class="text-sm font-jakarta text-text-secondary mt-1">
                 Sistem informasi dan pengelolaan pengguna Magang Horizon.
             </p>
         </div>
@@ -153,7 +153,7 @@
                             <td class="px-6 py-4 font-jakartaSemiBold text-text-primary">
                                 {{ user.name }}
                             </td>
-                            <td class="px-6 py-4 text-text-secondary">
+                            <td class="px-6 py-4 font-jakarta text-text-secondary">
                                 {{ user.email }}
                             </td>
                             <td class="px-6 py-4">
@@ -164,7 +164,7 @@
                                     {{ user.role.replace("_", " ") }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 text-text-secondary">
+                            <td class="px-6 py-4 font-jakarta text-text-secondary">
                                 {{ user.created_at }}
                             </td>
                         </tr>

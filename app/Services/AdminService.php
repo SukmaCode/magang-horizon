@@ -132,9 +132,19 @@ class AdminService
     /**
      * Ambil daftar user terpaginasi untuk halaman Manajemen User.
      */
-    public function getManajemenUserData(): LengthAwarePaginator
+    public function getManajemenUserData(?string $search = null): LengthAwarePaginator
     {
-        return User::latest()->paginate(15)->through(fn ($u) => [
+        // Menggunakan Query Builder dan Eager Loading
+        $query = User::with(['mahasiswa', 'dosen', 'industri']);
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('username', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->latest()->paginate(15)->withQueryString()->through(fn ($u) => [
             'id' => $u->id,
             'username' => $u->username,
             'email' => $u->email,

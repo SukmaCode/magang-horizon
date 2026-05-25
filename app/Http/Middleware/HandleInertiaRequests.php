@@ -80,6 +80,14 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
+            'appSettings' => fn () => \Illuminate\Support\Facades\Cache::rememberForever('app_settings', function () {
+                // Return empty array if settings table doesn't exist yet (to prevent errors during initial migration)
+                try {
+                    return \App\Models\Setting::pluck('value', 'key')->toArray();
+                } catch (\Exception $e) {
+                    return [];
+                }
+            }),
         ]);
     }
 }
