@@ -23,7 +23,7 @@
                             <div v-if="mahasiswa.profile_photo_url" class="w-28 h-28 rounded-full overflow-hidden border-4 border-primary/10 shadow-md">
                                 <img :src="mahasiswa.profile_photo_url" :alt="mahasiswa.nama_lengkap" class="w-full h-full object-cover" />
                             </div>
-                            <div v-else class="w-28 h-28 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 border-4 border-primary/10 flex items-center justify-center shadow-md">
+                            <div v-else class="w-28 h-28 rounded-full bg-linear-to-br from-primary/20 to-primary/5 border-4 border-primary/10 flex items-center justify-center shadow-md">
                                 <span class="text-3xl font-jakartaSemiBold text-primary">{{ mahasiswa.nama_lengkap?.charAt(0) }}</span>
                             </div>
                         </div>

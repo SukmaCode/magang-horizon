@@ -25,7 +25,7 @@
                 :class="[
                     'rounded-2xl p-8 mb-8 text-center transition-all duration-500',
                     isLulus
-                        ? 'bg-gradient-to-br from-primary/10 via-primary/5 to-accent/5 border border-primary/20'
+                        ? 'bg-linear-to-br from-primary/10 via-primary/5 to-accent/5 border border-primary/20'
                         : 'bg-card border border-gray-100'
                 ]"
             >
