@@ -51,14 +51,14 @@
                         <div v-if="user.profile_photo_url"
                             class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 shadow-sm"
                         >
-                            <a :href="user.role === 'student' ? url('/mahasiswa/profil') : '#'">
+                            <Link :href="user.role === 'mahasiswa' ? url('/mahasiswa/profil') : '#'">
                                 <img :src="user.profile_photo_url" alt="Foto Profil" class="w-full h-full object-cover" />
-                            </a>
+                            </Link>
                         </div>
                         <div v-else
                             class="w-10 h-10 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center text-primary font-jakartaSemiBold"
                         >
-                            <a :href="user.role === 'student' ? url('/mahasiswa/profil') : '#'">
+                            <Link :href="user.role === 'mahasiswa' ? url('/mahasiswa/profil') : '#'">
                                 <svg
                                     class="w-5 h-5"
                                     fill="none"
@@ -72,7 +72,7 @@
                                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                                     />
                                 </svg>
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -90,7 +90,7 @@
 
 <script setup>
 import { computed, ref } from "vue";
-import { usePage } from "@inertiajs/vue3";
+import { usePage, Link } from "@inertiajs/vue3";
 import AppSidebar from "@/Components/AppSidebar.vue";
 import { url } from "@/utils/prefix";
 

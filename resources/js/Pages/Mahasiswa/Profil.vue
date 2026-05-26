@@ -298,7 +298,7 @@ const linkedinValidation = computed(() => {
 });
 
 function submitProfile() {
-    form.put('/mahasiswa/profil', {
+    form.put(url('/mahasiswa/profil'), {
         preserveScroll: true,
     });
 }
