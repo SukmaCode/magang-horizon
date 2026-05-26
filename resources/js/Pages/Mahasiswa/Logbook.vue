@@ -448,7 +448,7 @@ function toggleLocation() {
 }
 
 function submitLogbook() {
-    form.post('/internship/mahasiswa/logbook', {
+    form.post('/mahasiswa/logbook', {
         preserveScroll: true,
         onSuccess: () => {
             showForm.value = false;

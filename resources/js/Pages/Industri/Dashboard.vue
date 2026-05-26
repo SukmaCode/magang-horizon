@@ -18,7 +18,7 @@
                 <h3 class="text-sm font-jakartaSemiBold text-text-secondary uppercase tracking-wider mb-2">Review CV Menunggu</h3>
                 <p class="text-2xl font-jakartaSemiBold text-text-primary">{{ pendingCount }}</p>
                 <p class="text-xs font-jakarta text-text-secondary mt-2">Permohonan mahasiswa baru</p>
-                <Link v-if="pendingCount > 0" href="/internship/industri/seleksi-cv" class="inline-flex items-center gap-1 text-xs text-primary font-jakartaSemiBold mt-3 hover:text-primary-hover transition-colors">
+                <Link v-if="pendingCount > 0" href="/industri/seleksi-cv" class="inline-flex items-center gap-1 text-xs text-primary font-jakartaSemiBold mt-3 hover:text-primary-hover transition-colors">
                     Review Sekarang
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
                 </Link>
@@ -34,7 +34,7 @@
                 <h3 class="text-sm font-jakartaSemiBold text-text-secondary uppercase tracking-wider mb-2">Persetujuan Absensi</h3>
                 <p class="text-2xl font-jakartaSemiBold" :class="pendingLogbooks > 0 ? 'text-accent' : 'text-success'">{{ pendingLogbooks }}</p>
                 <p class="text-xs font-jakarta text-text-secondary mt-2">Menunggu konfirmasi Anda</p>
-                <Link v-if="pendingLogbooks > 0" href="/internship/industri/persetujuan-logbook" class="inline-flex items-center gap-1 text-xs text-primary font-jakartaSemiBold mt-3 hover:text-primary-hover transition-colors">
+                <Link v-if="pendingLogbooks > 0" href="/industri/persetujuan-logbook" class="inline-flex items-center gap-1 text-xs text-primary font-jakartaSemiBold mt-3 hover:text-primary-hover transition-colors">
                     Review Logbook
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
                 </Link>
@@ -43,7 +43,7 @@
 
         <!-- Quick Actions -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <Link href="/internship/industri/seleksi-cv" class="flex flex-col items-center gap-2 p-4 bg-card rounded-xl border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all duration-200 group">
+            <Link href="/industri/seleksi-cv" class="flex flex-col items-center gap-2 p-4 bg-card rounded-xl border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all duration-200 group">
                 <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                     <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -52,7 +52,7 @@
                 <span class="text-xs font-jakartaSemiBold text-text-primary">Seleksi CV</span>
             </Link>
 
-            <Link href="/internship/industri/agreement" class="flex flex-col items-center gap-2 p-4 bg-card rounded-xl border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all duration-200 group">
+            <Link href="/industri/agreement" class="flex flex-col items-center gap-2 p-4 bg-card rounded-xl border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all duration-200 group">
                 <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
                     <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -61,7 +61,7 @@
                 <span class="text-xs font-jakartaSemiBold text-text-primary">Agreement</span>
             </Link>
 
-            <Link href="/internship/industri/persetujuan-logbook" class="flex flex-col items-center gap-2 p-4 bg-card rounded-xl border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all duration-200 group">
+            <Link href="/industri/persetujuan-logbook" class="flex flex-col items-center gap-2 p-4 bg-card rounded-xl border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all duration-200 group">
                 <div class="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center group-hover:bg-success/20 transition-colors">
                     <svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -70,7 +70,7 @@
                 <span class="text-xs font-jakartaSemiBold text-text-primary">Logbook</span>
             </Link>
 
-            <Link href="/internship/industri/input-nilai" class="flex flex-col items-center gap-2 p-4 bg-card rounded-xl border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all duration-200 group">
+            <Link href="/industri/input-nilai" class="flex flex-col items-center gap-2 p-4 bg-card rounded-xl border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all duration-200 group">
                 <div class="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
                     <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -86,7 +86,7 @@
                 <CardContainer padding="p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-lg font-jakartaSemiBold text-text-primary">Lamaran Terbaru</h2>
-                        <Link href="/internship/industri/seleksi-cv" class="text-sm text-primary font-jakartaSemiBold hover:text-primary-hover transition-colors">Lihat Semua</Link>
+                        <Link href="/industri/seleksi-cv" class="text-sm text-primary font-jakartaSemiBold hover:text-primary-hover transition-colors">Lihat Semua</Link>
                     </div>
 
                     <div v-if="recentApplications.length > 0" class="space-y-3">

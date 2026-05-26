@@ -53,42 +53,42 @@
 
 @font-face {
     font-family: "Plus Jakarta Sans Light";
-    src: url("../../public/build/assets/PlusJakartaSans-Light-BrLwd2-f.ttf") format("truetype");
+    src: url("../assets/fonts/PlusJakartaSans-Light.ttf") format("truetype");
     font-weight: 300;
     font-style: normal;
 }
 
 @font-face {
     font-family: "Plus Jakarta Sans Regular";
-    src: url("../../public/build/assets/PlusJakartaSans-Regular-C2UfmnDu.ttf") format("truetype");
+    src: url("../assets/fonts/PlusJakartaSans-Regular.ttf") format("truetype");
     font-weight: 400;
     font-style: normal;
 }
 
 @font-face {
     font-family: "Plus Jakarta Sans Medium";
-    src: url("../../public/build/assets/PlusJakartaSans-Medium-C2x3RLjU.ttf") format("truetype");
+    src: url("../assets/fonts/PlusJakartaSans-Medium.ttf") format("truetype");
     font-weight: 500;
     font-style: normal;
 }
 
 @font-face {
     font-family: "Plus Jakarta Sans SemiBold";
-    src: url("../../public/build/assets/PlusJakartaSans-SemiBold-BAz3r7B9.ttf") format("truetype");
+    src: url("../assets/fonts/PlusJakartaSans-SemiBold.ttf") format("truetype");
     font-weight: 600;
     font-style: normal;
 }
 
 @font-face {
     font-family: "Plus Jakarta Sans Bold";
-    src: url("../../public/build/assets/PlusJakartaSans-Bold-C5aszj9T.ttf") format("truetype");
+    src: url("../assets/fonts/PlusJakartaSans-Bold.ttf") format("truetype");
     font-weight: 700;
     font-style: normal;
 }
 
 @font-face {
     font-family: "Plus Jakarta Sans ExtraBold";
-    src: url("../../public/build/assets/PlusJakartaSans-ExtraBold-lsARrC6D.ttf") format("truetype");
+    src: url("../assets/fonts/PlusJakartaSans-ExtraBold.ttf") format("truetype");
     font-weight: 800;
     font-style: normal;
 }

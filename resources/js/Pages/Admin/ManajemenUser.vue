@@ -83,7 +83,7 @@ let searchTimeout;
 watch(search, (value) => {
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(() => {
-        router.get('/internship/admin/manajemen-user', { search: value }, {
+        router.get('/admin/manajemen-user', { search: value }, {
             preserveState: true,
             replace: true,
             preserveScroll: true,

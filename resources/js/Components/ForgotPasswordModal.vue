@@ -184,7 +184,7 @@ watch(() => props.show, (newVal) => {
 });
 
 const handleSendOtp = () => {
-    formEmail.post('/internship/password/forgot', {
+    formEmail.post('/password/forgot', {
         preserveScroll: true,
         onSuccess: () => {
             formOtp.email = formEmail.email;
@@ -195,7 +195,7 @@ const handleSendOtp = () => {
 };
 
 const handleVerifyOtp = () => {
-    formOtp.post('/internship/password/verify-otp', {
+    formOtp.post('/password/verify-otp', {
         preserveScroll: true,
         onSuccess: () => {
             formReset.otp = formOtp.otp;
@@ -205,7 +205,7 @@ const handleVerifyOtp = () => {
 };
 
 const handleResetPassword = () => {
-    formReset.post('/internship/password/reset', {
+    formReset.post('/password/reset', {
         preserveScroll: true,
         onSuccess: () => {
             emit('update:show', false);

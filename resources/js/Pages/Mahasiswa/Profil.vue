@@ -298,7 +298,7 @@ const linkedinValidation = computed(() => {
 });
 
 function submitProfile() {
-    form.put('/internship/mahasiswa/profil', {
+    form.put('/mahasiswa/profil', {
         preserveScroll: true,
     });
 }
@@ -309,7 +309,7 @@ function handlePhotoUpload(event) {
     if (!file) return;
 
     const photoForm = useForm({ photo: file });
-    photoForm.post('/internship/mahasiswa/profil/photo', {
+    photoForm.post('/mahasiswa/profil/photo', {
         preserveScroll: true,
         forceFormData: true,
         onSuccess: () => {
@@ -320,7 +320,7 @@ function handlePhotoUpload(event) {
 
 function deletePhoto() {
     if (!confirm('Yakin ingin menghapus foto profil?')) return;
-    router.delete('/internship/mahasiswa/profil/photo', {
+    router.delete('/mahasiswa/profil/photo', {
         preserveScroll: true,
     });
 }

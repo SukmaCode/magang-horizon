@@ -44,7 +44,7 @@ const toastMessage = ref('');
 const toastType = ref('success');
 
 const submit = () => {
-    form.post('/internship/admin/pengaturan/update', {
+    form.post('/admin/pengaturan/update', {
         preserveScroll: true,
         onSuccess: (page) => {
             if (page.props.flash?.success) {

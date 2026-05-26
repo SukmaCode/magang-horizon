@@ -358,7 +358,7 @@ const bimbinganForm = useForm({
 });
 
 function submitBimbingan() {
-    bimbinganForm.post('/internship/mahasiswa/laporan-akhir/bimbingan', {
+    bimbinganForm.post('/mahasiswa/laporan-akhir/bimbingan', {
         preserveScroll: true,
         onSuccess: () => {
             showBimbinganForm.value = false;
@@ -384,7 +384,7 @@ function addDuty() {
 }
 
 function submitPdfForm() {
-    pdfForm.post('/internship/mahasiswa/laporan-akhir/generate-pdf', {
+    pdfForm.post('/mahasiswa/laporan-akhir/generate-pdf', {
         preserveScroll: true,
         onSuccess: () => {
             showPdfModal.value = false;
@@ -425,7 +425,7 @@ function formatFileSize(bytes) {
 }
 
 function submitLaporan() {
-    uploadForm.post('/internship/mahasiswa/laporan-akhir', {
+    uploadForm.post('/mahasiswa/laporan-akhir', {
         preserveScroll: true,
         forceFormData: true,
         onSuccess: () => {

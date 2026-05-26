@@ -153,7 +153,7 @@ function closeModal() {
 }
 
 function submitUpload() {
-    form.post('/internship/dosen-prodi/surat-keputusan', {
+    form.post('/dosen-prodi/surat-keputusan', {
         preserveScroll: true,
         onSuccess: () => {
             closeModal();

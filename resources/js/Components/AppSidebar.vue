@@ -70,7 +70,7 @@
         <div class="p-2 border-t border-white/20 shrink-0">
             <Link
                 @click="$emit('close')"
-                href="/internship/logout"
+                href="/logout"
                 method="post"
                 as="button"
                 class="w-full flex items-center gap-2 px-3 py-2 text-sm font-jakartaSemiBold text-card cursor-pointer hover:text-danger rounded-xl transition-colors duration-200"
@@ -253,74 +253,74 @@ const navigation = computed(() => {
     if (role.value === "mahasiswa") {
         menu.push({
             name: "Dashboard",
-            href: "/internship/mahasiswa/dashboard",
+            href: "/mahasiswa/dashboard",
             icon: HomeIcon,
             current: currentPath.includes("dashboard"),
         });
         menu.push({
             name: "Manajemen CV",
-            href: "/internship/mahasiswa/manajemen-cv",
+            href: "/mahasiswa/manajemen-cv",
             icon: DocumentIcon,
             current: currentPath.includes("manajemen-cv"),
         });
         menu.push({
             name: "Kirim CV",
-            href: "/internship/mahasiswa/kirim-cv",
+            href: "/mahasiswa/kirim-cv",
             icon: DocumentIcon,
             current: currentPath.includes("kirim-cv"),
         });
         menu.push({
             name: "Perjanjian",
-            href: "/internship/mahasiswa/agreement",
+            href: "/mahasiswa/agreement",
             icon: DocumentIcon,
             current: currentPath.includes("agreement"),
         });
         menu.push({
             name: "Buku Absen",
-            href: "/internship/mahasiswa/logbook",
+            href: "/mahasiswa/logbook",
             icon: ClipboardIcon,
             current: currentPath.includes("logbook"),
         });
         menu.push({
             name: "Laporan Akhir",
-            href: "/internship/mahasiswa/laporan-akhir",
+            href: "/mahasiswa/laporan-akhir",
             icon: UploadIcon,
             current: currentPath.includes("laporan-akhir"),
         });
         menu.push({
             name: "Surat Perizinan",
-            href: "/internship/mahasiswa/clearance",
+            href: "/mahasiswa/clearance",
             icon: UploadIcon,
             current: currentPath.includes("clearance"),
         });
 
         menu.push({
             name: "Surat Orisinalitas",
-            href: "/internship/mahasiswa/declaration",
+            href: "/mahasiswa/declaration",
             icon: DocumentIcon,
             current: currentPath.includes("declaration"),
         });
         menu.push({
             name: "Evaluasi Portfolio",
-            href: "/internship/mahasiswa/portfolio-evaluation",
+            href: "/mahasiswa/portfolio-evaluation",
             icon: DocumentIcon,
             current: currentPath.includes("portfolio-evaluation"),
         });
         menu.push({
             name: "Evaluasi Industri",
-            href: "/internship/mahasiswa/evaluasi",
+            href: "/mahasiswa/evaluasi",
             icon: CheckIcon,
-            current: currentPath === "/internship/mahasiswa/evaluasi",
+            current: currentPath === "/mahasiswa/evaluasi",
         });
         menu.push({
             name: "Evaluasi Magang",
-            href: "/internship/mahasiswa/internship-evaluation",
+            href: "/mahasiswa-evaluation",
             icon: CertificateIcon,
             current: currentPath.includes("internship-evaluation"),
         });
         menu.push({
             name: "Sertifikat",
-            href: "/internship/mahasiswa/sertifikat",
+            href: "/mahasiswa/sertifikat",
             icon: CertificateIcon,
             current: currentPath.includes("sertifikat"),
         });
@@ -330,37 +330,37 @@ const navigation = computed(() => {
     if (role.value === "dosen_pembimbing") {
         menu.push({
             name: "Dashboard",
-            href: "/internship/dosen-pembimbing/dashboard",
+            href: "/dosen-pembimbing/dashboard",
             icon: HomeIcon,
             current: currentPath.includes("dashboard"),
         });
         menu.push({
             name: "Monitoring Logbook",
-            href: "/internship/dosen-pembimbing/monitoring-logbook",
+            href: "/dosen-pembimbing/monitoring-logbook",
             icon: ClipboardIcon,
             current: currentPath.includes("monitoring-logbook"),
         });
         menu.push({
             name: "Review Laporan",
-            href: "/internship/dosen-pembimbing/review-laporan",
+            href: "/dosen-pembimbing/review-laporan",
             icon: CheckIcon,
             current: currentPath.includes("review-laporan"),
         });
         menu.push({
             name: "Verifikasi Declaration",
-            href: "/internship/dosen-pembimbing/declaration",
+            href: "/dosen-pembimbing/declaration",
             icon: DocumentIcon,
             current: currentPath.includes("declaration"),
         });
         menu.push({
             name: "Clearance",
-            href: "/internship/dosen-pembimbing/clearance",
+            href: "/dosen-pembimbing/clearance",
             icon: DocumentIcon,
             current: currentPath.includes("clearance"),
         });
         menu.push({
             name: "Evaluasi Magang",
-            href: "/internship/dosen-pembimbing/internship-evaluation",
+            href: "/dosen-pembimbing-evaluation",
             icon: ClipboardIcon,
             current: currentPath.includes("internship-evaluation"),
         });
@@ -370,49 +370,49 @@ const navigation = computed(() => {
     if (role.value === "supervisor_industri") {
         menu.push({
             name: "Dashboard",
-            href: "/internship/industri/dashboard",
+            href: "/industri/dashboard",
             icon: HomeIcon,
             current: currentPath.includes("dashboard"),
         });
         menu.push({
             name: "Review CV",
-            href: "/internship/industri/seleksi-cv",
+            href: "/industri/seleksi-cv",
             icon: DocumentIcon,
             current: currentPath.includes("seleksi-cv"),
         });
         menu.push({
             name: "Agreement",
-            href: "/internship/industri/agreement",
+            href: "/industri/agreement",
             icon: DocumentIcon,
             current: currentPath.includes("agreement"),
         });
         menu.push({
             name: "Persetujuan Logbook",
-            href: "/internship/industri/persetujuan-logbook",
+            href: "/industri/persetujuan-logbook",
             icon: CheckIcon,
             current: currentPath.includes("persetujuan-logbook"),
         });
         menu.push({
             name: "Evaluasi Mahasiswa",
-            href: "/internship/industri/evaluasi",
+            href: "/industri/evaluasi",
             icon: ClipboardIcon,
             current: currentPath.includes("evaluasi"),
         });
         menu.push({
             name: "Completion Letter",
-            href: "/internship/industri/completion-letter",
+            href: "/industri/completion-letter",
             icon: DocumentIcon,
             current: currentPath.includes("completion-letter"),
         });
         menu.push({
             name: "Surat Tanggung Jawab",
-            href: "/internship/industri/clearance",
+            href: "/industri/clearance",
             icon: DocumentIcon,
             current: currentPath.includes("clearance"),
         });
         menu.push({
             name: "Portfolio",
-            href: "/internship/industri/portfolio-evaluation",
+            href: "/industri/portfolio-evaluation",
             icon: DocumentIcon,
             current: currentPath.includes("portfolio-evaluation"),
         });
@@ -422,19 +422,19 @@ const navigation = computed(() => {
     if (role.value === "dosen_prodi") {
         menu.push({
             name: "Dashboard",
-            href: "/internship/dosen-prodi/dashboard",
+            href: "/dosen-prodi/dashboard",
             icon: HomeIcon,
             current: currentPath.includes("dashboard"),
         });
         menu.push({
             name: "Verifikasi Kelulusan",
-            href: "/internship/dosen-prodi/verifikasi-kelulusan",
+            href: "/dosen-prodi/verifikasi-kelulusan",
             icon: CheckIcon,
             current: currentPath.includes("verifikasi-kelulusan"),
         });
         menu.push({
             name: "Upload SK",
-            href: "/internship/dosen-prodi/surat-keputusan",
+            href: "/dosen-prodi/surat-keputusan",
             icon: CheckIcon,
             current: currentPath.includes("surat-keputusan"),
         });
@@ -444,37 +444,37 @@ const navigation = computed(() => {
     if (role.value === "admin") {
         menu.push({
             name: "Dashboard",
-            href: "/internship/admin/dashboard",
+            href: "/admin/dashboard",
             icon: HomeIcon,
             current: currentPath.includes("dashboard"),
         });
         menu.push({
             name: "Periode",
-            href: "/internship/admin/periode",
+            href: "/admin/periode",
             icon: ClipboardIcon,
             current: currentPath.includes("periode"),
         });
         menu.push({
             name: "Pembimbing",
-            href: "/internship/admin/assign-pembimbing",
+            href: "/admin/assign-pembimbing",
             icon: DocumentIcon,
             current: currentPath.includes("assign-pembimbing"),
         });
         menu.push({
             name: "Kelulusan",
-            href: "/internship/admin/verifikasi-kelulusan",
+            href: "/admin/verifikasi-kelulusan",
             icon: CertificateIcon,
             current: currentPath.includes("verifikasi-kelulusan"),
         });
         menu.push({
             name: "User",
-            href: "/internship/admin/manajemen-user",
+            href: "/admin/manajemen-user",
             icon: UserIcon,
             current: currentPath.includes("manajemen-user"),
         });
         menu.push({
             name: "Pengaturan",
-            href: "/internship/admin/pengaturan",
+            href: "/admin/pengaturan",
             icon: SettingIcon,
             current: currentPath.includes("pengaturan"),
         });

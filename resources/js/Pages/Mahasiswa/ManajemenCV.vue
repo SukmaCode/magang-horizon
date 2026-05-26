@@ -256,7 +256,7 @@ function formatFileSize(bytes) {
 }
 
 function submitCv() {
-    form.post('/internship/mahasiswa/manajemen-cv/upload', {
+    form.post('/mahasiswa/manajemen-cv/upload', {
         preserveScroll: true,
         forceFormData: true,
         onSuccess: () => {
@@ -269,7 +269,7 @@ function submitCv() {
 
 function deleteCv() {
     if (confirm('Apakah Anda yakin ingin menghapus CV? Anda tidak dapat mendaftar magang tanpa CV.')) {
-        deleteForm.delete('/internship/mahasiswa/manajemen-cv/delete', {
+        deleteForm.delete('/mahasiswa/manajemen-cv/delete', {
             preserveScroll: true,
         });
     }
