@@ -51,14 +51,14 @@
                         <div v-if="user.profile_photo_url"
                             class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 shadow-sm"
                         >
-                            <a :href="`/mahasiswa/profil`">
+                            <a :href="url('/mahasiswa/profil')">
                                 <img :src="user.profile_photo_url" alt="Foto Profil" class="w-full h-full object-cover" />
                             </a>
                         </div>
                         <div v-else
                             class="w-10 h-10 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center text-primary font-jakartaSemiBold"
                         >
-                            <a :href="`/mahasiswa/profil`">
+                            <a :href="url('/mahasiswa/profil')">
                                 <svg
                                     class="w-5 h-5"
                                     fill="none"
