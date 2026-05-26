@@ -21,21 +21,21 @@
                 <table class="w-full text-left text-sm">
                     <thead class="bg-gray-50/50 text-text-secondary font-jakartaSemiBold border-b border-gray-100">
                         <tr>
-                            <th class="py-3">Tahun Akademik</th>
-                            <th class="py-3">Semester</th>
-                            <th class="py-3">Tanggal Buka</th>
-                            <th class="py-3">Tanggal Tutup</th>
-                            <th class="py-3">Status</th>
-                            <th class="py-3 text-right">Aksi</th>
+                            <th class="px-6 py-3">Tahun Akademik</th>
+                            <th class="px-6 py-3">Semester</th>
+                            <th class="px-6 py-3">Tanggal Buka</th>
+                            <th class="px-6 py-3">Tanggal Tutup</th>
+                            <th class="px-6 py-3">Status</th>
+                            <th class="px-6 py-3 text-right">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-50" v-if="periodes.length > 0">
                         <tr v-for="periode in periodes" :key="periode.id" class="hover:bg-gray-50/30 transition-colors">
-                            <td class="py-4 font-jakartaSemiBold text-text-primary">{{ periode.tahun_akademik }}</td>
-                            <td class="py-4 font-jakartaSemiBold text-text-secondary capitalize">{{ periode.semester }}</td>
-                            <td class="py-4 font-jakartaSemiBold text-text-secondary">{{ periode.tanggal_buka }}</td>
-                            <td class="py-4 font-jakartaSemiBold text-text-secondary">{{ periode.tanggal_tutup }}</td>
-                            <td class="py-4">
+                            <td class="px-6 py-4 font-jakartaSemiBold text-text-primary">{{ periode.tahun_akademik }}</td>
+                            <td class="px-6 py-4 font-jakartaSemiBold text-text-secondary capitalize">{{ periode.semester }}</td>
+                            <td class="px-6 py-4 font-jakartaSemiBold text-text-secondary">{{ formatDate(periode.tanggal_buka) }}</td>
+                            <td class="px-6 py-4 font-jakartaSemiBold text-text-secondary">{{ formatDate(periode.tanggal_tutup) }}</td>
+                            <td class="px-6 py-4">
                                 <span v-if="periode.is_active" class="px-2.5 py-1 text-xs font-jakartaSemiBold rounded-full bg-success/10 text-success">
                                     Aktif
                                 </span>
@@ -160,5 +160,15 @@ function activatePeriode(id) {
     if(confirm('Yakin ingin mengaktifkan periode ini? Periode lain akan dinonaktifkan.')){
         router.patch(`/admin/periode/${id}`, { is_active: true });
     }
+}
+
+function formatDate(dateString) {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+    });
 }
 </script>
