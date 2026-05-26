@@ -2,7 +2,7 @@ import { ref, computed } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 
 export function useRegisterForm() {
-  const steps = ['Pilih Peran', 'Akun', 'Profil'];
+  const steps = ['Pilih Peran', 'Akun', 'Profil', 'Verifikasi OTP'];
   const currentStep = ref(0);
 
   const form = useForm({
@@ -11,6 +11,7 @@ export function useRegisterForm() {
     email: '',
     password: '',
     password_confirmation: '',
+    otp: '',
     // Mahasiswa
     nama_lengkap: '',
     nim: '',
@@ -82,6 +83,7 @@ export function useRegisterForm() {
     if (idx === 0) return true;
     if (idx === 1) return !!form.role;
     if (idx === 2) return !!form.role && isStep1Valid.value;
+    if (idx === 3) return !!form.role && isStep1Valid.value; // Can't easily validate step 2 profile fields here, so we just check step 1
     return false;
   };
 
@@ -89,6 +91,16 @@ export function useRegisterForm() {
     if (canGoToStep(idx)) {
       currentStep.value = idx;
     }
+  };
+
+  const sendOtpAndNextStep = () => {
+    form.post('/register/send-otp', {
+      preserveScroll: true,
+      preserveState: true,
+      onSuccess: () => {
+        nextStep();
+      },
+    });
   };
 
   const handleSubmit = () => {
@@ -118,6 +130,7 @@ export function useRegisterForm() {
     prevStep,
     canGoToStep,
     goToStep,
+    sendOtpAndNextStep,
     handleSubmit,
   };
 }

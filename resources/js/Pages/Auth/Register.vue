@@ -122,9 +122,40 @@
                                     Kembali
                                 </ButtonPrimary>
                                 <ButtonPrimary
-                                    type="submit"
+                                    type="button"
                                     :loading="form.processing"
                                     :disabled="form.processing"
+                                    @click="sendOtpAndNextStep"
+                                    class="flex-1"
+                                >
+                                    Lanjutkan
+                                </ButtonPrimary>
+                            </div>
+                        </div>
+
+                        <!-- STEP 4: OTP Verification -->
+                        <div v-else-if="currentStep === 3" key="step3">
+                            <RegisterOtpVerification 
+                                v-model="form"
+                                :email="form.email"
+                                :error="form.errors.otp"
+                                @resend="sendOtpAndNextStep"
+                            />
+                            
+                            <!-- Actions -->
+                            <div class="flex gap-3 pt-6">
+                                <ButtonPrimary
+                                    type="button"
+                                    variant="secondary"
+                                    @click="prevStep"
+                                    class="flex-1"
+                                >
+                                    Kembali
+                                </ButtonPrimary>
+                                <ButtonPrimary
+                                    type="submit"
+                                    :loading="form.processing"
+                                    :disabled="form.processing || form.otp.length < 6"
                                     class="flex-1"
                                 >
                                     Daftar
@@ -170,6 +201,7 @@ import RegisterAccountInfo from "@/Components/Auth/RegisterAccountInfo.vue";
 import RegisterProfileMahasiswa from "@/Components/Auth/RegisterProfileMahasiswa.vue";
 import RegisterProfileDosen from "@/Components/Auth/RegisterProfileDosen.vue";
 import RegisterProfileIndustri from "@/Components/Auth/RegisterProfileIndustri.vue";
+import RegisterOtpVerification from "@/Components/Auth/RegisterOtpVerification.vue";
 
 const {
     steps,
@@ -185,6 +217,7 @@ const {
     prevStep,
     canGoToStep,
     goToStep,
+    sendOtpAndNextStep,
     handleSubmit,
 } = useRegisterForm();
 </script>

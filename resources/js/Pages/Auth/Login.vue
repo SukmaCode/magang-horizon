@@ -93,6 +93,14 @@
                                     Ingat saya
                                 </span>
                             </label>
+
+                            <button
+                                type="button"
+                                @click="showForgotPasswordModal = true"
+                                class="text-xs cursor-pointer font-jakartaSemiBold text-primary hover:text-primary/80 transition-colors"
+                            >
+                                Lupa Password?
+                            </button>
                         </div>
 
                         <ButtonPrimary
@@ -129,6 +137,8 @@
             </p>
             <p class="text-center font-jakartaSemiBold text-xs text-text-secondary/60">Faculty of Informatics and Computer Technology.</p>
         </div>
+
+        <ForgotPasswordModal v-model:show="showForgotPasswordModal" />
     </div>
 </template>
 
@@ -137,8 +147,11 @@ import { Head, Link, useForm } from "@inertiajs/vue3";
 import InputField from "@/Components/InputField.vue";
 import ButtonPrimary from "@/Components/ButtonPrimary.vue";
 import CardContainer from "@/Components/CardContainer.vue";
+import ForgotPasswordModal from "@/Components/ForgotPasswordModal.vue";
 import { ref } from "vue";
 import defaultLogo from "../../../assets/images/logo-horizon.png";
+
+const showForgotPasswordModal = ref(false);
 
 const loginError = ref("");
 

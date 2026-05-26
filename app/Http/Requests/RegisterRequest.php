@@ -23,6 +23,7 @@ class RegisterRequest extends FormRequest
             'email' => ['required', 'email', 'max:100', 'unique:users,email'],
             'password' => ['required', 'confirmed', Password::defaults()],
             'role' => ['required', Rule::enum(UserRole::class)],
+            'otp' => ['required', 'string', 'size:6'],
         ];
 
         // Role-specific validation

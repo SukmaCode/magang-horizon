@@ -31,6 +31,7 @@ class AuthService
                 'email' => $data['email'],
                 'password' => $data['password'], // Automatically hashed via cast
                 'role' => $role->value,
+                'email_verified_at' => now(),
             ]);
 
             // Assign Spatie role
