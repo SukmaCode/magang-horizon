@@ -94,7 +94,7 @@ export function useRegisterForm() {
   };
 
   const sendOtpAndNextStep = () => {
-    form.post('/register/send-otp', {
+    form.post('/internship/register/send-otp', {
       preserveScroll: true,
       preserveState: true,
       onSuccess: () => {
@@ -104,7 +104,7 @@ export function useRegisterForm() {
   };
 
   const handleSubmit = () => {
-    form.post('/register', {
+    form.post('/internship/register', {
       onError: () => {
         // If server errors are on step 1 fields, go back
         if (form.errors.username || form.errors.email || form.errors.password) {

@@ -98,7 +98,7 @@
                             Laporan Akhir Terbaru
                         </h2>
                         <Link
-                            href="/dosen-pembimbing/review-laporan"
+                            href="/internship/dosen-pembimbing/review-laporan"
                             class="text-sm text-primary font-jakartaSemiBold hover:text-primary-hover"
                             >Lihat Semua</Link
                         >

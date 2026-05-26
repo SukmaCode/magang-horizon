@@ -224,7 +224,7 @@ function submitAccept() {
         preserveScroll: true,
         onSuccess: () => {
             closeModals();
-            router.visit('/industri/agreement');
+            router.visit('/internship/industri/agreement');
         },
     });
 }

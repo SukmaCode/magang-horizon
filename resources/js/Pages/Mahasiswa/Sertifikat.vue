@@ -134,7 +134,7 @@
                     </div>
                     <a
                         v-if="sertifikat.has_file"
-                        href="/mahasiswa/sertifikat/download"
+                        href="/internship/mahasiswa/sertifikat/download"
                         class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-jakartaSemiBold rounded-xl hover:bg-primary-hover transition-colors duration-200 shadow-sm"
                     >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

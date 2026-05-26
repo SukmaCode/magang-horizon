@@ -120,7 +120,7 @@
                                 >Belum punya akun?</span
                             >
                             <Link
-                                href="/register"
+                                href="/internship/register"
                                 class="text-primary font-jakartaSemiBold"
                             >
                                 Daftar Sekarang
@@ -163,7 +163,7 @@ const form = useForm({
 
 const handleLogin = () => {
     loginError.value = "";
-    form.post("/login", {
+    form.post("/internship/login", {
         onError: () => {
             form.reset("password");
         },

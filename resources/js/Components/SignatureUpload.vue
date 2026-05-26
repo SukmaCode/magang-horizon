@@ -102,7 +102,7 @@ function cancelEdit() {
 }
 
 function submit() {
-    form.post('/signature', {
+    form.post('/internship/signature', {
         preserveScroll: true,
         onSuccess: () => {
             isEditing.value = false;

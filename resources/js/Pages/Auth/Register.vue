@@ -171,7 +171,7 @@
                     <span class="bg-card font-jakarta text-text-secondary text-sm"
                         >Sudah punya akun?</span
                     >
-                    <Link href="/login" class="text-red-800 font-jakartaSemiBold text-sm">
+                    <Link href="/internship/login" class="text-red-800 font-jakartaSemiBold text-sm">
                         Masuk ke Akun
                     </Link>
                 </div>

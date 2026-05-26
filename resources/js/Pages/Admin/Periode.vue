@@ -148,7 +148,7 @@ const form = useForm({
 });
 
 function submitForm() {
-    form.post('/admin/periode', {
+    form.post('/internship/admin/periode', {
         onSuccess: () => {
             showAddModal.value = false;
             form.reset();
