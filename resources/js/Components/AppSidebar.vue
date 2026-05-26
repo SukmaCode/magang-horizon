@@ -28,7 +28,9 @@
         >
             <div class="flex items-center gap-2">
                 <img
-                    :src="$page.props.appSettings?.app_logo || defaultLogo"
+                    :src="($page.props.appSettings?.app_logo && $page.props.appSettings.app_logo.startsWith('/')) 
+                            ? url($page.props.appSettings.app_logo)
+                            : ($page.props.appSettings?.app_logo || defaultLogo)"
                     alt="logo"
                     class="w-10 h-10 object-contain"
                 />

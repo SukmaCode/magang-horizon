@@ -135,7 +135,7 @@ const getSettingsByGroup = (groupKey) => {
                                     <div v-else-if="setting.type === 'image'" class="mt-2">
                                         <div class="flex items-center gap-4">
                                             <div v-if="typeof setting.value === 'string' && setting.value" class="w-16 h-16 shrink-0 border border-gray-200 rounded-md overflow-hidden bg-gray-50 flex items-center justify-center">
-                                                <img :src="setting.value" class="max-w-full max-h-full object-contain" />
+                                                <img :src="setting.value.startsWith('/') ? url(setting.value) : setting.value" class="max-w-full max-h-full object-contain" />
                                             </div>
                                             <div class="flex-1">
                                                 <input 

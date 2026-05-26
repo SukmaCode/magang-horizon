@@ -18,7 +18,9 @@
             <!-- Logo / Brand -->
             <div class="flex flex-col items-center justify-center gap-2 mb-8">
                 <img
-                    :src="$page.props.appSettings?.app_logo || defaultLogo"
+                    :src="($page.props.appSettings?.app_logo && $page.props.appSettings.app_logo.startsWith('/')) 
+                            ? url($page.props.appSettings.app_logo)
+                            : ($page.props.appSettings?.app_logo || defaultLogo)"
                     alt="logo"
                     class="w-24 h-24 object-contain"
                 />

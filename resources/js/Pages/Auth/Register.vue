@@ -18,9 +18,11 @@
             <!-- Logo / Brand -->
             <div class="flex flex-col items-center gap-2 mb-8">
                 <img
-                    src="../../../assets/images/logo-horizon.png"
+                    :src="($page.props.appSettings?.app_logo && $page.props.appSettings.app_logo.startsWith('/')) 
+                            ? url($page.props.appSettings.app_logo)
+                            : ($page.props.appSettings?.app_logo || defaultLogo)"
                     alt="logo"
-                    class="w-24 h-24"
+                    class="w-24 h-24 object-contain"
                 />
                 <h1 class="text-2xl font-jakartaSemiBold text-text-primary">
                     Buat Akun Baru
@@ -190,6 +192,7 @@
 import { Head, Link } from "@inertiajs/vue3";
 import CardContainer from "@/Components/CardContainer.vue";
 import ButtonPrimary from "@/Components/ButtonPrimary.vue";
+import defaultLogo from "../../../assets/images/logo-horizon.png";
 import { url } from '@/utils/prefix';
 
 // Composables
