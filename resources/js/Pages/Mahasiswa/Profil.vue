@@ -256,6 +256,7 @@ import { usePage, useForm, router } from "@inertiajs/vue3";
 import { Head } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import CardContainer from "@/Components/CardContainer.vue";
+import { url } from "@/utils/prefix";
 
 const page = usePage();
 const flash = computed(() => page.props.flash || {});
