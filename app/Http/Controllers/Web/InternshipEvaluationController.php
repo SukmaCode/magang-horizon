@@ -78,7 +78,7 @@ class InternshipEvaluationController extends Controller
                 $validated
             );
 
-            return redirect('/dosen-pembimbing/internship-evaluation')
+            return redirect()->route('dosen-pembimbing.internship-evaluation')
                 ->with('success', 'Internship evaluation berhasil disimpan.');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());

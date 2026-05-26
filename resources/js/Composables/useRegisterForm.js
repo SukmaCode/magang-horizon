@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue';
 import { useForm } from '@inertiajs/vue3';
+import { url } from '@/utils/prefix';
 
 export function useRegisterForm() {
   const steps = ['Pilih Peran', 'Akun', 'Profil', 'Verifikasi OTP'];
@@ -94,7 +95,7 @@ export function useRegisterForm() {
   };
 
   const sendOtpAndNextStep = () => {
-    form.post('/internship/register/send-otp', {
+    form.post(url('/register/send-otp'), {
       preserveScroll: true,
       preserveState: true,
       onSuccess: () => {
@@ -104,7 +105,7 @@ export function useRegisterForm() {
   };
 
   const handleSubmit = () => {
-    form.post('/internship/register', {
+    form.post(url('/register'), {
       onError: () => {
         // If server errors are on step 1 fields, go back
         if (form.errors.username || form.errors.email || form.errors.password) {

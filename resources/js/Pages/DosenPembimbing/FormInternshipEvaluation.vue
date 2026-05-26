@@ -2,7 +2,7 @@
     <AuthenticatedLayout>
         <Head title="Form Internship Evaluation" />
         <div class="mb-4">
-            <Link href="/dosen-pembimbing/internship-evaluation" class="inline-flex font-jakartaSemiBold items-center gap-2 text-sm text-text-secondary hover:text-primary transition-colors">
+            <Link :href="url('/dosen-pembimbing/internship-evaluation')" class="inline-flex font-jakartaSemiBold items-center gap-2 text-sm text-text-secondary hover:text-primary transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
                 Kembali
             </Link>
@@ -188,6 +188,7 @@ import { ref, computed, reactive } from 'vue';
 import { usePage, useForm, Link, router, Head } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import CardContainer from '@/Components/CardContainer.vue';
+import { url } from '@/utils/prefix';
 
 const page = usePage();
 const flash = computed(() => page.props.flash || {});
@@ -291,18 +292,18 @@ const passStatus = computed(() => {
 });
 
 function submitForm() {
-    form.post(`/dosen-pembimbing/internship-evaluation/${props.magang.id}`, { preserveScroll: true });
+    form.post(url(`/dosen-pembimbing/internship-evaluation/${props.magang.id}`), { preserveScroll: true });
 }
 
 function doSubmit() {
     if (!props.evaluation?.id) return;
-    router.post(`/dosen-pembimbing/internship-evaluation/${props.evaluation.id}/submit`, {}, { preserveScroll: true });
+    router.post(url(`/dosen-pembimbing/internship-evaluation/${props.evaluation.id}/submit`), {}, { preserveScroll: true });
 }
 
 function doFinalize() {
     if (!props.evaluation?.id) return;
     showFinalizeConfirm.value = false;
-    router.post(`/dosen-pembimbing/internship-evaluation/${props.evaluation.id}/finalize`, {}, { preserveScroll: true });
+    router.post(url(`/dosen-pembimbing/internship-evaluation/${props.evaluation.id}/finalize`), {}, { preserveScroll: true });
 }
 
 function badgeClass(s) { return { 'text-gray-700': s === 'draft', 'text-amber-700': s === 'submitted', 'text-emerald-700': s === 'finalized' }; }

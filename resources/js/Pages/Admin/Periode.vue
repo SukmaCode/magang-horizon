@@ -128,6 +128,7 @@ import { usePage, useForm } from '@inertiajs/vue3';
 import { Head, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import CardContainer from '@/Components/CardContainer.vue';
+import { url } from '@/utils/prefix';
 
 const page = usePage();
 const flash = computed(() => page.props.flash || {});
@@ -148,7 +149,7 @@ const form = useForm({
 });
 
 function submitForm() {
-    form.post('/admin/periode', {
+    form.post(url('/admin/periode'), {
         onSuccess: () => {
             showAddModal.value = false;
             form.reset();
@@ -158,7 +159,7 @@ function submitForm() {
 
 function activatePeriode(id) {
     if(confirm('Yakin ingin mengaktifkan periode ini? Periode lain akan dinonaktifkan.')){
-        router.patch(`/admin/periode/${id}`, { is_active: true });
+        router.patch(url(`/admin/periode/${id}`), { is_active: true });
     }
 }
 

@@ -4,7 +4,7 @@
 
         <!-- Back Button -->
         <div class="mb-6">
-            <Link href="/industri/seleksi-cv" class="inline-flex items-center gap-2 text-sm font-jakartaSemiBold text-text-secondary hover:text-primary transition-colors">
+            <Link :href="url('/industri/seleksi-cv')" class="inline-flex items-center gap-2 text-sm font-jakartaSemiBold text-text-secondary hover:text-primary transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
@@ -183,6 +183,7 @@
 import { Head, Link } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import CardContainer from "@/Components/CardContainer.vue";
+import { url } from '@/utils/prefix';
 
 defineProps({
     pendaftaran: { type: Object, required: true },

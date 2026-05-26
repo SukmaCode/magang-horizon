@@ -94,7 +94,7 @@
                             <div>
                                 <p class="text-sm font-jakartaSemiBold text-danger">CV Belum Diunggah!</p>
                                 <p class="text-xs font-jakarta text-text-secondary mt-1">Anda wajib mengunggah CV terlebih dahulu sebelum dapat mengirim lamaran.</p>
-                                <Link href="/mahasiswa/manajemen-cv" class="mt-2 inline-block px-3 py-2 text-xs font-jakartaSemiBold text-white bg-danger rounded-md hover:bg-danger/90 transition-colors">
+                                <Link :href="url('/mahasiswa/manajemen-cv')" class="mt-2 inline-block px-3 py-2 text-xs font-jakartaSemiBold text-white bg-danger rounded-md hover:bg-danger/90 transition-colors">
                                     Upload CV Sekarang
                                 </Link>
                             </div>
@@ -106,7 +106,7 @@
                             <div>
                                 <p class="text-sm font-jakartaSemiBold text-primary">CV Telah Dilampirkan</p>
                                 <p class="text-xs font-jakarta text-text-secondary mt-1">Sistem akan otomatis menggunakan CV yang tersimpan di profil Anda.</p>
-                                <Link href="/mahasiswa/manajemen-cv" class="mt-2 inline-block text-xs font-jakartaSemiBold text-primary hover:underline">
+                                <Link :href="url('/mahasiswa/manajemen-cv')" class="mt-2 inline-block text-xs font-jakartaSemiBold text-primary hover:underline">
                                     Lihat atau ubah CV Anda
                                 </Link>
                             </div>
@@ -120,7 +120,7 @@
                             <div>
                                 <p class="text-sm font-jakartaSemiBold text-amber-700">LinkedIn Belum Diisi!</p>
                                 <p class="text-xs font-jakarta text-text-secondary mt-1">Lengkapi profil LinkedIn terlebih dahulu sebelum melamar magang.</p>
-                                <Link href="/mahasiswa/profil" class="mt-2 inline-block px-3 py-2 text-xs font-jakartaSemiBold text-white bg-amber-600 rounded-md hover:bg-amber-700 transition-colors">
+                                <Link :href="url('/mahasiswa/profil')" class="mt-2 inline-block px-3 py-2 text-xs font-jakartaSemiBold text-white bg-amber-600 rounded-md hover:bg-amber-700 transition-colors">
                                     Lengkapi Profil Sekarang
                                 </Link>
                             </div>
@@ -246,6 +246,7 @@ import { usePage, useForm, Link } from "@inertiajs/vue3";
 import { Head } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import CardContainer from "../../Components/CardContainer.vue";
+import { url } from '@/utils/prefix';
 
 const page = usePage();
 const flash = computed(() => page.props.flash || {});
@@ -336,7 +337,7 @@ function statusBadge(status) {
 
 
 function submitApplication() {
-    form.post('/mahasiswa/kirim-cv', {
+    form.post(url('/mahasiswa/kirim-cv'), {
         preserveScroll: true,
         onSuccess: () => {
             form.reset('industri_id');

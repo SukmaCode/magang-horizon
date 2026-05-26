@@ -60,6 +60,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
+import { url } from '@/utils/prefix';
 
 const props = defineProps({
     hasSignature: {
@@ -102,7 +103,7 @@ function cancelEdit() {
 }
 
 function submit() {
-    form.post('/signature', {
+    form.post(url('/signature'), {
         preserveScroll: true,
         onSuccess: () => {
             isEditing.value = false;

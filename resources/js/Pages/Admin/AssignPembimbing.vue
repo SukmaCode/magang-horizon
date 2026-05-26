@@ -93,6 +93,7 @@ import { usePage, useForm } from '@inertiajs/vue3';
 import { Head } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import CardContainer from '@/Components/CardContainer.vue';
+import { url } from '@/utils/prefix';
 
 const page = usePage();
 const flash = computed(() => page.props.flash || {});
@@ -111,7 +112,7 @@ const form = useForm({
 });
 
 function submitAssign() {
-    form.post('/admin/assign-pembimbing', {
+    form.post(url('/admin/assign-pembimbing'), {
         preserveScroll: true,
         onSuccess: () => {
             form.reset('magang_ids');

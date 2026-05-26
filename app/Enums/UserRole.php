@@ -44,11 +44,11 @@ enum UserRole: string
     public function dashboardPath(): string
     {
         return match ($this) {
-            self::ADMIN => '/admin/dashboard',
-            self::STUDENT => '/mahasiswa/dashboard',
-            self::SUPERVISOR_1 => '/dosen-pembimbing/dashboard',
-            self::SUPERVISOR_2 => '/dosen-prodi/dashboard',
-            self::INDUSTRY => '/industri/dashboard',
+            self::ADMIN => route('admin.dashboard'),
+            self::STUDENT => route('mahasiswa.dashboard'),
+            self::SUPERVISOR_1 => route('dosen-pembimbing.dashboard'),
+            self::SUPERVISOR_2 => route('dosen-prodi.dashboard'),
+            self::INDUSTRY => route('industri.dashboard'),
         };
     }
 }

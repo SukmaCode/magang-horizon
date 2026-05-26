@@ -120,7 +120,7 @@
                                 >Belum punya akun?</span
                             >
                             <Link
-                                href="/register"
+                                :href="url('/register')"
                                 class="text-primary font-jakartaSemiBold"
                             >
                                 Daftar Sekarang
@@ -150,6 +150,7 @@ import CardContainer from "@/Components/CardContainer.vue";
 import ForgotPasswordModal from "@/Components/ForgotPasswordModal.vue";
 import { ref } from "vue";
 import defaultLogo from "../../../assets/images/logo-horizon.png";
+import { url } from '@/utils/prefix';
 
 const showForgotPasswordModal = ref(false);
 
@@ -163,7 +164,7 @@ const form = useForm({
 
 const handleLogin = () => {
     loginError.value = "";
-    form.post("/login", {
+    form.post(url("/login"), {
         onError: () => {
             form.reset("password");
         },

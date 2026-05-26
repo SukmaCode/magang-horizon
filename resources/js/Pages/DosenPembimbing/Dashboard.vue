@@ -15,7 +15,7 @@
             </div>
             <a
                 v-if="suratKeputusan"
-                :href="`/dosen-pembimbing/surat-keputusan/${suratKeputusan.id}/download`"
+                :href="url(`/dosen-pembimbing/surat-keputusan/${suratKeputusan.id}/download`)"
                 class="w-fit inline-flex items-center gap-1.5 text-xs font-jakartaSemiBold text-primary transition-colors"
             >
                 <svg
@@ -98,7 +98,7 @@
                             Laporan Akhir Terbaru
                         </h2>
                         <Link
-                            href="/dosen-pembimbing/review-laporan"
+                            :href="url('/dosen-pembimbing/review-laporan')"
                             class="text-sm text-primary font-jakartaSemiBold hover:text-primary-hover"
                             >Lihat Semua</Link
                         >
@@ -162,6 +162,7 @@ import { Head, Link } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import CardContainer from "@/Components/CardContainer.vue";
 import SignatureUpload from "@/Components/SignatureUpload.vue";
+import { url } from '@/utils/prefix';
 
 defineProps({
     activeStudents: Number,

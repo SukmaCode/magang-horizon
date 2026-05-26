@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import ButtonPrimary from '@/Components/ButtonPrimary.vue';
+import { url } from '@/utils/prefix';
 
 const props = defineProps({
     settings: Object,
@@ -44,7 +45,7 @@ const toastMessage = ref('');
 const toastType = ref('success');
 
 const submit = () => {
-    form.post('/admin/pengaturan/update', {
+    form.post(url('/admin/pengaturan/update'), {
         preserveScroll: true,
         onSuccess: (page) => {
             if (page.props.flash?.success) {

@@ -11,7 +11,7 @@
             <div class="flex items-center gap-3">
                 <a
                     v-if="magangId"
-                    :href="`/logbook/report/${magangId}`"
+                    :href="url(`/logbook/report/${magangId}`)"
                     target="_blank"
                     class="inline-flex items-center gap-2 py-2 px-4 text-white bg-primary text-sm font-jakartaSemiBold rounded-lg hover:bg-primary/90 transition-colors duration-200 shadow-sm"
                 >
@@ -377,6 +377,7 @@ import { usePage, useForm, Link } from "@inertiajs/vue3";
 import { Head } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import CardContainer from "@/Components/CardContainer.vue";
+import { url } from '@/utils/prefix';
 
 const page = usePage();
 const flash = computed(() => page.props.flash || {});
@@ -448,7 +449,7 @@ function toggleLocation() {
 }
 
 function submitLogbook() {
-    form.post('/mahasiswa/logbook', {
+    form.post(url('/mahasiswa/logbook'), {
         preserveScroll: true,
         onSuccess: () => {
             showForm.value = false;

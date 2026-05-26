@@ -51,7 +51,7 @@
                                 </button>
                                 <a 
                                     v-else
-                                    :href="`/dosen-prodi/surat-keputusan/${assignment.surat_keputusan.id}/download`" 
+                                    :href="url(`/dosen-prodi/surat-keputusan/${assignment.surat_keputusan.id}/download`)" 
                                     target="_blank"
                                     class="text-xs font-jakartaSemiBold text-primary bg-primary/10 hover:bg-primary/20 px-4 py-2 rounded-sm transition-colors">
                                     Lihat SK
@@ -120,6 +120,7 @@ import { ref, computed } from 'vue';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import CardContainer from '@/Components/CardContainer.vue';
+import { url } from '@/utils/prefix';
 
 const props = defineProps({
     assignments: Array,
@@ -153,7 +154,7 @@ function closeModal() {
 }
 
 function submitUpload() {
-    form.post('/dosen-prodi/surat-keputusan', {
+    form.post(url('/dosen-prodi/surat-keputusan'), {
         preserveScroll: true,
         onSuccess: () => {
             closeModal();

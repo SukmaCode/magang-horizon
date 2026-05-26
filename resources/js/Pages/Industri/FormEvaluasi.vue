@@ -4,7 +4,7 @@
 
         <!-- Back Button -->
         <div class="mb-4">
-            <Link href="/industri/evaluasi" class="inline-flex font-jakartaSemiBold items-center gap-2 text-sm text-text-secondary hover:text-primary transition-colors">
+            <Link :href="url('/industri/evaluasi')" class="inline-flex font-jakartaSemiBold items-center gap-2 text-sm text-text-secondary hover:text-primary transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
                 Kembali ke Daftar
             </Link>
@@ -197,6 +197,7 @@ import { usePage, useForm, Link, router } from '@inertiajs/vue3';
 import { Head } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import CardContainer from '@/Components/CardContainer.vue';
+import { url } from '@/utils/prefix';
 
 const page = usePage();
 const flash = computed(() => page.props.flash || {});
@@ -235,14 +236,14 @@ const averageScore = computed(() => {
 });
 
 function submitForm() {
-    form.post(`/industri/evaluasi/${props.magang.id}`, {
+    form.post(url(`/industri/evaluasi/${props.magang.id}`), {
         preserveScroll: true,
     });
 }
 
 function submitEvaluation() {
     if (!props.evaluation?.id) return;
-    router.post(`/industri/evaluasi/${props.evaluation.id}/submit`, {}, {
+    router.post(url(`/industri/evaluasi/${props.evaluation.id}/submit`), {}, {
         preserveScroll: true,
     });
 }
@@ -250,7 +251,7 @@ function submitEvaluation() {
 function finalizeEvaluation() {
     if (!props.evaluation?.id) return;
     showFinalizeConfirm.value = false;
-    router.post(`/industri/evaluasi/${props.evaluation.id}/finalize`, {}, {
+    router.post(url(`/industri/evaluasi/${props.evaluation.id}/finalize`), {}, {
         preserveScroll: true,
     });
 }

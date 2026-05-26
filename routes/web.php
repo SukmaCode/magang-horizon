@@ -276,5 +276,5 @@ Route::get('/', function () {
         return redirect(auth()->user()->role->dashboardPath());
     }
 
-    return redirect('/login');
+    return redirect()->route('login');
 });

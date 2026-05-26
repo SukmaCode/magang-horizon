@@ -159,6 +159,7 @@ import { ref, computed, watch, onMounted } from "vue";
 import { usePage, useForm, Head } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import CardContainer from "@/Components/CardContainer.vue";
+import { url } from '@/utils/prefix';
 
 const page = usePage();
 const flash = computed(() => page.props.flash || {});
@@ -256,7 +257,7 @@ function formatFileSize(bytes) {
 }
 
 function submitCv() {
-    form.post('/mahasiswa/manajemen-cv/upload', {
+    form.post(url('/mahasiswa/manajemen-cv/upload'), {
         preserveScroll: true,
         forceFormData: true,
         onSuccess: () => {
@@ -269,7 +270,7 @@ function submitCv() {
 
 function deleteCv() {
     if (confirm('Apakah Anda yakin ingin menghapus CV? Anda tidak dapat mendaftar magang tanpa CV.')) {
-        deleteForm.delete('/mahasiswa/manajemen-cv/delete', {
+        deleteForm.delete(url('/mahasiswa/manajemen-cv/delete'), {
             preserveScroll: true,
         });
     }

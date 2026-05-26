@@ -134,7 +134,7 @@
                     </div>
                     <a
                         v-if="sertifikat.has_file"
-                        href="/mahasiswa/sertifikat/download"
+                        :href="url('/mahasiswa/sertifikat/download')"
                         class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-jakartaSemiBold rounded-xl hover:bg-primary-hover transition-colors duration-200 shadow-sm"
                     >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -170,6 +170,7 @@ import { computed } from "vue";
 import { usePage } from "@inertiajs/vue3";
 import { Head } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import { url } from '@/utils/prefix';
 
 const page = usePage();
 const flash = computed(() => page.props.flash || {});

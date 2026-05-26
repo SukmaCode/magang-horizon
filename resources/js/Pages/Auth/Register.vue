@@ -171,7 +171,7 @@
                     <span class="bg-card font-jakarta text-text-secondary text-sm"
                         >Sudah punya akun?</span
                     >
-                    <Link href="/login" class="text-red-800 font-jakartaSemiBold text-sm">
+                    <Link :href="url('/login')" class="text-red-800 font-jakartaSemiBold text-sm">
                         Masuk ke Akun
                     </Link>
                 </div>
@@ -190,6 +190,7 @@
 import { Head, Link } from "@inertiajs/vue3";
 import CardContainer from "@/Components/CardContainer.vue";
 import ButtonPrimary from "@/Components/ButtonPrimary.vue";
+import { url } from '@/utils/prefix';
 
 // Composables
 import { useRegisterForm } from "@/Composables/useRegisterForm";
