@@ -309,7 +309,7 @@ function handlePhotoUpload(event) {
     if (!file) return;
 
     const photoForm = useForm({ photo: file });
-    photoForm.post('/mahasiswa/profil/photo', {
+    photoForm.post(url('/mahasiswa/profil/photo'), {
         preserveScroll: true,
         forceFormData: true,
         onSuccess: () => {
@@ -320,7 +320,7 @@ function handlePhotoUpload(event) {
 
 function deletePhoto() {
     if (!confirm('Yakin ingin menghapus foto profil?')) return;
-    router.delete('/mahasiswa/profil/photo', {
+    router.delete(url('/mahasiswa/profil/photo'), {
         preserveScroll: true,
     });
 }
